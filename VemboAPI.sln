@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36121.58 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VemboAPI.API", "VemboAPI\VemboAPI.API.csproj", "{9BCBB0DE-F899-4117-A3C2-7081E02ECE51}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VemboAPI.Application", "VemboAPI.Application\VemboAPI.Application.csproj", "{79558631-BB8A-43C4-B95A-814D5F9DEB28}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VemboAPI.Domain", "VemboAPI.Domain\VemboAPI.Domain.csproj", "{2EB69BCF-5540-4F8B-A3D1-C409DDBBF5D5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VemboAPI.Infrastructure", "VemboAPI.Infrastructure\VemboAPI.Infrastructure.csproj", "{74EE9748-B2E7-4B1E-9B55-760274EAD411}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VemboAPI.Tests", "VemboAPI.Tests\VemboAPI.Tests.csproj", "{AD523595-D355-44DF-A6BD-2A3782C27147}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9BCBB0DE-F899-4117-A3C2-7081E02ECE51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BCBB0DE-F899-4117-A3C2-7081E02ECE51}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BCBB0DE-F899-4117-A3C2-7081E02ECE51}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BCBB0DE-F899-4117-A3C2-7081E02ECE51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79558631-BB8A-43C4-B95A-814D5F9DEB28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79558631-BB8A-43C4-B95A-814D5F9DEB28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79558631-BB8A-43C4-B95A-814D5F9DEB28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79558631-BB8A-43C4-B95A-814D5F9DEB28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2EB69BCF-5540-4F8B-A3D1-C409DDBBF5D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2EB69BCF-5540-4F8B-A3D1-C409DDBBF5D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2EB69BCF-5540-4F8B-A3D1-C409DDBBF5D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2EB69BCF-5540-4F8B-A3D1-C409DDBBF5D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74EE9748-B2E7-4B1E-9B55-760274EAD411}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74EE9748-B2E7-4B1E-9B55-760274EAD411}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74EE9748-B2E7-4B1E-9B55-760274EAD411}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74EE9748-B2E7-4B1E-9B55-760274EAD411}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD523595-D355-44DF-A6BD-2A3782C27147}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD523595-D355-44DF-A6BD-2A3782C27147}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD523595-D355-44DF-A6BD-2A3782C27147}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD523595-D355-44DF-A6BD-2A3782C27147}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {33C17735-933D-450A-8ED3-FE013757C7AC}
+	EndGlobalSection
+EndGlobal

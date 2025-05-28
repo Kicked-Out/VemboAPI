@@ -1,0 +1,6 @@
+@VemboAPI_HostAddress = http://localhost:5126
+
+GET {{VemboAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
