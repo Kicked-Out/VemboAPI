@@ -11,7 +11,7 @@ namespace VemboAPI.Application.Services
 {
     public class UserService : IUserService
     {
-        private readonly VemboDbContext _vemboDbContext;
+        private VemboDbContext _vemboDbContext;
         public UserService(VemboDbContext vemboDbContext)
         {
             _vemboDbContext = vemboDbContext;

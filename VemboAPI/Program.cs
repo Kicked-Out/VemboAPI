@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using VemboAPI.Infrastructure.Data;
 using VemboAPI.Domain.Entities;
+using VemboAPI.Application.Interfaces;
+using VemboAPI.Application.Services;
 internal class Program
 {
     private static void Main(string[] args)
@@ -18,7 +20,7 @@ internal class Program
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
-
+        builder.Services.AddScoped<IUserService, UserService>();
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
