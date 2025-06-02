@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using VemboAPI.Domain.Entities;
 
-namespace VemboAPI.Infrastructure.Data
+namespace VemboAPI.Domain.Data
 {
-    public class VemboDbContext : Microsoft.EntityFrameworkCore.DbContext
+    public class VemboDbContext : DbContext
     {
         public DbSet<User> Users { get; set; }
 

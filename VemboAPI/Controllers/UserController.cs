@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using VemboAPI.Application.Interfaces;
+using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.Entities;
 
 namespace VemboAPI.API.Controllers

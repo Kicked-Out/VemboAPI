@@ -1,10 +1,8 @@
-using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using VemboAPI.Infrastructure.Data;
-using VemboAPI.Domain.Entities;
-using VemboAPI.Application.Interfaces;
-using VemboAPI.Application.Services;
+using VemboAPI.Domain.Data;
+using VemboAPI.Infrastructure.Interfaces;
+using VemboAPI.Infrastructure.Services;
+
 internal class Program
 {
     private static void Main(string[] args)

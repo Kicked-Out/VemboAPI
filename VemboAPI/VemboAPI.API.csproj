@@ -12,10 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\VemboAPI.Application\VemboAPI.Application.csproj" />
     <ProjectReference Include="..\VemboAPI.Domain\VemboAPI.Domain.csproj" />
     <ProjectReference Include="..\VemboAPI.Infrastructure\VemboAPI.Infrastructure.csproj" />
-    <ProjectReference Include="..\VemboAPI.Tests\VemboAPI.Tests.csproj" />
   </ItemGroup>
 
 </Project>

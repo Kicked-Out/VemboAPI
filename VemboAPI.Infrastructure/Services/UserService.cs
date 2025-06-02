@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VemboAPI.Infrastructure.Data;
-using VemboAPI.Application.Interfaces;
+﻿using VemboAPI.Domain.Data;
+using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.Entities;
 
-namespace VemboAPI.Application.Services
+namespace VemboAPI.Infrastructure.Services
 {
     public class UserService : IUserService
     {
