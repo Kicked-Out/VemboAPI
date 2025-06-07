@@ -1,20 +1,25 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using VemboAPI.Domain.Entities;
 
-namespace VemboAPI.Domain.Data
+namespace VemboAPI.Domain.Data 
 {
     public class VemboDbContext : DbContext
     {
         public DbSet<User> Users { get; set; }
+        public DbSet<Topic> Topics { get; set; }
+        public DbSet<Part> Parts { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public VemboDbContext(DbContextOptions<VemboDbContext> options) : base(options)
         {
-            base.OnConfiguring(optionsBuilder);
+            // За бажанням: можна видалити EnsureCreated — міграції краще
+            // Database.EnsureCreated(); 
         }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
+            // Налаштування User
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -28,11 +33,10 @@ namespace VemboAPI.Domain.Data
                 entity.Property(e => e.CreatedAt).IsRequired();
                 entity.Property(e => e.UpdatedAt).IsRequired();
             });
-        }
 
-        public VemboDbContext(DbContextOptions<VemboDbContext> options) : base(options)
-        {
-            Database.EnsureCreated();
+            // Автоматично EF Core побудує зв’язок Topic → Parts
+            modelBuilder.Entity<Topic>();
+            modelBuilder.Entity<Part>();
         }
     }
 }
