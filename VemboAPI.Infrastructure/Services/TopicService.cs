@@ -11,7 +11,7 @@ namespace VemboAPI.Infrastructure.Services
 			_vemboDbContext = vemboDbContext;
 		}
 
-		public void CreateTopic(string title, string description)
+		public Topic CreateTopic(string title, string description)
 		{
 			var topic = new Topic
 			{
@@ -21,6 +21,7 @@ namespace VemboAPI.Infrastructure.Services
 			};
 			_vemboDbContext.Topics.Add(topic);
 			_vemboDbContext.SaveChanges();
+			return topic;
 		}
 
 		public void DeleteTopic(int id)

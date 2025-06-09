@@ -32,8 +32,7 @@ namespace VemboAPI.Infrastructure.Services
 
         public void DeleteUser(int id)
         {
-            uint userId = (uint)id;
-            User user = _vemboDbContext.Users.Find(userId)!;
+            User? user = _vemboDbContext.Users.Find(id);
             if (user != null)
             {
                 _vemboDbContext.Users.Remove(user);
@@ -44,6 +43,7 @@ namespace VemboAPI.Infrastructure.Services
                 throw new KeyNotFoundException($"User with ID {id} not found.");
             }
         }
+
 
         public List<User> GetAllUsers()
         {
@@ -57,14 +57,14 @@ namespace VemboAPI.Infrastructure.Services
 
         public User GetUserById(int id)
         {
-            uint userId = (uint)id;
-            User? user = _vemboDbContext.Users.Find(userId);
+            User? user = _vemboDbContext.Users.Find(id);
             if (user == null)
             {
                 throw new KeyNotFoundException($"User with ID {id} not found.");
             }
             return user;
         }
+
 
         public void UpdateUser(int id, string nickName, string password, string email)
         {

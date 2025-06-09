@@ -13,6 +13,6 @@ namespace VemboAPI.Domain.Entities
         public int TopicId { get; set; }
 
     
-        public Topic Topic { get; set; }
+        public Topic? Topic { get; set; }
     }
 }

@@ -29,13 +29,17 @@ namespace VemboAPI.API.Controllers
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            var topic = _topicService.GetTopicById(id);
-            if (topic == null)
+            try
             {
-                return NotFound($"Topic with ID {id} not found.");
+                var topic = _topicService.GetTopicById(id);
+                return Ok(topic);
             }
-            return Ok(topic);
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
+
 
         [HttpPost]
         public IActionResult Post([FromBody] Topic topic)
@@ -45,9 +49,10 @@ namespace VemboAPI.API.Controllers
                 return BadRequest("Invalid topic data.");
             }
 
-            _topicService.CreateTopic(topic.Title, topic.Description);
-            return CreatedAtAction(nameof(Get), new { id = topic.Id }, topic);
+            var createdTopic = _topicService.CreateTopic(topic.Title, topic.Description);
+            return CreatedAtAction(nameof(Get), new { id = createdTopic.Id }, createdTopic);
         }
+
 
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromBody] Topic topic)

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using VemboAPI.Domain.Data;
@@ -11,9 +12,11 @@ using VemboAPI.Domain.Data;
 namespace VemboAPI.Domain.Migrations
 {
     [DbContext(typeof(VemboDbContext))]
-    partial class VemboDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250609092849_FixTopicTable")]
+    partial class FixTopicTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
