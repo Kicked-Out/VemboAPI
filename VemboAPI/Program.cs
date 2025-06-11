@@ -10,7 +10,9 @@ internal class Program
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddDbContext<VemboDbContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DbContext")));
+            options.UseNpgsql(builder.Configuration.GetConnectionString("DbContext")));
+
+        //options.UseSqlServer(builder.Configuration.GetConnectionString("DbContext"))); 
 
         // Add services to the container.
 
@@ -19,6 +21,8 @@ internal class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
         builder.Services.AddScoped<IUserService, UserService>();
+        builder.Services.AddScoped<ITopicService, TopicService>();
+        builder.Services.AddScoped<IPartService, PartService>();
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
