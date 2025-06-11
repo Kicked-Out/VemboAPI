@@ -1,10 +1,8 @@
-using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using VemboAPI.Infrastructure.Data;
-using VemboAPI.Domain.Entities;
-using VemboAPI.Application.Interfaces;
-using VemboAPI.Application.Services;
+using VemboAPI.Domain.Data;
+using VemboAPI.Infrastructure.Interfaces;
+using VemboAPI.Infrastructure.Services;
+
 internal class Program
 {
     private static void Main(string[] args)
@@ -12,7 +10,9 @@ internal class Program
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddDbContext<VemboDbContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DbContext")));
+            options.UseNpgsql(builder.Configuration.GetConnectionString("DbContext")));
+
+        //options.UseSqlServer(builder.Configuration.GetConnectionString("DbContext"))); 
 
         // Add services to the container.
 
@@ -21,6 +21,8 @@ internal class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
         builder.Services.AddScoped<IUserService, UserService>();
+        builder.Services.AddScoped<ITopicService, TopicService>();
+        builder.Services.AddScoped<IPartService, PartService>();
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
