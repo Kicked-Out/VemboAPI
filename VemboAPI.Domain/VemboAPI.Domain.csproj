@@ -14,8 +14,10 @@
 
   <ItemGroup>
     <None Remove="Data\" />
+    <None Remove="DTO\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Data\" />
+    <Folder Include="DTO\" />
   </ItemGroup>
 </Project>
