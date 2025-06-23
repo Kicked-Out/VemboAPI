@@ -9,20 +9,26 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.Services.AddDbContext<VemboDbContext>(options =>
-            options.UseNpgsql(builder.Configuration.GetConnectionString("DbContext")));
+        // builder.Services.AddDbContext<VemboDbContext>(options =>
+        //     options.UseNpgsql(builder.Configuration.GetConnectionString("DbContext")));
 
-        //options.UseSqlServer(builder.Configuration.GetConnectionString("DbContext"))); 
+        builder.Services.AddDbContext<VemboDbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DbContext"),
+        x => x.MigrationsAssembly("VemboAPI.Domain") 
+    ));
+
 
         // Add services to the container.
-
         builder.Services.AddControllers();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<ITopicService, TopicService>();
-        builder.Services.AddScoped<IPartService, PartService>();
+        builder.Services.AddScoped<IUnitService, UnitService>();
+        builder.Services.AddScoped<IPeriodService, PeriodService>();
+
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.

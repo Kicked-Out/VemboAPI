@@ -6,9 +6,9 @@ namespace VemboAPI.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class TopicController : Controller
+    public class TopicController : ControllerBase
     {
-        private ITopicService _topicService;
+        private readonly ITopicService _topicService;
 
         public TopicController(ITopicService topicService)
         {
@@ -19,10 +19,6 @@ namespace VemboAPI.API.Controllers
         public IActionResult Get()
         {
             var topics = _topicService.GetAllTopics();
-            if (topics == null || topics.Count == 0)
-            {
-                return NotFound("No topics found.");
-            }
             return Ok(topics);
         }
 
@@ -40,7 +36,6 @@ namespace VemboAPI.API.Controllers
             }
         }
 
-
         [HttpPost]
         public IActionResult Post([FromBody] Topic topic)
         {
@@ -49,10 +44,15 @@ namespace VemboAPI.API.Controllers
                 return BadRequest("Invalid topic data.");
             }
 
-            var createdTopic = _topicService.CreateTopic(topic.Title, topic.Description);
+            var createdTopic = _topicService.CreateTopic(
+                topic.Title,
+                topic.Description,
+                topic.ImageUrl,
+                topic.Period?.Id ?? 0 // fallback якщо Period == null
+            );
+
             return CreatedAtAction(nameof(Get), new { id = createdTopic.Id }, createdTopic);
         }
-
 
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromBody] Topic topic)
@@ -64,7 +64,14 @@ namespace VemboAPI.API.Controllers
 
             try
             {
-                _topicService.UpdateTopic(id, topic.Title, topic.Description);
+                _topicService.UpdateTopic(
+                    id,
+                    topic.Title,
+                    topic.Description,
+                    topic.ImageUrl,
+                    topic.Period?.Id ?? 0
+                );
+
                 return Ok();
             }
             catch (KeyNotFoundException ex)
