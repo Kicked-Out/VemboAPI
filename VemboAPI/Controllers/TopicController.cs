@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.Entities;
+using VemboAPI.Domain.DTOs;
 
 namespace VemboAPI.API.Controllers
 {
@@ -37,27 +38,35 @@ namespace VemboAPI.API.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] Topic topic)
+        public IActionResult Post([FromBody] TopicCreateDto dto)
         {
-            if (topic == null || string.IsNullOrEmpty(topic.Title) || string.IsNullOrEmpty(topic.Description))
+            if (dto == null || string.IsNullOrEmpty(dto.Title) || string.IsNullOrEmpty(dto.Description))
             {
                 return BadRequest("Invalid topic data.");
             }
 
-            var createdTopic = _topicService.CreateTopic(
-                topic.Title,
-                topic.Description,
-                topic.ImageUrl,
-                topic.Period?.Id ?? 0 // fallback якщо Period == null
-            );
-
-            return CreatedAtAction(nameof(Get), new { id = createdTopic.Id }, createdTopic);
+            try
+            {
+                var createdTopic = _topicService.CreateTopic(
+                    dto.Title,
+                    dto.Description,
+                    dto.ImageUrl,
+                    dto.PeriodId
+                );
+                
+                return CreatedAtAction(nameof(Get), new { id = createdTopic.Id }, createdTopic);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
+
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] Topic topic)
+        public IActionResult Update(int id, [FromBody] TopicCreateDto dto)
         {
-            if (topic == null || string.IsNullOrEmpty(topic.Title) || string.IsNullOrEmpty(topic.Description))
+            if (dto == null || string.IsNullOrEmpty(dto.Title) || string.IsNullOrEmpty(dto.Description))
             {
                 return BadRequest("Invalid topic data.");
             }
@@ -66,10 +75,10 @@ namespace VemboAPI.API.Controllers
             {
                 _topicService.UpdateTopic(
                     id,
-                    topic.Title,
-                    topic.Description,
-                    topic.ImageUrl,
-                    topic.Period?.Id ?? 0
+                    dto.Title,
+                    dto.Description,
+                    dto.ImageUrl,
+                    dto.PeriodId
                 );
 
                 return Ok();
@@ -79,6 +88,7 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
+
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)

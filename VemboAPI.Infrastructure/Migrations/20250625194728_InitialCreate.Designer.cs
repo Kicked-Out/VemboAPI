@@ -3,17 +3,20 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using VemboAPI.Domain.Data;
+using VemboAPI.Infrastructure.Data;
 
 #nullable disable
 
-namespace VemboAPI.Domain.Migrations
+namespace VemboAPI.Infrastructure.Migrations
 {
     [DbContext(typeof(VemboDbContext))]
-    partial class VemboDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250625194728_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,31 @@ namespace VemboAPI.Domain.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("VemboAPI.Domain.Entities.Level", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UnitId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UnitId");
+
+                    b.ToTable("Levels");
+                });
 
             modelBuilder.Entity("VemboAPI.Domain.Entities.Period", b =>
                 {
@@ -151,6 +179,17 @@ namespace VemboAPI.Domain.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("VemboAPI.Domain.Entities.Level", b =>
+                {
+                    b.HasOne("VemboAPI.Domain.Entities.Unit", "Unit")
+                        .WithMany("Levels")
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Unit");
+                });
+
             modelBuilder.Entity("VemboAPI.Domain.Entities.Topic", b =>
                 {
                     b.HasOne("VemboAPI.Domain.Entities.Period", "Period")
@@ -181,6 +220,11 @@ namespace VemboAPI.Domain.Migrations
             modelBuilder.Entity("VemboAPI.Domain.Entities.Topic", b =>
                 {
                     b.Navigation("Units");
+                });
+
+            modelBuilder.Entity("VemboAPI.Domain.Entities.Unit", b =>
+                {
+                    b.Navigation("Levels");
                 });
 #pragma warning restore 612, 618
         }
