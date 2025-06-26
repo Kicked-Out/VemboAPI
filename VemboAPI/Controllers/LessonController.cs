@@ -1,25 +1,25 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VemboAPI.Infrastructure.Interfaces;
-using VemboAPI.Domain.Entities;
+using VemboAPI.Domain.DTOs;
 
 namespace VemboAPI.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class LevelController : ControllerBase
+    public class LessonController : ControllerBase
     {
-        private readonly ILevelService _levelService;
+        private readonly ILessonService _lessonService;
 
-        public LevelController(ILevelService levelService)
+        public LessonController(ILessonService lessonService)
         {
-            _levelService = levelService;
+            _lessonService = lessonService;
         }
 
         [HttpGet]
         public IActionResult Get()
         {
-            var levels = _levelService.GetAllLevels();
-            return Ok(levels);
+            var lessons = _lessonService.GetAllLessons();
+            return Ok(lessons);
         }
 
         [HttpGet("{id}")]
@@ -27,8 +27,8 @@ namespace VemboAPI.API.Controllers
         {
             try
             {
-                var level = _levelService.GetLevelById(id);
-                return Ok(level);
+                var lesson = _lessonService.GetLessonById(id);
+                return Ok(lesson);
             }
             catch (KeyNotFoundException ex)
             {
@@ -37,16 +37,15 @@ namespace VemboAPI.API.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] Level level)
+        public IActionResult Post([FromBody] LessonDto lesson)
         {
-            if (level == null || string.IsNullOrEmpty(level.Title))
-            {
-                return BadRequest("Invalid level data.");
-            }
+            if (lesson == null)
+                return BadRequest("Lesson is null.");
 
+  
             try
             {
-                var created = _levelService.CreateLevel(level.Title, level.UnitId, level.Order);
+                var created = _lessonService.CreateLesson(lesson.Order, lesson.LevelId);
                 return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
             }
             catch (KeyNotFoundException ex)
@@ -56,16 +55,14 @@ namespace VemboAPI.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] Level level)
+        public IActionResult Put(int id, [FromBody] LessonDto lesson)
         {
-            if (level == null || string.IsNullOrEmpty(level.Title))
-            {
-                return BadRequest("Invalid level data.");
-            }
+            if (lesson == null)
+                return BadRequest("Lesson is null.");
 
             try
             {
-                _levelService.UpdateLevel(id, level.Title, level.UnitId, level.Order);
+                _lessonService.UpdateLesson(id, lesson.Order, lesson.LevelId);
                 return Ok();
             }
             catch (KeyNotFoundException ex)
@@ -79,7 +76,7 @@ namespace VemboAPI.API.Controllers
         {
             try
             {
-                _levelService.DeleteLevel(id);
+                _lessonService.DeleteLesson(id);
                 return Ok();
             }
             catch (KeyNotFoundException ex)
