@@ -8,7 +8,7 @@ namespace VemboAPI.Infrastructure.Interfaces
 		LevelDto GetLevelById(int id);
 		LevelDto CreateLevel(string title, int unitId, int order);
 		void UpdateLevel(int id, string title, int unitId, int order);
-		void DeleteUnit(int id);
+		void DeleteLevel(int id);
 	}
 }
 

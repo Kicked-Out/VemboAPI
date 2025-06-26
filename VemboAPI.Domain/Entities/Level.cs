@@ -7,7 +7,8 @@ namespace VemboAPI.Domain.Entities
 		public string Title { get; set; }
 		public int UnitId { get; set; }
 		public int Order { get; set; }
-		public Unit? Unit { get; set; } 
+		public Unit? Unit { get; set; }
+		public ICollection<Lesson> Lessons { get; set; } = new List<Lesson>();
 	}
 }
 
