@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VemboAPI.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using VemboAPI.Infrastructure.Data;
 namespace VemboAPI.Infrastructure.Migrations
 {
     [DbContext(typeof(VemboDbContext))]
-    partial class VemboDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250626133214_AddLessonTable")]
+    partial class AddLessonTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

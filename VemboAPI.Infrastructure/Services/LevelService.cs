@@ -94,7 +94,7 @@ namespace VemboAPI.Infrastructure.Services
             _dbContext.SaveChanges();
         }
 
-        public void DeleteUnit(int id)
+        public void DeleteLevel(int id)
         {
             var level = _dbContext.Levels.Find(id);
             if (level == null)

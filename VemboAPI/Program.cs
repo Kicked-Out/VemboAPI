@@ -37,6 +37,7 @@ internal class Program
         builder.Services.AddScoped<IUnitService, UnitService>();
         builder.Services.AddScoped<IPeriodService, PeriodService>();
         builder.Services.AddScoped<ILevelService, LevelService>();
+        builder.Services.AddScoped<ILessonService, LessonService>();
         var app = builder.Build();
 
         // Configure the HTTP request pipeline
