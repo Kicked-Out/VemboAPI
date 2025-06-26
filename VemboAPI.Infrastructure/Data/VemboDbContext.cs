@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using VemboAPI.Domain.Entities;
 
-namespace VemboAPI.Domain.Data 
+namespace VemboAPI.Infrastructure.Data 
 {
     public class VemboDbContext : DbContext
     {
@@ -9,6 +9,7 @@ namespace VemboAPI.Domain.Data
         public DbSet<Topic> Topics { get; set; }
         public DbSet<Unit> Units { get; set; }
         public DbSet<Period> Periods { get; set; }
+        public DbSet<Level> Levels { get; set; }
         public VemboDbContext(DbContextOptions<VemboDbContext> options) : base(options)
         {
             // За бажанням: можна видалити EnsureCreated — міграції краще
@@ -38,6 +39,7 @@ namespace VemboAPI.Domain.Data
             modelBuilder.Entity<Topic>();
             modelBuilder.Entity<Unit>();
             modelBuilder.Entity<Period>();
+            modelBuilder.Entity<Level>();
         }
     }
 }

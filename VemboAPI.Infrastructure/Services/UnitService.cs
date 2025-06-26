@@ -1,4 +1,4 @@
-﻿using VemboAPI.Domain.Data;
+﻿using VemboAPI.Infrastructure.Data;
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.Entities;
 using VemboAPI.Domain.DTOs;
