@@ -11,6 +11,7 @@ namespace VemboAPI.Infrastructure.Data
         public DbSet<Period> Periods { get; set; }
         public DbSet<Level> Levels { get; set; }
         public DbSet<Lesson> Lessons { get; set; }
+        public DbSet<Exercise> Exercises { get; set; }
         public VemboDbContext(DbContextOptions<VemboDbContext> options) : base(options)
         {
             // За бажанням: можна видалити EnsureCreated — міграції краще
@@ -42,6 +43,7 @@ namespace VemboAPI.Infrastructure.Data
             modelBuilder.Entity<Period>();
             modelBuilder.Entity<Level>();
             modelBuilder.Entity<Lesson>();
+            modelBuilder.Entity<Exercise>();
         }
     }
 }
