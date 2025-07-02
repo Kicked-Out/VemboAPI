@@ -7,17 +7,13 @@ namespace VemboAPI.Domain.Entities
     {
         public int Id { get; set; }
 
+
         public string Title { get; set; }
+
 
         public string Description { get; set; }
 
-        public string ImageUrl { get; set; }
 
-       
-        public int PeriodId { get; set; }
-
-        public Period? Period { get; set; }
-
-        public ICollection<Unit> Units { get; set; } = new List<Unit>();
+        public ICollection<Part> Parts { get; set; } = new List<Part>();
     }
 }
