@@ -1,14 +1,18 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using VemboAPI.Domain.Entities;
 
-namespace VemboAPI.Domain.Data 
+namespace VemboAPI.Infrastructure.Data 
 {
     public class VemboDbContext : DbContext
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Topic> Topics { get; set; }
-        public DbSet<Part> Parts { get; set; }
-
+        public DbSet<Unit> Units { get; set; }
+        public DbSet<Period> Periods { get; set; }
+        public DbSet<Level> Levels { get; set; }
+        public DbSet<Lesson> Lessons { get; set; }
+        public DbSet<Exercise> Exercises { get; set; }
+        public DbSet<ExerciseType> ExerciseTypes { get; set; }
         public VemboDbContext(DbContextOptions<VemboDbContext> options) : base(options)
         {
             // За бажанням: можна видалити EnsureCreated — міграції краще
@@ -36,7 +40,12 @@ namespace VemboAPI.Domain.Data
 
             // Автоматично EF Core побудує зв’язок Topic → Parts
             modelBuilder.Entity<Topic>();
-            modelBuilder.Entity<Part>();
+            modelBuilder.Entity<Unit>();
+            modelBuilder.Entity<Period>();
+            modelBuilder.Entity<Level>();
+            modelBuilder.Entity<Lesson>();
+            modelBuilder.Entity<Exercise>();
+            modelBuilder.Entity<ExerciseType>();
         }
     }
 }
