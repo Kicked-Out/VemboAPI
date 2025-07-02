@@ -10,7 +10,6 @@
     <Compile Remove="Repositories\**" />
     <EmbeddedResource Remove="Repositories\**" />
     <None Remove="Repositories\**" />
-    <None Remove="Data\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -32,7 +31,4 @@
     <ProjectReference Include="..\VemboAPI.Domain\VemboAPI.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Data\" />
-  </ItemGroup>
 </Project>
