@@ -50,7 +50,6 @@ namespace VemboAPI.API.Controllers
                     exercise.Title,
                     exercise.LessonId,
                     exercise.Difficulty,
-                    exercise.ExerciseTypeId,
                     exercise.Order);
 
                 return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
@@ -76,7 +75,6 @@ namespace VemboAPI.API.Controllers
                     exercise.Title,
                     exercise.LessonId,
                     exercise.Difficulty,
-                    exercise.ExerciseTypeId,
                     exercise.Order);
 
                 return Ok();

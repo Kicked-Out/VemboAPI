@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+
 namespace VemboAPI.Domain.Entities
 {
 	public class Exercise
@@ -8,7 +9,6 @@ namespace VemboAPI.Domain.Entities
 		public int LessonId { get; set; }
 		public bool Difficulty { get; set; }
 		public int Order { get; set; }
-		public int ExerciseTypeId { get; set; }
 		public Lesson? Lesson { get; set; }
 		public ExerciseType? ExerciseType { get; set; }
 		public ICollection<Question> Questions = new List<Question>();
