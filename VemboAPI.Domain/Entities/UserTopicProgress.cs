@@ -1,14 +1,14 @@
 ﻿using System;
 namespace VemboAPI.Domain.Entities
 {
-	public class UserPeriodProgress
+	public class UserTopicProgress
 	{
 		public int Id { get; set; }
-		public bool isCompleted { get; set; }
 		public int UserId { get; set; }
-		public int PeriodId { get; set; }
+		public int TopicId { get; set; }
+		public bool isCompleted { get; set; }
 		public User? User { get; set; }
-		public Period? Period { get; set; }
+		public Topic? Topic { get; set; }
 	}
 }
 

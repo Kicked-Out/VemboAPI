@@ -15,6 +15,8 @@ namespace VemboAPI.Infrastructure.Data
         public DbSet<ExerciseType> ExerciseTypes { get; set; }
         public DbSet<Question> Questions { get; set; }
         public DbSet<Answer> Answers { get; set; }
+        public DbSet<UserPeriodProgress> UserPeriodProgresses { get; set; }
+        public DbSet<UserTopicProgress> UserTopicProgresses { get; set; }
 
         public VemboDbContext(DbContextOptions<VemboDbContext> options) : base(options)
         {
@@ -51,6 +53,8 @@ namespace VemboAPI.Infrastructure.Data
             modelBuilder.Entity<ExerciseType>();
             modelBuilder.Entity<Question>();
             modelBuilder.Entity<Answer>();
+            modelBuilder.Entity<UserPeriodProgress>();
+            modelBuilder.Entity<UserTopicProgress>();
         }
     }
 }

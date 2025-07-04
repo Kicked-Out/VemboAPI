@@ -19,5 +19,6 @@ namespace VemboAPI.Domain.Entities
         public Period? Period { get; set; }
 
         public ICollection<Unit> Units { get; set; } = new List<Unit>();
+        public ICollection<UserTopicProgress> UserTopicProgresses { get; set; } = new List<UserTopicProgress>();
     }
 }

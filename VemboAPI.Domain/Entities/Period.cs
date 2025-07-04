@@ -10,6 +10,7 @@ namespace VemboAPI.Domain.Entities
         public string Description { get; set; }
 		public string ImageUrl { get; set; }
         public ICollection<Topic> Topics { get; set; } = new List<Topic>();
+        public ICollection<UserPeriodProgress> UserPeriodProgresses { get; set; } = new List<UserPeriodProgress>();
     }
 }
 
