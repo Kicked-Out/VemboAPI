@@ -42,7 +42,6 @@ internal class Program
         builder.Services.AddScoped<IExerciseTypeService, ExerciseTypeService>();
         builder.Services.AddScoped<IAnswerService, AnswerService>();
         builder.Services.AddScoped<IQuestionService, QuestionService>();
-
         var app = builder.Build();
 
         // Configure the HTTP request pipeline

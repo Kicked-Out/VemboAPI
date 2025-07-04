@@ -24,6 +24,7 @@ namespace VemboAPI.Infrastructure.Services
                     Title = e.Title,
                     LessonId = e.LessonId,
                     Difficulty = e.Difficulty,
+                    ExerciseTypeId = e.ExerciseTypeId,
                     Order = e.Order
                 })
                 .ToList();
@@ -43,11 +44,12 @@ namespace VemboAPI.Infrastructure.Services
                 Title = exercise.Title,
                 LessonId = exercise.LessonId,
                 Difficulty = exercise.Difficulty,
+                ExerciseTypeId = exercise.ExerciseTypeId,
                 Order = exercise.Order
             };
         }
 
-        public ExerciseDto CreateExercise(string title, int lessonId, bool difficulty, int order)
+        public ExerciseDto CreateExercise(string title, int lessonId, bool difficulty, int exerciseTypeId, int order)
         {
             var lesson = _dbContext.Lessons.Find(lessonId);
             if (lesson == null)
@@ -55,11 +57,18 @@ namespace VemboAPI.Infrastructure.Services
                 throw new KeyNotFoundException($"Lesson with ID {lessonId} not found.");
             }
 
+            var exerciseType = _dbContext.ExerciseTypes.Find(exerciseTypeId);
+            if (exerciseType == null)
+            {
+                throw new KeyNotFoundException($"ExerciseType with ID {exerciseTypeId} not found.");
+            }
+
             var exercise = new Exercise
             {
                 Title = title,
                 LessonId = lessonId,
                 Difficulty = difficulty,
+                ExerciseTypeId = exerciseTypeId,
                 Order = order
             };
 
@@ -72,11 +81,12 @@ namespace VemboAPI.Infrastructure.Services
                 Title = exercise.Title,
                 LessonId = exercise.LessonId,
                 Difficulty = exercise.Difficulty,
+                ExerciseTypeId = exercise.ExerciseTypeId,
                 Order = exercise.Order
             };
         }
 
-        public void UpdateExercise(int id, string title, int lessonId, bool difficulty, int order)
+        public void UpdateExercise(int id, string title, int lessonId, bool difficulty, int exerciseTypeId, int order)
         {
             var exercise = _dbContext.Exercises.Find(id);
             if (exercise == null)
@@ -90,9 +100,16 @@ namespace VemboAPI.Infrastructure.Services
                 throw new KeyNotFoundException($"Lesson with ID {lessonId} not found.");
             }
 
+            var exerciseType = _dbContext.ExerciseTypes.Find(exerciseTypeId);
+            if (exerciseType == null)
+            {
+                throw new KeyNotFoundException($"ExerciseType with ID {exerciseTypeId} not found.");
+            }
+
             exercise.Title = title;
             exercise.LessonId = lessonId;
             exercise.Difficulty = difficulty;
+            exercise.ExerciseTypeId = exerciseTypeId;
             exercise.Order = order;
 
             _dbContext.Exercises.Update(exercise);

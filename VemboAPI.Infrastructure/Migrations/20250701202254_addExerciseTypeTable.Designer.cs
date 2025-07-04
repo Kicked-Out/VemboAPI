@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VemboAPI.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using VemboAPI.Infrastructure.Data;
 namespace VemboAPI.Infrastructure.Migrations
 {
     [DbContext(typeof(VemboDbContext))]
-    partial class VemboDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250701202254_addExerciseTypeTable")]
+    partial class addExerciseTypeTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,31 +24,6 @@ namespace VemboAPI.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("VemboAPI.Domain.Entities.Answer", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("QuestionId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("isCorrect")
-                        .HasColumnType("bit");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("QuestionId");
-
-                    b.ToTable("Answers");
-                });
 
             modelBuilder.Entity("VemboAPI.Domain.Entities.Exercise", b =>
                 {
@@ -94,7 +72,7 @@ namespace VemboAPI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ExerciseTypes");
+                    b.ToTable("ExerciseType");
                 });
 
             modelBuilder.Entity("VemboAPI.Domain.Entities.Lesson", b =>
@@ -166,28 +144,6 @@ namespace VemboAPI.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Periods");
-                });
-
-            modelBuilder.Entity("VemboAPI.Domain.Entities.Question", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ExerciseId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ExerciseId");
-
-                    b.ToTable("Questions");
                 });
 
             modelBuilder.Entity("VemboAPI.Domain.Entities.Topic", b =>
@@ -294,17 +250,6 @@ namespace VemboAPI.Infrastructure.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("VemboAPI.Domain.Entities.Answer", b =>
-                {
-                    b.HasOne("VemboAPI.Domain.Entities.Question", "Question")
-                        .WithMany("Answers")
-                        .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Question");
-                });
-
             modelBuilder.Entity("VemboAPI.Domain.Entities.Exercise", b =>
                 {
                     b.HasOne("VemboAPI.Domain.Entities.ExerciseType", "ExerciseType")
@@ -344,17 +289,6 @@ namespace VemboAPI.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Unit");
-                });
-
-            modelBuilder.Entity("VemboAPI.Domain.Entities.Question", b =>
-                {
-                    b.HasOne("VemboAPI.Domain.Entities.Exercise", "Exercise")
-                        .WithMany()
-                        .HasForeignKey("ExerciseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Exercise");
                 });
 
             modelBuilder.Entity("VemboAPI.Domain.Entities.Topic", b =>
@@ -397,11 +331,6 @@ namespace VemboAPI.Infrastructure.Migrations
             modelBuilder.Entity("VemboAPI.Domain.Entities.Period", b =>
                 {
                     b.Navigation("Topics");
-                });
-
-            modelBuilder.Entity("VemboAPI.Domain.Entities.Question", b =>
-                {
-                    b.Navigation("Answers");
                 });
 
             modelBuilder.Entity("VemboAPI.Domain.Entities.Topic", b =>
