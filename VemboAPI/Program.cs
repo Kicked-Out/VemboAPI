@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using VemboAPI.Domain.Data;
+using VemboAPI.Infrastructure.Data;
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Infrastructure.Services;
 
@@ -9,17 +9,25 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        // Додати DbContext з вибраним провайдером БД
+        var connectionString = builder.Configuration.GetConnectionString("DbContext");
+
+        // Використовуй SQL Server або PostgreSQL
+        // РОЗКОМЕНТУЙ той варіант, який тобі потрібен
+
+        // Для SQL Server (наприклад, somee.com)
         builder.Services.AddDbContext<VemboDbContext>(options =>
-            options.UseNpgsql(builder.Configuration.GetConnectionString("DbContext")));
+            options.UseSqlServer(connectionString));
 
-        //options.UseSqlServer(builder.Configuration.GetConnectionString("DbContext"))); 
+        // Для PostgreSQL
+        //builder.Services.AddDbContext<VemboDbContext>(options =>
+        //    options.UseNpgsql(connectionString));
 
-        // Add services to the container.
-
+        // Додати сервіси
         builder.Services.AddControllers();
-        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<ITopicService, TopicService>();
         builder.Services.AddScoped<IUnitService, UnitService>();
@@ -32,9 +40,12 @@ internal class Program
         builder.Services.AddScoped<IQuestionService, QuestionService>();
         builder.Services.AddScoped<IUserPeriodProgressService, UserPeriodProgressService>();
         builder.Services.AddScoped<IUserTopicProgressService, UserTopicProgressService>();
+        builder.Services.AddScoped<IUserUnitProgressService, UserUnitProgressService>();
+        builder.Services.AddScoped<IUserLevelProgressService, UserLevelProgressService>();
+
         var app = builder.Build();
 
-        // Configure the HTTP request pipeline.
+        // HTTP pipeline
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
@@ -42,9 +53,7 @@ internal class Program
         }
 
         app.UseHttpsRedirection();
-
         app.UseAuthorization();
-
         app.MapControllers();
 
         app.Run();
