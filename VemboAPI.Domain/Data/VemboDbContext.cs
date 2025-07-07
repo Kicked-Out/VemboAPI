@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using VemboAPI.Domain.Entities;
 
-namespace VemboAPI.Infrastructure.Data 
+namespace VemboAPI.Domain.Data 
 {
     public class VemboDbContext : DbContext
     {
@@ -17,7 +17,6 @@ namespace VemboAPI.Infrastructure.Data
         public DbSet<Answer> Answers { get; set; }
         public DbSet<UserPeriodProgress> UserPeriodProgresses { get; set; }
         public DbSet<UserTopicProgress> UserTopicProgresses { get; set; }
-
         public VemboDbContext(DbContextOptions<VemboDbContext> options) : base(options)
         {
             // За бажанням: можна видалити EnsureCreated — міграції краще
