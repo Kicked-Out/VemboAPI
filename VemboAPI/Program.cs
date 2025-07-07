@@ -22,7 +22,16 @@ internal class Program
         builder.Services.AddSwaggerGen();
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<ITopicService, TopicService>();
-        builder.Services.AddScoped<IPartService, PartService>();
+        builder.Services.AddScoped<IUnitService, UnitService>();
+        builder.Services.AddScoped<IPeriodService, PeriodService>();
+        builder.Services.AddScoped<ILevelService, LevelService>();
+        builder.Services.AddScoped<ILessonService, LessonService>();
+        builder.Services.AddScoped<IExerciseService, ExerciseService>();
+        builder.Services.AddScoped<IExerciseTypeService, ExerciseTypeService>();
+        builder.Services.AddScoped<IAnswerService, AnswerService>();
+        builder.Services.AddScoped<IQuestionService, QuestionService>();
+        builder.Services.AddScoped<IUserPeriodProgressService, UserPeriodProgressService>();
+        builder.Services.AddScoped<IUserTopicProgressService, UserTopicProgressService>();
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
