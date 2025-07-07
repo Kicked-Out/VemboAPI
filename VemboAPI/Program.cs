@@ -42,6 +42,8 @@ internal class Program
         builder.Services.AddScoped<IUserTopicProgressService, UserTopicProgressService>();
         builder.Services.AddScoped<IUserUnitProgressService, UserUnitProgressService>();
         builder.Services.AddScoped<IUserLevelProgressService, UserLevelProgressService>();
+        builder.Services.AddScoped<IUserLessonProgressService, UserLessonProgressService>();
+        builder.Services.AddScoped<IUserExerciseMistakeService, UserExerciseMistakeService>();
 
         var app = builder.Build();
 
