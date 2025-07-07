@@ -19,5 +19,8 @@ namespace VemboAPI.Domain.Entities
         public long XP { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public ICollection<UserPeriodProgress> UserPeriodProgresses { get; set; } = new List<UserPeriodProgress>();
+        public ICollection<UserTopicProgress> UserTopicProgresses { get; set; } = new List<UserTopicProgress>();
+
     }
 }

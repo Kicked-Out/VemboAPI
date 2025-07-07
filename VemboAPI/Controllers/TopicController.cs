@@ -1,14 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.Entities;
+using VemboAPI.Domain.DTOs;
 
 namespace VemboAPI.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class TopicController : Controller
+    public class TopicController : ControllerBase
     {
-        private ITopicService _topicService;
+        private readonly ITopicService _topicService;
 
         public TopicController(ITopicService topicService)
         {
@@ -19,10 +20,6 @@ namespace VemboAPI.API.Controllers
         public IActionResult Get()
         {
             var topics = _topicService.GetAllTopics();
-            if (topics == null || topics.Count == 0)
-            {
-                return NotFound("No topics found.");
-            }
             return Ok(topics);
         }
 
@@ -40,31 +37,50 @@ namespace VemboAPI.API.Controllers
             }
         }
 
-
         [HttpPost]
-        public IActionResult Post([FromBody] Topic topic)
+        public IActionResult Post([FromBody] TopicCreateDto dto)
         {
-            if (topic == null || string.IsNullOrEmpty(topic.Title) || string.IsNullOrEmpty(topic.Description))
-            {
-                return BadRequest("Invalid topic data.");
-            }
-
-            var createdTopic = _topicService.CreateTopic(topic.Title, topic.Description);
-            return CreatedAtAction(nameof(Get), new { id = createdTopic.Id }, createdTopic);
-        }
-
-
-        [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] Topic topic)
-        {
-            if (topic == null || string.IsNullOrEmpty(topic.Title) || string.IsNullOrEmpty(topic.Description))
+            if (dto == null || string.IsNullOrEmpty(dto.Title) || string.IsNullOrEmpty(dto.Description))
             {
                 return BadRequest("Invalid topic data.");
             }
 
             try
             {
-                _topicService.UpdateTopic(id, topic.Title, topic.Description);
+                var createdTopic = _topicService.CreateTopic(
+                    dto.Title,
+                    dto.Description,
+                    dto.ImageUrl,
+                    dto.PeriodId
+                );
+                
+                return CreatedAtAction(nameof(Get), new { id = createdTopic.Id }, createdTopic);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
+
+        [HttpPut("{id}")]
+        public IActionResult Update(int id, [FromBody] TopicCreateDto dto)
+        {
+            if (dto == null || string.IsNullOrEmpty(dto.Title) || string.IsNullOrEmpty(dto.Description))
+            {
+                return BadRequest("Invalid topic data.");
+            }
+
+            try
+            {
+                _topicService.UpdateTopic(
+                    id,
+                    dto.Title,
+                    dto.Description,
+                    dto.ImageUrl,
+                    dto.PeriodId
+                );
+
                 return Ok();
             }
             catch (KeyNotFoundException ex)
@@ -72,6 +88,7 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
+
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)

@@ -6,20 +6,20 @@ namespace VemboAPI.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class PartController : ControllerBase
+    public class UnitController : ControllerBase
     {
-        private IPartService _partService;
+        private readonly IUnitService _unitService;
 
-        public PartController(IPartService partService)
+        public UnitController(IUnitService unitService)
         {
-            _partService = partService;
+            _unitService = unitService;
         }
 
         [HttpGet]
         public IActionResult Get()
         {
-            var parts = _partService.GetAllParts();
-            return Ok(parts);
+            var units = _unitService.GetAllUnits();
+            return Ok(units);
         }
 
         [HttpGet("{id}")]
@@ -27,8 +27,8 @@ namespace VemboAPI.API.Controllers
         {
             try
             {
-                var part = _partService.GetPartById(id);
-                return Ok(part);
+                var unit = _unitService.GetUnitById(id);
+                return Ok(unit);
             }
             catch (KeyNotFoundException ex)
             {
@@ -37,28 +37,28 @@ namespace VemboAPI.API.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] Part part)
+        public IActionResult Post([FromBody] Unit unit)
         {
-            if (part == null || string.IsNullOrEmpty(part.Title))
+            if (unit == null || string.IsNullOrEmpty(unit.Title))
             {
-                return BadRequest("Invalid part data.");
+                return BadRequest("Invalid unit data.");
             }
 
-            _partService.CreatePart(part.Title, part.TopicId);
+            _unitService.CreateUnit(unit.Title, unit.Description, unit.Order, unit.TopicId);
             return Ok();
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] Part part)
+        public IActionResult Update(int id, [FromBody] Unit unit)
         {
-            if (part == null || string.IsNullOrEmpty(part.Title))
+            if (unit == null || string.IsNullOrEmpty(unit.Title))
             {
-                return BadRequest("Invalid part data.");
+                return BadRequest("Invalid unit data.");
             }
 
             try
             {
-                _partService.UpdatePart(id, part.Title, part.TopicId);
+                _unitService.UpdateUnit(id, unit.Title, unit.Description, unit.Order, unit.TopicId);
                 return Ok();
             }
             catch (KeyNotFoundException ex)
@@ -72,7 +72,7 @@ namespace VemboAPI.API.Controllers
         {
             try
             {
-                _partService.DeletePart(id);
+                _unitService.DeleteUnit(id);
                 return Ok();
             }
             catch (KeyNotFoundException ex)
