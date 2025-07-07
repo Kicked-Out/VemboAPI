@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using VemboAPI.Domain.Entities;
 
-namespace VemboAPI.Domain.Data 
+namespace VemboAPI.Infrastructure.Data 
 {
     public class VemboDbContext : DbContext
     {
@@ -17,6 +17,9 @@ namespace VemboAPI.Domain.Data
         public DbSet<Answer> Answers { get; set; }
         public DbSet<UserPeriodProgress> UserPeriodProgresses { get; set; }
         public DbSet<UserTopicProgress> UserTopicProgresses { get; set; }
+        public DbSet<UserUnitProgress> UserUnitProgresses { get; set; }
+        public DbSet<UserLevelProgress> UserLevelProgresses { get; set; }
+
         public VemboDbContext(DbContextOptions<VemboDbContext> options) : base(options)
         {
             // За бажанням: можна видалити EnsureCreated — міграції краще
@@ -54,6 +57,8 @@ namespace VemboAPI.Domain.Data
             modelBuilder.Entity<Answer>();
             modelBuilder.Entity<UserPeriodProgress>();
             modelBuilder.Entity<UserTopicProgress>();
+            modelBuilder.Entity<UserUnitProgress>();
+            modelBuilder.Entity<UserLevelProgress>();
         }
     }
 }

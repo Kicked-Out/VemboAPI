@@ -21,6 +21,7 @@ namespace VemboAPI.Domain.Entities
         public DateTime UpdatedAt { get; set; }
         public ICollection<UserPeriodProgress> UserPeriodProgresses { get; set; } = new List<UserPeriodProgress>();
         public ICollection<UserTopicProgress> UserTopicProgresses { get; set; } = new List<UserTopicProgress>();
-
+        public ICollection<UserUnitProgress> UserUnitProgresses { get; set; } = new List<UserUnitProgress>();
+        public ICollection<UserLevelProgress> UserLevelProgresses { get; set; } = new List<UserLevelProgress>();
     }
 }

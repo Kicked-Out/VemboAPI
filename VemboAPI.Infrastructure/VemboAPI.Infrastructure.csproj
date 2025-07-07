@@ -10,10 +10,10 @@
     <Compile Remove="Repositories\**" />
     <EmbeddedResource Remove="Repositories\**" />
     <None Remove="Repositories\**" />
+    <None Remove="Data\" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNet.Identity.EntityFramework" Version="2.2.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.5">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -31,4 +31,7 @@
     <ProjectReference Include="..\VemboAPI.Domain\VemboAPI.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\" />
+  </ItemGroup>
 </Project>
