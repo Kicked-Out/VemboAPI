@@ -2,29 +2,25 @@
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.Entities;
 using VemboAPI.Domain.DTOs;
+using AutoMapper;
 
 namespace VemboAPI.Infrastructure.Services
 {
     public class UserTopicProgressService : IUserTopicProgressService
     {
         private readonly VemboDbContext _dbContext;
+        private readonly IMapper _mapper;
 
-        public UserTopicProgressService(VemboDbContext dbContext)
+        public UserTopicProgressService(VemboDbContext dbContext, IMapper mapper)
         {
             _dbContext = dbContext;
+            _mapper = mapper;
         }
 
         public List<UserTopicProgressDto> GetAllUserTopicProgress()
         {
-            return _dbContext.UserTopicProgresses
-                .Select(utp => new UserTopicProgressDto
-                {
-                    Id = utp.Id,
-                    UserId = utp.UserId,
-                    TopicId = utp.TopicId,
-                    isCompleted = utp.isCompleted
-                })
-                .ToList();
+            var progressList = _dbContext.UserTopicProgresses.ToList();
+            return _mapper.Map<List<UserTopicProgressDto>>(progressList);
         }
 
         public UserTopicProgressDto GetUserTopicProgressById(int id)
@@ -33,13 +29,7 @@ namespace VemboAPI.Infrastructure.Services
             if (progress == null)
                 throw new KeyNotFoundException($"UserTopicProgress with ID {id} not found.");
 
-            return new UserTopicProgressDto
-            {
-                Id = progress.Id,
-                UserId = progress.UserId,
-                TopicId = progress.TopicId,
-                isCompleted = progress.isCompleted
-            };
+            return _mapper.Map<UserTopicProgressDto>(progress);
         }
 
         public UserTopicProgressDto CreateUserTopicProgress(int userId, int topicId, bool isCompleted)
@@ -54,13 +44,7 @@ namespace VemboAPI.Infrastructure.Services
             _dbContext.UserTopicProgresses.Add(progress);
             _dbContext.SaveChanges();
 
-            return new UserTopicProgressDto
-            {
-                Id = progress.Id,
-                UserId = progress.UserId,
-                TopicId = progress.TopicId,
-                isCompleted = progress.isCompleted
-            };
+            return _mapper.Map<UserTopicProgressDto>(progress);
         }
 
         public void UpdateUserTopicProgress(int id, int userId, int topicId, bool isCompleted)
