@@ -19,6 +19,8 @@ namespace VemboAPI.Infrastructure.Data
         public DbSet<UserTopicProgress> UserTopicProgresses { get; set; }
         public DbSet<UserUnitProgress> UserUnitProgresses { get; set; }
         public DbSet<UserLevelProgress> UserLevelProgresses { get; set; }
+        public DbSet<UserLessonProgress> UserLessonProgresses { get; set; }
+        public DbSet<UserExerciseMistake> UserExerciseMistakes { get; set; }
 
         public VemboDbContext(DbContextOptions<VemboDbContext> options) : base(options)
         {
@@ -59,6 +61,8 @@ namespace VemboAPI.Infrastructure.Data
             modelBuilder.Entity<UserTopicProgress>();
             modelBuilder.Entity<UserUnitProgress>();
             modelBuilder.Entity<UserLevelProgress>();
+            modelBuilder.Entity<UserLessonProgress>();
+            modelBuilder.Entity<UserExerciseMistake>();
         }
     }
 }
