@@ -2,54 +2,41 @@
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.Entities;
 using VemboAPI.Domain.DTOs;
-using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
 namespace VemboAPI.Infrastructure.Services
 {
     public class QuestionService : IQuestionService
     {
         private readonly VemboDbContext _dbContext;
+        private readonly IMapper _mapper;
 
-        public QuestionService(VemboDbContext dbContext)
+        public QuestionService(VemboDbContext dbContext, IMapper mapper)
         {
             _dbContext = dbContext;
+            _mapper = mapper;
         }
 
         public List<QuestionDto> GetAllQuestions()
         {
-            return _dbContext.Questions
-                .Select(q => new QuestionDto
-                {
-                    Id = q.Id,
-                    Title = q.Title,
-                    ExerciseId = q.ExerciseId
-                })
-                .ToList();
+            var questions = _dbContext.Questions.ToList();
+            return _mapper.Map<List<QuestionDto>>(questions);
         }
 
         public QuestionDto GetQuestionById(int id)
         {
             var question = _dbContext.Questions.Find(id);
             if (question == null)
-            {
                 throw new KeyNotFoundException($"Question with ID {id} not found.");
-            }
 
-            return new QuestionDto
-            {
-                Id = question.Id,
-                Title = question.Title,
-                ExerciseId = question.ExerciseId
-            };
+            return _mapper.Map<QuestionDto>(question);
         }
 
         public QuestionDto CreateQuestion(string title, int exerciseId)
         {
             var exercise = _dbContext.Exercises.Find(exerciseId);
             if (exercise == null)
-            {
                 throw new KeyNotFoundException($"Exercise with ID {exerciseId} not found.");
-            }
 
             var question = new Question
             {
@@ -60,27 +47,18 @@ namespace VemboAPI.Infrastructure.Services
             _dbContext.Questions.Add(question);
             _dbContext.SaveChanges();
 
-            return new QuestionDto
-            {
-                Id = question.Id,
-                Title = question.Title,
-                ExerciseId = question.ExerciseId
-            };
+            return _mapper.Map<QuestionDto>(question);
         }
 
         public void UpdateQuestion(int id, string title, int exerciseId)
         {
             var question = _dbContext.Questions.Find(id);
             if (question == null)
-            {
                 throw new KeyNotFoundException($"Question with ID {id} not found.");
-            }
 
             var exercise = _dbContext.Exercises.Find(exerciseId);
             if (exercise == null)
-            {
                 throw new KeyNotFoundException($"Exercise with ID {exerciseId} not found.");
-            }
 
             question.Title = title;
             question.ExerciseId = exerciseId;
@@ -93,9 +71,7 @@ namespace VemboAPI.Infrastructure.Services
         {
             var question = _dbContext.Questions.Find(id);
             if (question == null)
-            {
                 throw new KeyNotFoundException($"Question with ID {id} not found.");
-            }
 
             _dbContext.Questions.Remove(question);
             _dbContext.SaveChanges();

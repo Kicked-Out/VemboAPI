@@ -1,32 +1,26 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using VemboAPI.Infrastructure.Data;
+﻿using VemboAPI.Infrastructure.Data;
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.DTOs;
 using VemboAPI.Domain.Entities;
+using AutoMapper;
 
 namespace VemboAPI.Infrastructure.Services
 {
     public class UserExerciseMistakeService : IUserExerciseMistakeService
     {
         private readonly VemboDbContext _dbContext;
+        private readonly IMapper _mapper;
 
-        public UserExerciseMistakeService(VemboDbContext dbContext)
+        public UserExerciseMistakeService(VemboDbContext dbContext, IMapper mapper)
         {
             _dbContext = dbContext;
+            _mapper = mapper;
         }
 
         public List<UserExerciseMistakeDto> GetAllMistakes()
         {
-            return _dbContext.UserExerciseMistakes
-                .Select(m => new UserExerciseMistakeDto
-                {
-                    Id = m.Id,
-                    UserId = m.UserId,
-                    ExerciseId = m.ExerciseId,
-                    UserAnswer = m.UserAnswer
-                })
-                .ToList();
+            var mistakes = _dbContext.UserExerciseMistakes.ToList();
+            return _mapper.Map<List<UserExerciseMistakeDto>>(mistakes);
         }
 
         public UserExerciseMistakeDto GetMistakeById(int id)
@@ -35,13 +29,7 @@ namespace VemboAPI.Infrastructure.Services
             if (mistake == null)
                 throw new KeyNotFoundException($"Mistake with ID {id} not found.");
 
-            return new UserExerciseMistakeDto
-            {
-                Id = mistake.Id,
-                UserId = mistake.UserId,
-                ExerciseId = mistake.ExerciseId,
-                UserAnswer = mistake.UserAnswer
-            };
+            return _mapper.Map<UserExerciseMistakeDto>(mistake);
         }
 
         public UserExerciseMistakeDto CreateMistake(int userId, int exerciseId, string userAnswer)
@@ -56,13 +44,7 @@ namespace VemboAPI.Infrastructure.Services
             _dbContext.UserExerciseMistakes.Add(mistake);
             _dbContext.SaveChanges();
 
-            return new UserExerciseMistakeDto
-            {
-                Id = mistake.Id,
-                UserId = mistake.UserId,
-                ExerciseId = mistake.ExerciseId,
-                UserAnswer = mistake.UserAnswer
-            };
+            return _mapper.Map<UserExerciseMistakeDto>(mistake);
         }
 
         public void UpdateMistake(int id, int userId, int exerciseId, string userAnswer)

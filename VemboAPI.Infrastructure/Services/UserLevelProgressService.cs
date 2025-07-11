@@ -1,31 +1,26 @@
 ﻿using VemboAPI.Infrastructure.Data;
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.Entities;
-
 using VemboAPI.Domain.DTOs;
+using AutoMapper;
 
 namespace VemboAPI.Infrastructure.Services
 {
     public class UserLevelProgressService : IUserLevelProgressService
     {
         private readonly VemboDbContext _dbContext;
+        private readonly IMapper _mapper;
 
-        public UserLevelProgressService(VemboDbContext dbContext)
+        public UserLevelProgressService(VemboDbContext dbContext, IMapper mapper)
         {
             _dbContext = dbContext;
+            _mapper = mapper;
         }
 
         public List<UserLevelProgressDto> GetAllUserLevelProgress()
         {
-            return _dbContext.UserLevelProgresses
-                .Select(ulp => new UserLevelProgressDto
-                {
-                    Id = ulp.Id,
-                    UserId = ulp.UserId,
-                    LevelId = ulp.LevelId,
-                    isCompleted = ulp.isCompleted
-                })
-                .ToList();
+            var progresses = _dbContext.UserLevelProgresses.ToList();
+            return _mapper.Map<List<UserLevelProgressDto>>(progresses);
         }
 
         public UserLevelProgressDto GetUserLevelProgressById(int id)
@@ -34,13 +29,7 @@ namespace VemboAPI.Infrastructure.Services
             if (progress == null)
                 throw new KeyNotFoundException($"UserLevelProgress with ID {id} not found.");
 
-            return new UserLevelProgressDto
-            {
-                Id = progress.Id,
-                UserId = progress.UserId,
-                LevelId = progress.LevelId,
-                isCompleted = progress.isCompleted
-            };
+            return _mapper.Map<UserLevelProgressDto>(progress);
         }
 
         public UserLevelProgressDto CreateUserLevelProgress(int userId, int levelId, bool isCompleted)
@@ -55,13 +44,7 @@ namespace VemboAPI.Infrastructure.Services
             _dbContext.UserLevelProgresses.Add(progress);
             _dbContext.SaveChanges();
 
-            return new UserLevelProgressDto
-            {
-                Id = progress.Id,
-                UserId = progress.UserId,
-                LevelId = progress.LevelId,
-                isCompleted = progress.isCompleted
-            };
+            return _mapper.Map<UserLevelProgressDto>(progress);
         }
 
         public void UpdateUserLevelProgress(int id, int userId, int levelId, bool isCompleted)

@@ -2,29 +2,25 @@
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.Entities;
 using VemboAPI.Domain.DTOs;
+using AutoMapper;
 
 namespace VemboAPI.Infrastructure.Services
 {
     public class UserPeriodProgressService : IUserPeriodProgressService
     {
         private readonly VemboDbContext _dbContext;
+        private readonly IMapper _mapper;
 
-        public UserPeriodProgressService(VemboDbContext dbContext)
+        public UserPeriodProgressService(VemboDbContext dbContext, IMapper mapper)
         {
             _dbContext = dbContext;
+            _mapper = mapper;
         }
 
         public List<UserPeriodProgressDto> GetAllUserPeriodProgress()
         {
-            return _dbContext.UserPeriodProgresses
-                .Select(upp => new UserPeriodProgressDto
-                {
-                    Id = upp.Id,
-                    UserId = upp.UserId,
-                    PeriodId = upp.PeriodId,
-                    isCompleted = upp.isCompleted
-                })
-                .ToList();
+            var progresses = _dbContext.UserPeriodProgresses.ToList();
+            return _mapper.Map<List<UserPeriodProgressDto>>(progresses);
         }
 
         public UserPeriodProgressDto GetUserPeriodProgressById(int id)
@@ -33,13 +29,7 @@ namespace VemboAPI.Infrastructure.Services
             if (progress == null)
                 throw new KeyNotFoundException($"UserPeriodProgress with ID {id} not found.");
 
-            return new UserPeriodProgressDto
-            {
-                Id = progress.Id,
-                UserId = progress.UserId,
-                PeriodId = progress.PeriodId,
-                isCompleted = progress.isCompleted
-            };
+            return _mapper.Map<UserPeriodProgressDto>(progress);
         }
 
         public UserPeriodProgressDto CreateUserPeriodProgress(int userId, int periodId, bool isCompleted)
@@ -54,13 +44,7 @@ namespace VemboAPI.Infrastructure.Services
             _dbContext.UserPeriodProgresses.Add(progress);
             _dbContext.SaveChanges();
 
-            return new UserPeriodProgressDto
-            {
-                Id = progress.Id,
-                UserId = progress.UserId,
-                PeriodId = progress.PeriodId,
-                isCompleted = progress.isCompleted
-            };
+            return _mapper.Map<UserPeriodProgressDto>(progress);
         }
 
         public void UpdateUserPeriodProgress(int id, int userId, int periodId, bool isCompleted)
