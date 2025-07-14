@@ -3,7 +3,7 @@ using VemboAPI.Domain.DTOs;
 using VemboAPI.Domain.Entities;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace VemboAPI.Domain
+namespace VemboAPI.Infrastructure
 {
     public class MappingProfile : Profile
     {
