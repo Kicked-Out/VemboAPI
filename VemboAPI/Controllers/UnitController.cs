@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using System.Data;
 
 namespace VemboAPI.API.Controllers
 {
@@ -14,6 +16,7 @@ namespace VemboAPI.API.Controllers
         {
             _unitService = unitService;
         }
+        [Authorize]
 
         [HttpGet]
         public IActionResult Get()
@@ -21,6 +24,7 @@ namespace VemboAPI.API.Controllers
             var units = _unitService.GetAllUnits();
             return Ok(units);
         }
+        [Authorize]
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
@@ -35,6 +39,7 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
+        [Authorize(Roles = "Admin")]
 
         [HttpPost]
         public IActionResult Post([FromBody] Unit unit)
@@ -47,6 +52,7 @@ namespace VemboAPI.API.Controllers
             _unitService.CreateUnit(unit.Title, unit.Description, unit.Order, unit.TopicId);
             return Ok();
         }
+        [Authorize(Roles = "Admin")]
 
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromBody] Unit unit)
@@ -66,6 +72,7 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
+        [Authorize(Roles = "Admin")]
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)

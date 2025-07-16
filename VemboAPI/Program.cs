@@ -7,6 +7,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using VemboAPI.Domain;
 using VemboAPI.Infrastructure;
+using FluentValidation.AspNetCore;
+using VemboAPI.Domain.Validators;
 
 public class Program
 {
@@ -53,6 +55,8 @@ public class Program
         });
 
         builder.Services.AddAuthorization();
+        builder.Services.AddControllers()
+    .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<RegisterDtoValidator>());
 
         // Реєстрація всіх сервісів
         builder.Services.AddScoped<IUserService, UserService>();
@@ -71,6 +75,8 @@ public class Program
         builder.Services.AddScoped<IUserLevelProgressService, UserLevelProgressService>();
         builder.Services.AddScoped<IUserLessonProgressService, UserLessonProgressService>();
         builder.Services.AddScoped<IUserExerciseMistakeService, UserExerciseMistakeService>();
+        builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+
 
         var app = builder.Build();
 
