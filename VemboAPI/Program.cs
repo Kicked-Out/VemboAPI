@@ -2,34 +2,59 @@ using Microsoft.EntityFrameworkCore;
 using VemboAPI.Infrastructure.Data;
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Infrastructure.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using VemboAPI.Domain;
+using VemboAPI.Infrastructure;
 
-internal class Program
+public class Program
 {
-    private static void Main(string[] args)
+    public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // Додати DbContext з вибраним провайдером БД
+        // Додати рядок підключення
         var connectionString = builder.Configuration.GetConnectionString("DbContext");
 
-        // Використовуй SQL Server або PostgreSQL
-        // РОЗКОМЕНТУЙ той варіант, який тобі потрібен
+        // Обирай SQL Server або PostgreSQL (розкоментуй потрібне)
+        builder.Services.AddDbContext<VemboDbContext>(options => options.UseSqlServer(connectionString));
 
-        // Для SQL Server (наприклад, somee.com)
-        builder.Services.AddDbContext<VemboDbContext>(options =>
-            options.UseSqlServer(connectionString));
+        // AutoMapper з прив’язкою до конкретної Assembly
+        builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
-        // Для PostgreSQL
-        //builder.Services.AddDbContext<VemboDbContext>(options =>
-        //    options.UseNpgsql(connectionString));
-
-        // Додати сервіси
+        // Swagger та контролери
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
-        builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+        // JWT Authentication
+        var jwtSettings = builder.Configuration.GetSection("Jwt");
+        var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
 
+        builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ClockSkew = TimeSpan.Zero, // важливо
+                ValidIssuer = jwtSettings["Issuer"],
+                ValidAudience = jwtSettings["Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(key)
+            };
+        });
+
+        builder.Services.AddAuthorization();
+
+        // Реєстрація всіх сервісів
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<ITopicService, TopicService>();
         builder.Services.AddScoped<IUnitService, UnitService>();
@@ -49,7 +74,7 @@ internal class Program
 
         var app = builder.Build();
 
-        // HTTP pipeline
+        // Middleware
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
@@ -57,6 +82,7 @@ internal class Program
         }
 
         app.UseHttpsRedirection();
+        app.UseAuthentication();
         app.UseAuthorization();
         app.MapControllers();
 
