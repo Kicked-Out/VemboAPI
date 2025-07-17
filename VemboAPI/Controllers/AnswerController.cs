@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace VemboAPI.API.Controllers
 {
@@ -14,14 +15,14 @@ namespace VemboAPI.API.Controllers
         {
             _answerService = answerService;
         }
-
+        [Authorize]
         [HttpGet]
         public IActionResult Get()
         {
             var answers = _answerService.GetAllAnswers();
             return Ok(answers);
         }
-
+        [Authorize]
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
@@ -35,7 +36,7 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public IActionResult Post([FromBody] AnswerDto answer)
         {
@@ -59,7 +60,7 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public IActionResult Put(int id, [FromBody] AnswerDto answer)
         {
@@ -84,7 +85,7 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {

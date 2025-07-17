@@ -1,59 +1,61 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using VemboAPI.Domain.DTOs;
-using VemboAPI.Infrastructure.Data;
 using VemboAPI.Domain.Entities;
-using VemboAPI.Domain.DTO;
+using VemboAPI.Infrastructure.Data;
+using VemboAPI.Infrastructure.Interfaces;
 
-[Route("api/[controller]")]
-[ApiController]
-public class AuthController : ControllerBase
+
+namespace VemboAPI.Controllers
 {
-    private readonly IConfiguration _configuration;
-    private readonly VemboDbContext _context;
-
-    public AuthController(IConfiguration configuration, VemboDbContext context)
+    [Route("api/[controller]")]
+    [ApiController]
+    public class AuthController : ControllerBase
     {
-        _configuration = configuration;
-        _context = context;
-    }
+        private readonly VemboDbContext _context;
+        private readonly IJwtTokenGenerator _jwtTokenGenerator;
 
-    [HttpPost("login")]
-    public IActionResult Login([FromBody] LoginDto dto)
-    {
-        var user = _context.Users.FirstOrDefault(u => u.Email == dto.Email && u.Password == dto.Password);
-        if (user == null)
-            return Unauthorized("Invalid credentials");
-
-        var token = GenerateJwtToken(user);
-        return Ok(new { token });
-    }
-
-    private string GenerateJwtToken(User user)
-    {
-        var jwtSettings = _configuration.GetSection("Jwt");
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-        var claims = new[]
+        public AuthController(VemboDbContext context, IJwtTokenGenerator jwtTokenGenerator)
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(ClaimTypes.Name, user.NickName),
-   
-        };
+            _context = context;
+            _jwtTokenGenerator = jwtTokenGenerator;
+        }
 
-        var token = new JwtSecurityToken(
-            issuer: jwtSettings["Issuer"],
-            audience: jwtSettings["Audience"],
-            claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["ExpireMinutes"])),
-            signingCredentials: creds
-        );
+        [HttpPost("login")]
+        public IActionResult Login([FromBody] LoginDto dto)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.Email == dto.Email && u.Password == dto.Password);
+            if (user == null)
+                return Unauthorized("Invalid credentials");
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+            var token = _jwtTokenGenerator.GenerateToken(user);
+            return Ok(new { token });
+        }
+
+        [HttpPost("register")]
+        public IActionResult Register([FromBody] RegisterDto dto)
+        {
+            if (_context.Users.Any(u => u.Email == dto.Email))
+                return Conflict("Email already exists.");
+
+            var newUser = new User
+            {
+                Email = dto.Email,
+                Password = dto.Password, // для безпеки — хешуй пізніше
+                NickName = dto.NickName,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                IsPremium = false,
+                XP = 0,
+                Rating = 0,
+                Level = 1,
+                Role = "User"
+            };
+
+            _context.Users.Add(newUser);
+            _context.SaveChanges();
+
+            var token = _jwtTokenGenerator.GenerateToken(newUser);
+            return Ok(new { token });
+        }
     }
 }

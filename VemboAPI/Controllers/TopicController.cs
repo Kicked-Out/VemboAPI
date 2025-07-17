@@ -2,6 +2,8 @@
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.Entities;
 using VemboAPI.Domain.DTOs;
+using Microsoft.AspNetCore.Authorization;
+using System.Data;
 
 namespace VemboAPI.API.Controllers
 {
@@ -15,6 +17,7 @@ namespace VemboAPI.API.Controllers
         {
             _topicService = topicService;
         }
+        [Authorize]
 
         [HttpGet]
         public IActionResult Get()
@@ -22,6 +25,7 @@ namespace VemboAPI.API.Controllers
             var topics = _topicService.GetAllTopics();
             return Ok(topics);
         }
+        [Authorize]
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
@@ -36,6 +40,7 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
+        [Authorize(Roles = "Admin")]
 
         [HttpPost]
         public IActionResult Post([FromBody] TopicCreateDto dto)
@@ -62,6 +67,7 @@ namespace VemboAPI.API.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
 
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromBody] TopicCreateDto dto)
@@ -88,6 +94,7 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
+        [Authorize(Roles = "Admin")]
 
 
         [HttpDelete("{id}")]
