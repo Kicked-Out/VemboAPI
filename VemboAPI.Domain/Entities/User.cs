@@ -25,5 +25,7 @@ namespace VemboAPI.Domain.Entities
         public ICollection<UserLevelProgress> UserLevelProgresses { get; set; } = new List<UserLevelProgress>();
         public ICollection<UserLessonProgress> UserLessonProgresses { get; set; } = new List<UserLessonProgress>();
         public ICollection<UserExerciseMistake> UserExerciseMistakes { get; set; } = new List<UserExerciseMistake>();
+
+        public string Role { get; set; } = "User";
     }
 }
