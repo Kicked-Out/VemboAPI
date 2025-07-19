@@ -1,6 +1,6 @@
 ﻿namespace VemboAPI.Domain.DTOs
 {
-    public class TopicCreateDto
+    public class TopicUpdateDto
     {
         public string Title { get; set; }
         public string Description { get; set; }

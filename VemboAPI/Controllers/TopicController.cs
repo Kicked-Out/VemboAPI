@@ -41,24 +41,15 @@ namespace VemboAPI.API.Controllers
             }
         }
         [Authorize(Roles = "Admin")]
-
         [HttpPost]
         public IActionResult Post([FromBody] TopicCreateDto dto)
         {
-            if (dto == null || string.IsNullOrEmpty(dto.Title) || string.IsNullOrEmpty(dto.Description))
-            {
-                return BadRequest("Invalid topic data.");
-            }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
             try
             {
-                var createdTopic = _topicService.CreateTopic(
-                    dto.Title,
-                    dto.Description,
-                    dto.ImageUrl,
-                    dto.PeriodId
-                );
-                
+                var createdTopic = _topicService.CreateTopic(dto);
                 return CreatedAtAction(nameof(Get), new { id = createdTopic.Id }, createdTopic);
             }
             catch (KeyNotFoundException ex)
@@ -68,25 +59,15 @@ namespace VemboAPI.API.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] TopicCreateDto dto)
+        public IActionResult Update(int id, [FromBody] TopicUpdateDto dto)
         {
-            if (dto == null || string.IsNullOrEmpty(dto.Title) || string.IsNullOrEmpty(dto.Description))
-            {
-                return BadRequest("Invalid topic data.");
-            }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
             try
             {
-                _topicService.UpdateTopic(
-                    id,
-                    dto.Title,
-                    dto.Description,
-                    dto.ImageUrl,
-                    dto.PeriodId
-                );
-
+                _topicService.UpdateTopic(id, dto);
                 return Ok();
             }
             catch (KeyNotFoundException ex)

@@ -9,6 +9,7 @@ using VemboAPI.Domain;
 using VemboAPI.Infrastructure;
 using FluentValidation.AspNetCore;
 using VemboAPI.Domain.Validators;
+using Microsoft.AspNetCore.Mvc;
 
 public class Program
 {
@@ -16,21 +17,31 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // Додати рядок підключення
+
         var connectionString = builder.Configuration.GetConnectionString("DbContext");
-
-        // Обирай SQL Server або PostgreSQL (розкоментуй потрібне)
         builder.Services.AddDbContext<VemboDbContext>(options => options.UseSqlServer(connectionString));
+        // builder.Services.AddDbContext<VemboDbContext>(options => options.UseNpgsql(connectionString)); // якщо PostgreSQL
 
-        // AutoMapper з прив’язкою до конкретної Assembly
         builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
-        // Swagger та контролери
-        builder.Services.AddControllers();
+
+        builder.Services.AddControllers()
+            .AddFluentValidation(fv =>
+            {
+                fv.RegisterValidatorsFromAssemblyContaining<Program>();
+                fv.AutomaticValidationEnabled = true;
+            });
+
+ 
+        builder.Services.Configure<ApiBehaviorOptions>(options =>
+        {
+            options.SuppressModelStateInvalidFilter = false; 
+        });
+
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-        // JWT Authentication
+
         var jwtSettings = builder.Configuration.GetSection("Jwt");
         var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
 
@@ -47,18 +58,14 @@ public class Program
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                ClockSkew = TimeSpan.Zero, // важливо
+                ClockSkew = TimeSpan.Zero,
                 ValidIssuer = jwtSettings["Issuer"],
                 ValidAudience = jwtSettings["Audience"],
                 IssuerSigningKey = new SymmetricSecurityKey(key)
             };
         });
 
-        builder.Services.AddAuthorization();
-        builder.Services.AddControllers()
-    .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<RegisterDtoValidator>());
 
-        // Реєстрація всіх сервісів
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<ITopicService, TopicService>();
         builder.Services.AddScoped<IUnitService, UnitService>();
@@ -77,10 +84,8 @@ public class Program
         builder.Services.AddScoped<IUserExerciseMistakeService, UserExerciseMistakeService>();
         builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 
-
         var app = builder.Build();
 
-        // Middleware
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();

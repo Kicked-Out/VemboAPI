@@ -3,6 +3,7 @@ using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using System.Data;
+using VemboAPI.Domain.DTOs;
 
 namespace VemboAPI.API.Controllers
 {
@@ -40,31 +41,26 @@ namespace VemboAPI.API.Controllers
             }
         }
         [Authorize(Roles = "Admin")]
-
         [HttpPost]
-        public IActionResult Post([FromBody] Unit unit)
+        public IActionResult Post([FromBody] CreateUnitDto dto)
         {
-            if (unit == null || string.IsNullOrEmpty(unit.Title))
-            {
-                return BadRequest("Invalid unit data.");
-            }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            _unitService.CreateUnit(unit.Title, unit.Description, unit.Order, unit.TopicId);
-            return Ok();
+            var created = _unitService.CreateUnit(dto);
+            return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
-        [Authorize(Roles = "Admin")]
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] Unit unit)
+        public IActionResult Update(int id, [FromBody] UpdateUnitDto dto)
         {
-            if (unit == null || string.IsNullOrEmpty(unit.Title))
-            {
-                return BadRequest("Invalid unit data.");
-            }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
             try
             {
-                _unitService.UpdateUnit(id, unit.Title, unit.Description, unit.Order, unit.TopicId);
+                _unitService.UpdateUnit(id, dto);
                 return Ok();
             }
             catch (KeyNotFoundException ex)
@@ -72,6 +68,7 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
+
         [Authorize(Roles = "Admin")]
 
         [HttpDelete("{id}")]

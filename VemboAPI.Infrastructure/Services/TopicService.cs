@@ -47,42 +47,42 @@ namespace VemboAPI.Infrastructure.Services
             return dto;
         }
 
-        public TopicDto CreateTopic(string title, string description, string imageUrl, int periodId)
+        public TopicDto CreateTopic(TopicCreateDto dto)
         {
-            var period = _dbContext.Periods.Find(periodId);
+            var period = _dbContext.Periods.Find(dto.PeriodId);
             if (period == null)
-                throw new KeyNotFoundException($"Period with ID {periodId} not found.");
+                throw new KeyNotFoundException($"Period with ID {dto.PeriodId} not found.");
 
             var topic = new Topic
             {
-                Title = title,
-                Description = description,
-                ImageUrl = imageUrl,
-                PeriodId = periodId
+                Title = dto.Title,
+                Description = dto.Description,
+                ImageUrl = dto.ImageUrl,
+                PeriodId = dto.PeriodId
             };
 
             _dbContext.Topics.Add(topic);
             _dbContext.SaveChanges();
 
-            var dto = _mapper.Map<TopicDto>(topic);
-            dto.UnitsCount = 0;
-            return dto;
+            var result = _mapper.Map<TopicDto>(topic);
+            result.UnitsCount = 0;
+            return result;
         }
 
-        public void UpdateTopic(int id, string title, string description, string imageUrl, int periodId)
+        public void UpdateTopic(int id, TopicUpdateDto dto)
         {
             var topic = _dbContext.Topics.Find(id);
             if (topic == null)
                 throw new KeyNotFoundException($"Topic with ID {id} not found.");
 
-            var period = _dbContext.Periods.Find(periodId);
+            var period = _dbContext.Periods.Find(dto.PeriodId);
             if (period == null)
-                throw new KeyNotFoundException($"Period with ID {periodId} not found.");
+                throw new KeyNotFoundException($"Period with ID {dto.PeriodId} not found.");
 
-            topic.Title = title;
-            topic.Description = description;
-            topic.ImageUrl = imageUrl;
-            topic.PeriodId = periodId;
+            topic.Title = dto.Title;
+            topic.Description = dto.Description;
+            topic.ImageUrl = dto.ImageUrl;
+            topic.PeriodId = dto.PeriodId;
 
             _dbContext.Topics.Update(topic);
             _dbContext.SaveChanges();

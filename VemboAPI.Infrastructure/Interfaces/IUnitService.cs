@@ -7,8 +7,8 @@ namespace VemboAPI.Infrastructure.Interfaces
     {
         List<UnitDto> GetAllUnits();
         UnitDto GetUnitById(int id);
-        UnitDto CreateUnit(string title, string description, int order, int topicId);
-        void UpdateUnit(int id, string title, string description, int order, int topicId);
+        UnitDto CreateUnit(CreateUnitDto dto);
+        void UpdateUnit(int id, UpdateUnitDto dto);
         void DeleteUnit(int id);
     }
 }
