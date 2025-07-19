@@ -40,31 +40,20 @@ namespace VemboAPI.API.Controllers
             }
         }
         [Authorize(Roles = "Admin")]
-
         [HttpPost]
-        public IActionResult Post([FromBody] ExerciseTypeDto type)
+        public IActionResult Post([FromBody] CreateExerciseTypeDto dto)
         {
-            if (type == null || string.IsNullOrEmpty(type.Title))
-            {
-                return BadRequest("Invalid exercise type data.");
-            }
-
-            var created = _exerciseTypeService.CreateExerciseType(type.Title);
+            var created = _exerciseTypeService.CreateExerciseType(dto);
             return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
+
         [Authorize(Roles = "Admin")]
-
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] ExerciseTypeDto type)
+        public IActionResult Put(int id, [FromBody] UpdateExerciseTypeDto dto)
         {
-            if (type == null || string.IsNullOrEmpty(type.Title))
-            {
-                return BadRequest("Invalid exercise type data.");
-            }
-
             try
             {
-                _exerciseTypeService.UpdateExerciseType(id, type.Title);
+                _exerciseTypeService.UpdateExerciseType(id, dto);
                 return Ok();
             }
             catch (KeyNotFoundException ex)
@@ -72,6 +61,7 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
+
         [Authorize(Roles = "Admin")]
 
         [HttpDelete("{id}")]

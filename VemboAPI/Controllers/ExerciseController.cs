@@ -39,22 +39,11 @@ namespace VemboAPI.API.Controllers
         }
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public IActionResult Post([FromBody] ExerciseDto exercise)
+        public IActionResult Post([FromBody] CreateExerciseDto dto)
         {
-            if (exercise == null || string.IsNullOrEmpty(exercise.Title))
-            {
-                return BadRequest("Invalid exercise data.");
-            }
-
             try
             {
-                var created = _exerciseService.CreateExercise(
-                    exercise.Title,
-                    exercise.LessonId,
-                    exercise.Difficulty,
-                    exercise.ExerciseTypeId,
-                    exercise.Order);
-
+                var created = _exerciseService.CreateExercise(dto);
                 return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
             }
             catch (KeyNotFoundException ex)
@@ -62,25 +51,14 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
+
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] ExerciseDto exercise)
+        public IActionResult Put(int id, [FromBody] UpdateExerciseDto dto)
         {
-            if (exercise == null || string.IsNullOrEmpty(exercise.Title))
-            {
-                return BadRequest("Invalid exercise data.");
-            }
-
             try
             {
-                _exerciseService.UpdateExercise(
-                    id,
-                    exercise.Title,
-                    exercise.LessonId,
-                    exercise.Difficulty,
-                    exercise.ExerciseTypeId,
-                    exercise.Order);
-
+                _exerciseService.UpdateExercise(id, dto);
                 return Ok();
             }
             catch (KeyNotFoundException ex)
@@ -88,6 +66,7 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
+
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)

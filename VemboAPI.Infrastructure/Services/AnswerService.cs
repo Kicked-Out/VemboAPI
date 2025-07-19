@@ -33,17 +33,17 @@ namespace VemboAPI.Infrastructure.Services
             return _mapper.Map<AnswerDto>(answer);
         }
 
-        public AnswerDto CreateAnswer(string title, bool isCorrect, int questionId)
+        public AnswerDto CreateAnswer(CreateAnswerDto dto)
         {
-            var question = _dbContext.Questions.Find(questionId);
+            var question = _dbContext.Questions.Find(dto.QuestionId);
             if (question == null)
-                throw new KeyNotFoundException($"Question with ID {questionId} not found.");
+                throw new KeyNotFoundException($"Question with ID {dto.QuestionId} not found.");
 
             var answer = new Answer
             {
-                Title = title,
-                isCorrect = isCorrect,
-                QuestionId = questionId
+                Title = dto.Title,
+                isCorrect = dto.isCorrect,
+                QuestionId = dto.QuestionId
             };
 
             _dbContext.Answers.Add(answer);
@@ -52,23 +52,24 @@ namespace VemboAPI.Infrastructure.Services
             return _mapper.Map<AnswerDto>(answer);
         }
 
-        public void UpdateAnswer(int id, string title, bool isCorrect, int questionId)
+        public void UpdateAnswer(int id, UpdateAnswerDto dto)
         {
             var answer = _dbContext.Answers.Find(id);
             if (answer == null)
                 throw new KeyNotFoundException($"Answer with ID {id} not found.");
 
-            var question = _dbContext.Questions.Find(questionId);
+            var question = _dbContext.Questions.Find(dto.QuestionId);
             if (question == null)
-                throw new KeyNotFoundException($"Question with ID {questionId} not found.");
+                throw new KeyNotFoundException($"Question with ID {dto.QuestionId} not found.");
 
-            answer.Title = title;
-            answer.isCorrect = isCorrect;
-            answer.QuestionId = questionId;
+            answer.Title = dto.Title;
+            answer.isCorrect = dto.isCorrect;
+            answer.QuestionId = dto.QuestionId;
 
             _dbContext.Answers.Update(answer);
             _dbContext.SaveChanges();
         }
+
 
         public void DeleteAnswer(int id)
         {

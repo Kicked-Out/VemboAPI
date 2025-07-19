@@ -32,16 +32,16 @@ namespace VemboAPI.Infrastructure.Services
             return _mapper.Map<QuestionDto>(question);
         }
 
-        public QuestionDto CreateQuestion(string title, int exerciseId)
+        public QuestionDto CreateQuestion(CreateQuestionDto dto)
         {
-            var exercise = _dbContext.Exercises.Find(exerciseId);
+            var exercise = _dbContext.Exercises.Find(dto.ExerciseId);
             if (exercise == null)
-                throw new KeyNotFoundException($"Exercise with ID {exerciseId} not found.");
+                throw new KeyNotFoundException($"Exercise with ID {dto.ExerciseId} not found.");
 
             var question = new Question
             {
-                Title = title,
-                ExerciseId = exerciseId
+                Title = dto.Title,
+                ExerciseId = dto.ExerciseId
             };
 
             _dbContext.Questions.Add(question);
@@ -50,22 +50,23 @@ namespace VemboAPI.Infrastructure.Services
             return _mapper.Map<QuestionDto>(question);
         }
 
-        public void UpdateQuestion(int id, string title, int exerciseId)
+        public void UpdateQuestion(int id, UpdateQuestionDto dto)
         {
             var question = _dbContext.Questions.Find(id);
             if (question == null)
                 throw new KeyNotFoundException($"Question with ID {id} not found.");
 
-            var exercise = _dbContext.Exercises.Find(exerciseId);
+            var exercise = _dbContext.Exercises.Find(dto.ExerciseId);
             if (exercise == null)
-                throw new KeyNotFoundException($"Exercise with ID {exerciseId} not found.");
+                throw new KeyNotFoundException($"Exercise with ID {dto.ExerciseId} not found.");
 
-            question.Title = title;
-            question.ExerciseId = exerciseId;
+            question.Title = dto.Title;
+            question.ExerciseId = dto.ExerciseId;
 
             _dbContext.Questions.Update(question);
             _dbContext.SaveChanges();
         }
+
 
         public void DeleteQuestion(int id)
         {

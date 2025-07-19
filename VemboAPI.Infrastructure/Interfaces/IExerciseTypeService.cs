@@ -7,8 +7,9 @@ namespace VemboAPI.Infrastructure.Interfaces
     {
         List<ExerciseTypeDto> GetAllExerciseTypes();
         ExerciseTypeDto GetExerciseTypeById(int id);
-        ExerciseTypeDto CreateExerciseType(string title);
-        void UpdateExerciseType(int id, string title);
+        ExerciseTypeDto CreateExerciseType(CreateExerciseTypeDto dto);
+        void UpdateExerciseType(int id, UpdateExerciseTypeDto dto);
+
         void DeleteExerciseType(int id);
     }
 

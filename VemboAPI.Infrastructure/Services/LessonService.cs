@@ -32,16 +32,16 @@ namespace VemboAPI.Infrastructure.Services
             return _mapper.Map<LessonDto>(lesson);
         }
 
-        public LessonDto CreateLesson(int order, int levelId)
+        public LessonDto CreateLesson(CreateLessonDto dto)
         {
-            var level = _dbContext.Levels.Find(levelId);
+            var level = _dbContext.Levels.Find(dto.LevelId);
             if (level == null)
-                throw new KeyNotFoundException($"Level with ID {levelId} not found.");
+                throw new KeyNotFoundException($"Level with ID {dto.LevelId} not found.");
 
             var lesson = new Lesson
             {
-                Order = order,
-                LevelId = levelId
+                Order = dto.Order,
+                LevelId = dto.LevelId
             };
 
             _dbContext.Lessons.Add(lesson);
@@ -50,22 +50,23 @@ namespace VemboAPI.Infrastructure.Services
             return _mapper.Map<LessonDto>(lesson);
         }
 
-        public void UpdateLesson(int id, int order, int levelId)
+        public void UpdateLesson(int id, UpdateLessonDto dto)
         {
             var lesson = _dbContext.Lessons.Find(id);
             if (lesson == null)
                 throw new KeyNotFoundException($"Lesson with ID {id} not found.");
 
-            var level = _dbContext.Levels.Find(levelId);
+            var level = _dbContext.Levels.Find(dto.LevelId);
             if (level == null)
-                throw new KeyNotFoundException($"Level with ID {levelId} not found.");
+                throw new KeyNotFoundException($"Level with ID {dto.LevelId} not found.");
 
-            lesson.Order = order;
-            lesson.LevelId = levelId;
+            lesson.Order = dto.Order;
+            lesson.LevelId = dto.LevelId;
 
             _dbContext.Lessons.Update(lesson);
             _dbContext.SaveChanges();
         }
+
 
         public void DeleteLesson(int id)
         {

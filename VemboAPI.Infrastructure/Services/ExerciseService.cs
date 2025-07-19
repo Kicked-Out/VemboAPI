@@ -32,23 +32,23 @@ namespace VemboAPI.Infrastructure.Services
             return _mapper.Map<ExerciseDto>(exercise);
         }
 
-        public ExerciseDto CreateExercise(string title, int lessonId, bool difficulty, int exerciseTypeId, int order)
+        public ExerciseDto CreateExercise(CreateExerciseDto dto)
         {
-            var lesson = _dbContext.Lessons.Find(lessonId);
+            var lesson = _dbContext.Lessons.Find(dto.LessonId);
             if (lesson == null)
-                throw new KeyNotFoundException($"Lesson with ID {lessonId} not found.");
+                throw new KeyNotFoundException($"Lesson with ID {dto.LessonId} not found.");
 
-            var exerciseType = _dbContext.ExerciseTypes.Find(exerciseTypeId);
+            var exerciseType = _dbContext.ExerciseTypes.Find(dto.ExerciseTypeId);
             if (exerciseType == null)
-                throw new KeyNotFoundException($"ExerciseType with ID {exerciseTypeId} not found.");
+                throw new KeyNotFoundException($"ExerciseType with ID {dto.ExerciseTypeId} not found.");
 
             var exercise = new Exercise
             {
-                Title = title,
-                LessonId = lessonId,
-                Difficulty = difficulty,
-                ExerciseTypeId = exerciseTypeId,
-                Order = order
+                Title = dto.Title,
+                LessonId = dto.LessonId,
+                Difficulty = dto.Difficulty,
+                ExerciseTypeId = dto.ExerciseTypeId,
+                Order = dto.Order
             };
 
             _dbContext.Exercises.Add(exercise);
@@ -57,29 +57,30 @@ namespace VemboAPI.Infrastructure.Services
             return _mapper.Map<ExerciseDto>(exercise);
         }
 
-        public void UpdateExercise(int id, string title, int lessonId, bool difficulty, int exerciseTypeId, int order)
+        public void UpdateExercise(int id, UpdateExerciseDto dto)
         {
             var exercise = _dbContext.Exercises.Find(id);
             if (exercise == null)
                 throw new KeyNotFoundException($"Exercise with ID {id} not found.");
 
-            var lesson = _dbContext.Lessons.Find(lessonId);
+            var lesson = _dbContext.Lessons.Find(dto.LessonId);
             if (lesson == null)
-                throw new KeyNotFoundException($"Lesson with ID {lessonId} not found.");
+                throw new KeyNotFoundException($"Lesson with ID {dto.LessonId} not found.");
 
-            var exerciseType = _dbContext.ExerciseTypes.Find(exerciseTypeId);
+            var exerciseType = _dbContext.ExerciseTypes.Find(dto.ExerciseTypeId);
             if (exerciseType == null)
-                throw new KeyNotFoundException($"ExerciseType with ID {exerciseTypeId} not found.");
+                throw new KeyNotFoundException($"ExerciseType with ID {dto.ExerciseTypeId} not found.");
 
-            exercise.Title = title;
-            exercise.LessonId = lessonId;
-            exercise.Difficulty = difficulty;
-            exercise.ExerciseTypeId = exerciseTypeId;
-            exercise.Order = order;
+            exercise.Title = dto.Title;
+            exercise.LessonId = dto.LessonId;
+            exercise.Difficulty = dto.Difficulty;
+            exercise.ExerciseTypeId = dto.ExerciseTypeId;
+            exercise.Order = dto.Order;
 
             _dbContext.Exercises.Update(exercise);
             _dbContext.SaveChanges();
         }
+
 
         public void DeleteExercise(int id)
         {

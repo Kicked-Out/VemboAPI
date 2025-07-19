@@ -40,22 +40,12 @@ namespace VemboAPI.API.Controllers
             }
         }
         [Authorize(Roles = "Admin")]
-
         [HttpPost]
-        public IActionResult Post([FromBody] QuestionDto question)
+        public IActionResult Post([FromBody] CreateQuestionDto dto)
         {
-            if (question == null || string.IsNullOrEmpty(question.Title))
-            {
-                return BadRequest("Invalid question data.");
-            }
-
             try
             {
-                var created = _questionService.CreateQuestion(
-                    question.Title,
-                    question.ExerciseId
-                );
-
+                var created = _questionService.CreateQuestion(dto);
                 return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
             }
             catch (KeyNotFoundException ex)
@@ -63,24 +53,14 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
+
         [Authorize(Roles = "Admin")]
-
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] QuestionDto question)
+        public IActionResult Put(int id, [FromBody] UpdateQuestionDto dto)
         {
-            if (question == null || string.IsNullOrEmpty(question.Title))
-            {
-                return BadRequest("Invalid question data.");
-            }
-
             try
             {
-                _questionService.UpdateQuestion(
-                    id,
-                    question.Title,
-                    question.ExerciseId
-                );
-
+                _questionService.UpdateQuestion(id, dto);
                 return Ok();
             }
             catch (KeyNotFoundException ex)
@@ -88,6 +68,7 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
+
         [Authorize(Roles = "Admin")]
 
         [HttpDelete("{id}")]

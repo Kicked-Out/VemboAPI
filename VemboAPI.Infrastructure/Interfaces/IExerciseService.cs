@@ -8,8 +8,9 @@ namespace VemboAPI.Infrastructure.Interfaces
     {
         List<ExerciseDto> GetAllExercise();
         ExerciseDto GetExerciseById(int id);
-        ExerciseDto CreateExercise(string title, int lessonId, bool difficulty, int exerciseTypeId, int order);
-        void UpdateExercise(int id, string title, int lessonId, bool difficulty, int exerciseTypeId, int order);
+        ExerciseDto CreateExercise(CreateExerciseDto dto);
+        void UpdateExercise(int id, UpdateExerciseDto dto);
+
         void DeleteExercise(int id);
     }
 
