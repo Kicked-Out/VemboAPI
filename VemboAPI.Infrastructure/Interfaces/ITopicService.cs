@@ -7,8 +7,8 @@ namespace VemboAPI.Infrastructure.Interfaces
     {
         List<TopicDto> GetAllTopics();
         TopicDto GetTopicById(int id);
-        TopicDto CreateTopic(string title, string description, string imageUrl, int periodId);
-        void UpdateTopic(int id, string title, string description, string imageUrl, int periodId);
+        TopicDto CreateTopic(TopicCreateDto dto);
+        void UpdateTopic(int id, TopicUpdateDto dto);
         void DeleteTopic(int id);
     }
 }

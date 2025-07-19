@@ -1,10 +1,11 @@
-﻿namespace VemboAPI.Domain.DTOs
+﻿using System;
+namespace VemboAPI.Domain.DTOs
 {
-    public class TopicCreateDto
-    {
+	public class CreatePeriodDto
+	{
         public string Title { get; set; }
         public string Description { get; set; }
         public string ImageUrl { get; set; }
-        public int PeriodId { get; set; }
     }
 }
+

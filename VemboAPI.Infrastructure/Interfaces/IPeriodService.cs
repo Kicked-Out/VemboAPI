@@ -8,8 +8,8 @@ namespace VemboAPI.Infrastructure.Interfaces
     {
         List<PeriodDto> GetAllPeriods();
         PeriodDto GetPeriodById(int id);
-        void CreatePeriod(string title, string description, string imageUrl);
-        void UpdatePeriod(int id, string title, string description, string imageUrl);
+        PeriodDto CreatePeriod(CreatePeriodDto dto);
+        void UpdatePeriod(int id, UpdatePeriodDto dto);
         void DeletePeriod(int id);
     }
 }

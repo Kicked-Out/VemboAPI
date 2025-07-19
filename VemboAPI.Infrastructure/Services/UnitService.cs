@@ -32,18 +32,18 @@ namespace VemboAPI.Infrastructure.Services
             return _mapper.Map<UnitDto>(unit);
         }
 
-        public UnitDto CreateUnit(string title, string description, int order, int topicId)
+        public UnitDto CreateUnit(CreateUnitDto dto)
         {
-            var topic = _dbContext.Topics.Find(topicId);
+            var topic = _dbContext.Topics.Find(dto.TopicId);
             if (topic == null)
-                throw new KeyNotFoundException($"Topic with ID {topicId} not found.");
+                throw new KeyNotFoundException($"Topic with ID {dto.TopicId} not found.");
 
             var unit = new Unit
             {
-                Title = title,
-                Description = description,
-                Order = order,
-                TopicId = topicId
+                Title = dto.Title,
+                Description = dto.Description,
+                Order = dto.Order,
+                TopicId = dto.TopicId
             };
 
             _dbContext.Units.Add(unit);
@@ -52,20 +52,20 @@ namespace VemboAPI.Infrastructure.Services
             return _mapper.Map<UnitDto>(unit);
         }
 
-        public void UpdateUnit(int id, string title, string description, int order, int topicId)
+        public void UpdateUnit(int id, UpdateUnitDto dto)
         {
             var unit = _dbContext.Units.Find(id);
             if (unit == null)
                 throw new KeyNotFoundException($"Unit with ID {id} not found.");
 
-            var topic = _dbContext.Topics.Find(topicId);
+            var topic = _dbContext.Topics.Find(dto.TopicId);
             if (topic == null)
-                throw new KeyNotFoundException($"Topic with ID {topicId} not found.");
+                throw new KeyNotFoundException($"Topic with ID {dto.TopicId} not found.");
 
-            unit.Title = title;
-            unit.Description = description;
-            unit.Order = order;
-            unit.TopicId = topicId;
+            unit.Title = dto.Title;
+            unit.Description = dto.Description;
+            unit.Order = dto.Order;
+            unit.TopicId = dto.TopicId;
 
             _dbContext.Units.Update(unit);
             _dbContext.SaveChanges();

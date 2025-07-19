@@ -5,6 +5,7 @@ using VemboAPI.Domain.DTOs;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 
+
 namespace VemboAPI.Infrastructure.Services
 {
     public class PeriodService : IPeriodService
@@ -47,32 +48,39 @@ namespace VemboAPI.Infrastructure.Services
             return dto;
         }
 
-        public void CreatePeriod(string title, string description, string imageUrl)
+        public PeriodDto CreatePeriod(CreatePeriodDto dto)
         {
             var period = new Period
             {
-                Title = title,
-                Description = description,
-                ImageUrl = imageUrl
+                Title = dto.Title,
+                Description = dto.Description,
+                ImageUrl = dto.ImageUrl
             };
 
             _dbContext.Periods.Add(period);
             _dbContext.SaveChanges();
+
+            var result = _mapper.Map<PeriodDto>(period);
+            result.TopicsCount = 0; 
+
+            return result;
         }
 
-        public void UpdatePeriod(int id, string title, string description, string imageUrl)
+
+        public void UpdatePeriod(int id, UpdatePeriodDto dto)
         {
             var period = _dbContext.Periods.Find(id);
             if (period == null)
                 throw new KeyNotFoundException($"Period with ID {id} not found.");
 
-            period.Title = title;
-            period.Description = description;
-            period.ImageUrl = imageUrl;
+            period.Title = dto.Title;
+            period.Description = dto.Description;
+            period.ImageUrl = dto.ImageUrl;
 
             _dbContext.Periods.Update(period);
             _dbContext.SaveChanges();
         }
+
 
         public void DeletePeriod(int id)
         {
