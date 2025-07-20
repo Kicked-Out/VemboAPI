@@ -7,8 +7,9 @@ namespace VemboAPI.Infrastructure.Interfaces
     {
         List<LessonDto> GetAllLessons();
         LessonDto GetLessonById(int id);
-        LessonDto CreateLesson(int order, int levelId);
-        void UpdateLesson(int id, int order, int levelId);
+        LessonDto CreateLesson(CreateLessonDto dto);
+        void UpdateLesson(int id, UpdateLessonDto dto);
+
         void DeleteLesson(int id);
     }
 }

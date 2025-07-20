@@ -38,21 +38,11 @@ namespace VemboAPI.API.Controllers
         }
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public IActionResult Post([FromBody] AnswerDto answer)
+        public IActionResult Post([FromBody] CreateAnswerDto dto)
         {
-            if (answer == null || string.IsNullOrEmpty(answer.Title))
-            {
-                return BadRequest("Invalid answer data.");
-            }
-
             try
             {
-                var created = _answerService.CreateAnswer(
-                    answer.Title,
-                    answer.isCorrect,
-                    answer.QuestionId
-                );
-
+                var created = _answerService.CreateAnswer(dto);
                 return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
             }
             catch (KeyNotFoundException ex)
@@ -60,24 +50,14 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
+
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] AnswerDto answer)
+        public IActionResult Put(int id, [FromBody] UpdateAnswerDto dto)
         {
-            if (answer == null || string.IsNullOrEmpty(answer.Title))
-            {
-                return BadRequest("Invalid answer data.");
-            }
-
             try
             {
-                _answerService.UpdateAnswer(
-                    id,
-                    answer.Title,
-                    answer.isCorrect,
-                    answer.QuestionId
-                );
-
+                _answerService.UpdateAnswer(id, dto);
                 return Ok();
             }
             catch (KeyNotFoundException ex)
@@ -85,6 +65,7 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
+
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
