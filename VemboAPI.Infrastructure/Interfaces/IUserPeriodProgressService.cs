@@ -8,8 +8,9 @@ namespace VemboAPI.Infrastructure.Interfaces
     {
         List<UserPeriodProgressDto> GetAllUserPeriodProgress();
         UserPeriodProgressDto GetUserPeriodProgressById(int id);
-        UserPeriodProgressDto CreateUserPeriodProgress(int userId, int periodId, bool isCompleted);
-        void UpdateUserPeriodProgress(int id, int userId, int periodId, bool isCompleted);
+        UserPeriodProgressDto CreateUserPeriodProgress(CreateUserPeriodProgressDto dto);
+        void UpdateUserPeriodProgress(int id, UpdateUserPeriodProgressDto dto);
+
         void DeleteUserPeriodProgress(int id);
     }
 }

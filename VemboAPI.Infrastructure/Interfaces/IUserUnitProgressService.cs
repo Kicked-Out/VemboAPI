@@ -8,8 +8,9 @@ namespace VemboAPI.Infrastructure.Interfaces
     {
         List<UserUnitProgressDto> GetAllUserUnitProgress();
         UserUnitProgressDto GetUserUnitProgressById(int id);
-        UserUnitProgressDto CreateUserUnitProgress(int userId, int unitId, bool isCompleted);
-        void UpdateUserUnitProgress(int id, int userId, int unitId, bool isCompleted);
+        UserUnitProgressDto CreateUserUnitProgress(CreateUserUnitProgressDto dto);
+        void UpdateUserUnitProgress(int id, UpdateUserUnitProgressDto dto);
+
         void DeleteUserUnitProgress(int id);
     }
 }
