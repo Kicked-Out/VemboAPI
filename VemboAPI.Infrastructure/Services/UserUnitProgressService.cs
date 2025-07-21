@@ -32,13 +32,13 @@ namespace VemboAPI.Infrastructure.Services
             return _mapper.Map<UserUnitProgressDto>(progress);
         }
 
-        public UserUnitProgressDto CreateUserUnitProgress(int userId, int unitId, bool isCompleted)
+        public UserUnitProgressDto CreateUserUnitProgress(CreateUserUnitProgressDto dto)
         {
             var progress = new UserUnitProgress
             {
-                UserId = userId,
-                UnitId = unitId,
-                isCompleted = isCompleted
+                UserId = dto.UserId,
+                UnitId = dto.UnitId,
+                isCompleted = dto.isCompleted
             };
 
             _dbContext.UserUnitProgresses.Add(progress);
@@ -47,19 +47,20 @@ namespace VemboAPI.Infrastructure.Services
             return _mapper.Map<UserUnitProgressDto>(progress);
         }
 
-        public void UpdateUserUnitProgress(int id, int userId, int unitId, bool isCompleted)
+        public void UpdateUserUnitProgress(int id, UpdateUserUnitProgressDto dto)
         {
             var progress = _dbContext.UserUnitProgresses.Find(id);
             if (progress == null)
                 throw new KeyNotFoundException($"UserUnitProgress with ID {id} not found.");
 
-            progress.UserId = userId;
-            progress.UnitId = unitId;
-            progress.isCompleted = isCompleted;
+            progress.UserId = dto.UserId;
+            progress.UnitId = dto.UnitId;
+            progress.isCompleted = dto.isCompleted;
 
             _dbContext.UserUnitProgresses.Update(progress);
             _dbContext.SaveChanges();
         }
+
 
         public void DeleteUserUnitProgress(int id)
         {

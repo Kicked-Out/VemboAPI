@@ -41,27 +41,20 @@ namespace VemboAPI.API.Controllers
             }
         }
         [Authorize(Roles = "Admin")]
-
         [HttpPost]
-        public IActionResult Post([FromBody] UserUnitProgressDto dto)
+        public IActionResult Post([FromBody] CreateUserUnitProgressDto dto)
         {
-            if (dto == null)
-                return BadRequest("Invalid data.");
-
-            var created = _service.CreateUserUnitProgress(dto.UserId, dto.UnitId, dto.isCompleted);
+            var created = _service.CreateUserUnitProgress(dto);
             return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
+
         [Authorize(Roles = "Admin")]
-
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] UserUnitProgressDto dto)
+        public IActionResult Put(int id, [FromBody] UpdateUserUnitProgressDto dto)
         {
-            if (dto == null)
-                return BadRequest("Invalid data.");
-
             try
             {
-                _service.UpdateUserUnitProgress(id, dto.UserId, dto.UnitId, dto.isCompleted);
+                _service.UpdateUserUnitProgress(id, dto);
                 return Ok();
             }
             catch (KeyNotFoundException ex)
@@ -69,6 +62,7 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
+
         [Authorize(Roles = "Admin")]
 
         [HttpDelete("{id}")]
