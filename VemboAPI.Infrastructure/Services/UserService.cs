@@ -1,20 +1,25 @@
-﻿using VemboAPI.Domain.Data;
+﻿using VemboAPI.Infrastructure.Data;
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.Entities;
+using VemboAPI.Domain.DTOs;
+using AutoMapper;
 
 namespace VemboAPI.Infrastructure.Services
 {
     public class UserService : IUserService
     {
-        private VemboDbContext _vemboDbContext;
-        public UserService(VemboDbContext vemboDbContext)
+        private readonly VemboDbContext _dbContext;
+        private readonly IMapper _mapper;
+
+        public UserService(VemboDbContext dbContext, IMapper mapper)
         {
-            _vemboDbContext = vemboDbContext;
+            _dbContext = dbContext;
+            _mapper = mapper;
         }
 
         public void CreateUser(string nickName, string password, string email)
         {
-            User user = new User
+            var user = new User
             {
                 NickName = nickName,
                 Password = password,
@@ -26,63 +31,56 @@ namespace VemboAPI.Infrastructure.Services
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
-            _vemboDbContext.Users.Add(user);
-            _vemboDbContext.SaveChanges();
+
+            _dbContext.Users.Add(user);
+            _dbContext.SaveChanges();
         }
 
         public void DeleteUser(int id)
         {
-            User? user = _vemboDbContext.Users.Find(id);
-            if (user != null)
-            {
-                _vemboDbContext.Users.Remove(user);
-                _vemboDbContext.SaveChanges();
-            }
-            else
-            {
-                throw new KeyNotFoundException($"User with ID {id} not found.");
-            }
-        }
-
-
-        public List<User> GetAllUsers()
-        {
-            var collection = _vemboDbContext.Users.ToList();
-            foreach (var user in collection)
-            {
-                user.NickName = user.NickName.ToUpper();   
-            }
-            return collection;
-        }
-
-        public User GetUserById(int id)
-        {
-            User? user = _vemboDbContext.Users.Find(id);
+            var user = _dbContext.Users.Find(id);
             if (user == null)
-            {
                 throw new KeyNotFoundException($"User with ID {id} not found.");
-            }
-            return user;
+
+            _dbContext.Users.Remove(user);
+            _dbContext.SaveChanges();
         }
 
+        public List<UserDto> GetAllUsers()
+        {
+            var users = _dbContext.Users.ToList();
+
+            // якщо ти хочеш залишити NickName в UpperCase:
+            foreach (var u in users)
+                u.NickName = u.NickName.ToUpper();
+
+            return _mapper.Map<List<UserDto>>(users);
+        }
+
+        public UserDto GetUserById(int id)
+        {
+            var user = _dbContext.Users.Find(id);
+            if (user == null)
+                throw new KeyNotFoundException($"User with ID {id} not found.");
+
+            user.NickName = user.NickName.ToUpper();
+
+            return _mapper.Map<UserDto>(user);
+        }
 
         public void UpdateUser(int id, string nickName, string password, string email)
         {
-            var user = _vemboDbContext.Users.Find(id);
-            if (user != null)
-            {
-                user.NickName = nickName;
-                user.Password = password;
-                user.Email = email;
-                user.UpdatedAt = DateTime.UtcNow;
-
-                _vemboDbContext.Users.Update(user);
-                _vemboDbContext.SaveChanges();
-            }
-            else
-            {
+            var user = _dbContext.Users.Find(id);
+            if (user == null)
                 throw new KeyNotFoundException($"User with ID {id} not found.");
-            }
+
+            user.NickName = nickName;
+            user.Password = password;
+            user.Email = email;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            _dbContext.Users.Update(user);
+            _dbContext.SaveChanges();
         }
     }
 }

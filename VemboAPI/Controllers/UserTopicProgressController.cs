@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.DTOs;
+using Microsoft.AspNetCore.Authorization;
+using System.Data;
 
 namespace VemboAPI.API.Controllers
 {
@@ -14,6 +16,7 @@ namespace VemboAPI.API.Controllers
         {
             _service = service;
         }
+        [Authorize]
 
         [HttpGet]
         public IActionResult Get()
@@ -21,6 +24,7 @@ namespace VemboAPI.API.Controllers
             var result = _service.GetAllUserTopicProgress();
             return Ok(result);
         }
+        [Authorize]
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
@@ -35,26 +39,21 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPost]
-        public IActionResult Post([FromBody] UserTopicProgressDto dto)
+        public IActionResult Post([FromBody] CreateUserTopicProgressDto dto)
         {
-            if (dto == null)
-                return BadRequest("Invalid data.");
-
-            var created = _service.CreateUserTopicProgress(dto.UserId, dto.TopicId, dto.isCompleted);
+            var created = _service.CreateUserTopicProgress(dto);
             return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] UserTopicProgressDto dto)
+        public IActionResult Put(int id, [FromBody] UpdateUserTopicProgressDto dto)
         {
-            if (dto == null)
-                return BadRequest("Invalid data.");
-
             try
             {
-                _service.UpdateUserTopicProgress(id, dto.UserId, dto.TopicId, dto.isCompleted);
+                _service.UpdateUserTopicProgress(id, dto);
                 return Ok();
             }
             catch (KeyNotFoundException ex)
@@ -62,6 +61,8 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
+
+        [Authorize(Roles = "Admin")]
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)

@@ -1,34 +1,36 @@
-﻿using VemboAPI.Domain.Data;
+﻿using VemboAPI.Infrastructure.Data;
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.Entities;
 using VemboAPI.Domain.DTOs;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
 namespace VemboAPI.Infrastructure.Services
 {
     public class TopicService : ITopicService
     {
         private readonly VemboDbContext _dbContext;
+        private readonly IMapper _mapper;
 
-        public TopicService(VemboDbContext dbContext)
+        public TopicService(VemboDbContext dbContext, IMapper mapper)
         {
             _dbContext = dbContext;
+            _mapper = mapper;
         }
 
         public List<TopicDto> GetAllTopics()
         {
-            return _dbContext.Topics
+            var topics = _dbContext.Topics
                 .Include(t => t.Units)
-                .Select(t => new TopicDto
-                {
-                    Id = t.Id,
-                    Title = t.Title,
-                    Description = t.Description,
-                    ImageUrl = t.ImageUrl,
-                    PeriodId = t.PeriodId,
-                    UnitsCount = t.Units.Count
-                })
                 .ToList();
+
+            var result = _mapper.Map<List<TopicDto>>(topics);
+            for (int i = 0; i < result.Count; i++)
+            {
+                result[i].UnitsCount = topics[i].Units.Count;
+            }
+
+            return result;
         }
 
         public TopicDto GetTopicById(int id)
@@ -38,69 +40,49 @@ namespace VemboAPI.Infrastructure.Services
                 .FirstOrDefault(t => t.Id == id);
 
             if (topic == null)
-            {
                 throw new KeyNotFoundException($"Topic with ID {id} not found.");
-            }
 
-            return new TopicDto
-            {
-                Id = topic.Id,
-                Title = topic.Title,
-                Description = topic.Description,
-                ImageUrl = topic.ImageUrl,
-                PeriodId = topic.PeriodId,
-                UnitsCount = topic.Units.Count
-            };
+            var dto = _mapper.Map<TopicDto>(topic);
+            dto.UnitsCount = topic.Units.Count;
+            return dto;
         }
 
-        public TopicDto CreateTopic(string title, string description, string imageUrl, int periodId)
+        public TopicDto CreateTopic(TopicCreateDto dto)
         {
-            var period = _dbContext.Periods.Find(periodId);
+            var period = _dbContext.Periods.Find(dto.PeriodId);
             if (period == null)
-            {
-                throw new KeyNotFoundException($"Period with ID {periodId} not found.");
-            }
+                throw new KeyNotFoundException($"Period with ID {dto.PeriodId} not found.");
 
             var topic = new Topic
             {
-                Title = title,
-                Description = description,
-                ImageUrl = imageUrl,
-                PeriodId = periodId
+                Title = dto.Title,
+                Description = dto.Description,
+                ImageUrl = dto.ImageUrl,
+                PeriodId = dto.PeriodId
             };
 
             _dbContext.Topics.Add(topic);
             _dbContext.SaveChanges();
 
-            return new TopicDto
-            {
-                Id = topic.Id,
-                Title = topic.Title,
-                Description = topic.Description,
-                ImageUrl = topic.ImageUrl,
-                PeriodId = topic.PeriodId,
-                UnitsCount = 0
-            };
+            var result = _mapper.Map<TopicDto>(topic);
+            result.UnitsCount = 0;
+            return result;
         }
 
-        public void UpdateTopic(int id, string title, string description, string imageUrl, int periodId)
+        public void UpdateTopic(int id, TopicUpdateDto dto)
         {
             var topic = _dbContext.Topics.Find(id);
             if (topic == null)
-            {
                 throw new KeyNotFoundException($"Topic with ID {id} not found.");
-            }
 
-            var period = _dbContext.Periods.Find(periodId);
+            var period = _dbContext.Periods.Find(dto.PeriodId);
             if (period == null)
-            {
-                throw new KeyNotFoundException($"Period with ID {periodId} not found.");
-            }
+                throw new KeyNotFoundException($"Period with ID {dto.PeriodId} not found.");
 
-            topic.Title = title;
-            topic.Description = description;
-            topic.ImageUrl = imageUrl;
-            topic.PeriodId = periodId;
+            topic.Title = dto.Title;
+            topic.Description = dto.Description;
+            topic.ImageUrl = dto.ImageUrl;
+            topic.PeriodId = dto.PeriodId;
 
             _dbContext.Topics.Update(topic);
             _dbContext.SaveChanges();
@@ -110,9 +92,7 @@ namespace VemboAPI.Infrastructure.Services
         {
             var topic = _dbContext.Topics.Find(id);
             if (topic == null)
-            {
                 throw new KeyNotFoundException($"Topic with ID {id} not found.");
-            }
 
             _dbContext.Topics.Remove(topic);
             _dbContext.SaveChanges();

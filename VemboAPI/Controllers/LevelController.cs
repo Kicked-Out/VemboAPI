@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using System.Data;
+using VemboAPI.Domain.DTOs;
 
 namespace VemboAPI.API.Controllers
 {
@@ -14,6 +17,7 @@ namespace VemboAPI.API.Controllers
         {
             _levelService = levelService;
         }
+        [Authorize]
 
         [HttpGet]
         public IActionResult Get()
@@ -21,6 +25,7 @@ namespace VemboAPI.API.Controllers
             var levels = _levelService.GetAllLevels();
             return Ok(levels);
         }
+        [Authorize]
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
@@ -35,18 +40,16 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPost]
-        public IActionResult Post([FromBody] Level level)
+        public IActionResult Post([FromBody] CreateLevelDto dto)
         {
-            if (level == null || string.IsNullOrEmpty(level.Title))
-            {
-                return BadRequest("Invalid level data.");
-            }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
             try
             {
-                var created = _levelService.CreateLevel(level.Title, level.UnitId, level.Order);
+                var created = _levelService.CreateLevel(dto);
                 return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
             }
             catch (KeyNotFoundException ex)
@@ -55,17 +58,16 @@ namespace VemboAPI.API.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] Level level)
+        public IActionResult Put(int id, [FromBody] UpdateLevelDto dto)
         {
-            if (level == null || string.IsNullOrEmpty(level.Title))
-            {
-                return BadRequest("Invalid level data.");
-            }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
             try
             {
-                _levelService.UpdateLevel(id, level.Title, level.UnitId, level.Order);
+                _levelService.UpdateLevel(id, dto);
                 return Ok();
             }
             catch (KeyNotFoundException ex)
@@ -73,6 +75,8 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
+
+        [Authorize(Roles = "Admin")]
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)

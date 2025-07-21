@@ -1,5 +1,4 @@
-﻿// TopicCreateDto.cs
-namespace VemboAPI.Domain.DTOs
+﻿namespace VemboAPI.Domain.DTOs
 {
     public class TopicCreateDto
     {

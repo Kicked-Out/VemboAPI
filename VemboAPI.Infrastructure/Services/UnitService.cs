@@ -1,99 +1,71 @@
-﻿using VemboAPI.Domain.Data;
+﻿using VemboAPI.Infrastructure.Data;
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.Entities;
 using VemboAPI.Domain.DTOs;
-using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
 namespace VemboAPI.Infrastructure.Services
 {
     public class UnitService : IUnitService
     {
         private readonly VemboDbContext _dbContext;
+        private readonly IMapper _mapper;
 
-        public UnitService(VemboDbContext dbContext)
+        public UnitService(VemboDbContext dbContext, IMapper mapper)
         {
             _dbContext = dbContext;
+            _mapper = mapper;
         }
 
         public List<UnitDto> GetAllUnits()
         {
-            return _dbContext.Units
-                .Select(u => new UnitDto
-                {
-                    Id = u.Id,
-                    Title = u.Title,
-                    Description = u.Description,
-                    Order = u.Order,
-                    TopicId = u.TopicId
-                })
-                .ToList();
+            var units = _dbContext.Units.ToList();
+            return _mapper.Map<List<UnitDto>>(units);
         }
 
         public UnitDto GetUnitById(int id)
         {
             var unit = _dbContext.Units.Find(id);
             if (unit == null)
-            {
                 throw new KeyNotFoundException($"Unit with ID {id} not found.");
-            }
 
-            return new UnitDto
-            {
-                Id = unit.Id,
-                Title = unit.Title,
-                Description = unit.Description,
-                Order = unit.Order,
-                TopicId = unit.TopicId
-            };
+            return _mapper.Map<UnitDto>(unit);
         }
 
-        public UnitDto CreateUnit(string title, string description, int order, int topicId)
+        public UnitDto CreateUnit(CreateUnitDto dto)
         {
-            var topic = _dbContext.Topics.Find(topicId);
+            var topic = _dbContext.Topics.Find(dto.TopicId);
             if (topic == null)
-            {
-                throw new KeyNotFoundException($"Topic with ID {topicId} not found.");
-            }
+                throw new KeyNotFoundException($"Topic with ID {dto.TopicId} not found.");
 
             var unit = new Unit
             {
-                Title = title,
-                Description = description,
-                Order = order,
-                TopicId = topicId
+                Title = dto.Title,
+                Description = dto.Description,
+                Order = dto.Order,
+                TopicId = dto.TopicId
             };
 
             _dbContext.Units.Add(unit);
             _dbContext.SaveChanges();
 
-            return new UnitDto
-            {
-                Id = unit.Id,
-                Title = unit.Title,
-                Description = unit.Description,
-                Order = unit.Order,
-                TopicId = unit.TopicId
-            };
+            return _mapper.Map<UnitDto>(unit);
         }
 
-        public void UpdateUnit(int id, string title, string description, int order, int topicId)
+        public void UpdateUnit(int id, UpdateUnitDto dto)
         {
             var unit = _dbContext.Units.Find(id);
             if (unit == null)
-            {
                 throw new KeyNotFoundException($"Unit with ID {id} not found.");
-            }
 
-            var topic = _dbContext.Topics.Find(topicId);
+            var topic = _dbContext.Topics.Find(dto.TopicId);
             if (topic == null)
-            {
-                throw new KeyNotFoundException($"Topic with ID {topicId} not found.");
-            }
+                throw new KeyNotFoundException($"Topic with ID {dto.TopicId} not found.");
 
-            unit.Title = title;
-            unit.Description = description;
-            unit.Order = order;
-            unit.TopicId = topicId;
+            unit.Title = dto.Title;
+            unit.Description = dto.Description;
+            unit.Order = dto.Order;
+            unit.TopicId = dto.TopicId;
 
             _dbContext.Units.Update(unit);
             _dbContext.SaveChanges();
@@ -103,9 +75,7 @@ namespace VemboAPI.Infrastructure.Services
         {
             var unit = _dbContext.Units.Find(id);
             if (unit == null)
-            {
                 throw new KeyNotFoundException($"Unit with ID {id} not found.");
-            }
 
             _dbContext.Units.Remove(unit);
             _dbContext.SaveChanges();

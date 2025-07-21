@@ -8,6 +8,7 @@ namespace VemboAPI.Domain.Entities
 		public int LevelId { get; set; }
 		public Level? Level { get; set; }
 		public ICollection<Exercise> Exercises { get; set; } = new List<Exercise>();
+		public ICollection<UserLessonProgress> UserLessonProgresses { get; set; } = new List<UserLessonProgress>();
 	}
 }
 

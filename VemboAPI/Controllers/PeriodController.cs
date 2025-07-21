@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using System.Data;
+using VemboAPI.Domain.DTOs;
 
 namespace VemboAPI.API.Controllers
 {
@@ -14,6 +17,7 @@ namespace VemboAPI.API.Controllers
         {
             _periodService = periodService;
         }
+        [Authorize]
 
         [HttpGet]
         public IActionResult Get()
@@ -21,6 +25,7 @@ namespace VemboAPI.API.Controllers
             var periods = _periodService.GetAllPeriods();
             return Ok(periods);
         }
+        [Authorize]
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
@@ -35,30 +40,32 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
+        [Authorize(Roles = "Admin")]
 
         [HttpPost]
-        public IActionResult Post([FromBody] Period period)
+        public IActionResult Post([FromBody] CreatePeriodDto dto)
         {
-            if (period == null || string.IsNullOrEmpty(period.Title))
+            if (!ModelState.IsValid)
             {
-                return BadRequest("Invalid period data.");
+                return BadRequest(ModelState);
             }
 
-            _periodService.CreatePeriod(period.Title, period.Description, period.ImageUrl);
-            return Ok();
+            var created = _periodService.CreatePeriod(dto);
+            return Ok(created);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] Period period)
+        public IActionResult Update(int id, [FromBody] UpdatePeriodDto dto)
         {
-            if (period == null || string.IsNullOrEmpty(period.Title))
+            if (!ModelState.IsValid)
             {
-                return BadRequest("Invalid period data.");
+                return BadRequest(ModelState);
             }
 
             try
             {
-                _periodService.UpdatePeriod(id, period.Title, period.Description, period.ImageUrl);
+                _periodService.UpdatePeriod(id, dto);
                 return Ok();
             }
             catch (KeyNotFoundException ex)
@@ -66,6 +73,8 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
+
+        [Authorize(Roles = "Admin")]
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)

@@ -11,7 +11,8 @@ namespace VemboAPI.Domain.Entities
 		public int ExerciseTypeId { get; set; }
 		public Lesson? Lesson { get; set; }
 		public ExerciseType? ExerciseType { get; set; }
-		public ICollection<Question> Questions = new List<Question>();
+		public ICollection<Question> Questions { get; set; } = new List<Question>();
+		public ICollection<UserExerciseMistake> UserExerciseMistakes = new List<UserExerciseMistake>();
 	}
 }
 

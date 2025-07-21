@@ -7,8 +7,9 @@ namespace VemboAPI.Infrastructure.Interfaces
 	{
         List<QuestionDto> GetAllQuestions();
         QuestionDto GetQuestionById(int id);
-        QuestionDto CreateQuestion(string title, int exerciseId);
-        void UpdateQuestion(int id, string title, int exerciseId);
+        QuestionDto CreateQuestion(CreateQuestionDto dto);
+        void UpdateQuestion(int id, UpdateQuestionDto dto);
+
         void DeleteQuestion(int id);
     }
 }

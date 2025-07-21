@@ -35,17 +35,12 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
-
         [HttpPost]
-        public IActionResult Post([FromBody] LessonDto lesson)
+        public IActionResult Post([FromBody] CreateLessonDto dto)
         {
-            if (lesson == null)
-                return BadRequest("Lesson is null.");
-
-  
             try
             {
-                var created = _lessonService.CreateLesson(lesson.Order, lesson.LevelId);
+                var created = _lessonService.CreateLesson(dto);
                 return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
             }
             catch (KeyNotFoundException ex)
@@ -55,14 +50,11 @@ namespace VemboAPI.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] LessonDto lesson)
+        public IActionResult Put(int id, [FromBody] UpdateLessonDto dto)
         {
-            if (lesson == null)
-                return BadRequest("Lesson is null.");
-
             try
             {
-                _lessonService.UpdateLesson(id, lesson.Order, lesson.LevelId);
+                _lessonService.UpdateLesson(id, dto);
                 return Ok();
             }
             catch (KeyNotFoundException ex)
@@ -70,6 +62,7 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
+
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)

@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.DTOs;
+using Microsoft.AspNetCore.Authorization;
+using System.Data;
 
 namespace VemboAPI.API.Controllers
 {
@@ -14,6 +16,7 @@ namespace VemboAPI.API.Controllers
         {
             _exerciseTypeService = exerciseTypeService;
         }
+        [Authorize]
 
         [HttpGet]
         public IActionResult Get()
@@ -21,6 +24,7 @@ namespace VemboAPI.API.Controllers
             var types = _exerciseTypeService.GetAllExerciseTypes();
             return Ok(types);
         }
+        [Authorize]
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
@@ -35,30 +39,21 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPost]
-        public IActionResult Post([FromBody] ExerciseTypeDto type)
+        public IActionResult Post([FromBody] CreateExerciseTypeDto dto)
         {
-            if (type == null || string.IsNullOrEmpty(type.Title))
-            {
-                return BadRequest("Invalid exercise type data.");
-            }
-
-            var created = _exerciseTypeService.CreateExerciseType(type.Title);
+            var created = _exerciseTypeService.CreateExerciseType(dto);
             return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] ExerciseTypeDto type)
+        public IActionResult Put(int id, [FromBody] UpdateExerciseTypeDto dto)
         {
-            if (type == null || string.IsNullOrEmpty(type.Title))
-            {
-                return BadRequest("Invalid exercise type data.");
-            }
-
             try
             {
-                _exerciseTypeService.UpdateExerciseType(id, type.Title);
+                _exerciseTypeService.UpdateExerciseType(id, dto);
                 return Ok();
             }
             catch (KeyNotFoundException ex)
@@ -66,6 +61,8 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
+
+        [Authorize(Roles = "Admin")]
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
