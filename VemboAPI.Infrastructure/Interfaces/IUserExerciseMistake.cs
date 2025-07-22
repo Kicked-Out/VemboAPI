@@ -7,8 +7,9 @@ namespace VemboAPI.Infrastructure.Interfaces
     {
         List<UserExerciseMistakeDto> GetAllMistakes();
         UserExerciseMistakeDto GetMistakeById(int id);
-        UserExerciseMistakeDto CreateMistake(int userId, int exerciseId, string userAnswer);
-        void UpdateMistake(int id, int userId, int exerciseId, string userAnswer);
+        UserExerciseMistakeDto CreateMistake(CreateUserExerciseMistakeDto dto);
+        void UpdateMistake(int id, UpdateUserExerciseMistakeDto dto);
+
         void DeleteMistake(int id);
     }
 
