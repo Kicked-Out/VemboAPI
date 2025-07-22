@@ -7,8 +7,9 @@ namespace VemboAPI.Infrastructure.Interfaces
     {
         List<UserLessonProgressDto> GetAllLessonProgress();
         UserLessonProgressDto GetLessonProgressById(int id);
-        UserLessonProgressDto CreateLessonProgress(int userId, int lessonId, bool isCompleted);
-        void UpdateLessonProgress(int id, int userId, int lessonId, bool isCompleted);
+        UserLessonProgressDto CreateLessonProgress(CreateUserLessonProgressDto dto);
+        void UpdateLessonProgress(int id, UpdateUserLessonProgressDto dto);
+
         void DeleteLessonProgress(int id);
     }
 }
