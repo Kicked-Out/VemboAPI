@@ -79,7 +79,13 @@ namespace VemboAPI.Infrastructure
             // Answer
             CreateMap<Answer, AnswerDto>().ReverseMap();
             CreateMap<Answer, CreateAnswerDto>().ReverseMap();
-            CreateMap<Answer, UpdateAnswerDto>().ReverseMap(); // ❗ Перевір: "Unswer" чи "Answer"
+            CreateMap<Answer, UpdateAnswerDto>().ReverseMap();
+
+            // GuideBook
+            CreateMap<GuideBook, GuideBookDto>().ReverseMap();
+            CreateMap<GuideBook, CreateGuideBookDto>().ReverseMap();
+            CreateMap<GuideBook, UpdateGuideBookDto>().ReverseMap();
+
         }
     }
 }

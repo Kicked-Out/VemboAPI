@@ -83,6 +83,8 @@ public class Program
         builder.Services.AddScoped<IUserLessonProgressService, UserLessonProgressService>();
         builder.Services.AddScoped<IUserExerciseMistakeService, UserExerciseMistakeService>();
         builder.Services.AddScoped<ILevelTypeService, LevelTypeService>();
+        builder.Services.AddScoped<IGuideBookService, GuideBookService>();
+
         builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 
         var app = builder.Build();

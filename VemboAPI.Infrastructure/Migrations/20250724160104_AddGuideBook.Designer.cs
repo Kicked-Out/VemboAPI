@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VemboAPI.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using VemboAPI.Infrastructure.Data;
 namespace VemboAPI.Infrastructure.Migrations
 {
     [DbContext(typeof(VemboDbContext))]
-    partial class VemboDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250724160104_AddGuideBook")]
+    partial class AddGuideBook
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -95,27 +98,6 @@ namespace VemboAPI.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ExerciseTypes");
-                });
-
-            modelBuilder.Entity("VemboAPI.Domain.Entities.GuideBook", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("GuideBooks");
                 });
 
             modelBuilder.Entity("VemboAPI.Domain.Entities.Lesson", b =>
@@ -275,9 +257,6 @@ namespace VemboAPI.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("GuideBookId")
-                        .HasColumnType("int");
-
                     b.Property<int>("Order")
                         .HasColumnType("int");
 
@@ -289,8 +268,6 @@ namespace VemboAPI.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("GuideBookId");
 
                     b.HasIndex("TopicId");
 
@@ -585,19 +562,11 @@ namespace VemboAPI.Infrastructure.Migrations
 
             modelBuilder.Entity("VemboAPI.Domain.Entities.Unit", b =>
                 {
-                    b.HasOne("VemboAPI.Domain.Entities.GuideBook", "GetGuideBook")
-                        .WithMany("Units")
-                        .HasForeignKey("GuideBookId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("VemboAPI.Domain.Entities.Topic", "Topic")
                         .WithMany("Units")
                         .HasForeignKey("TopicId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("GetGuideBook");
 
                     b.Navigation("Topic");
                 });
@@ -724,11 +693,6 @@ namespace VemboAPI.Infrastructure.Migrations
             modelBuilder.Entity("VemboAPI.Domain.Entities.ExerciseType", b =>
                 {
                     b.Navigation("Exercises");
-                });
-
-            modelBuilder.Entity("VemboAPI.Domain.Entities.GuideBook", b =>
-                {
-                    b.Navigation("Units");
                 });
 
             modelBuilder.Entity("VemboAPI.Domain.Entities.Lesson", b =>
