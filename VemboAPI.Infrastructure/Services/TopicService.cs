@@ -49,17 +49,10 @@ namespace VemboAPI.Infrastructure.Services
 
         public TopicDto CreateTopic(TopicCreateDto dto)
         {
-            var period = _dbContext.Periods.Find(dto.PeriodId);
-            if (period == null)
+            if (!_dbContext.Periods.Any(p => p.Id == dto.PeriodId))
                 throw new KeyNotFoundException($"Period with ID {dto.PeriodId} not found.");
 
-            var topic = new Topic
-            {
-                Title = dto.Title,
-                Description = dto.Description,
-                ImageUrl = dto.ImageUrl,
-                PeriodId = dto.PeriodId
-            };
+            var topic = _mapper.Map<Topic>(dto);
 
             _dbContext.Topics.Add(topic);
             _dbContext.SaveChanges();
@@ -69,24 +62,20 @@ namespace VemboAPI.Infrastructure.Services
             return result;
         }
 
+
         public void UpdateTopic(int id, TopicUpdateDto dto)
         {
             var topic = _dbContext.Topics.Find(id);
             if (topic == null)
                 throw new KeyNotFoundException($"Topic with ID {id} not found.");
 
-            var period = _dbContext.Periods.Find(dto.PeriodId);
-            if (period == null)
+            if (!_dbContext.Periods.Any(p => p.Id == dto.PeriodId))
                 throw new KeyNotFoundException($"Period with ID {dto.PeriodId} not found.");
 
-            topic.Title = dto.Title;
-            topic.Description = dto.Description;
-            topic.ImageUrl = dto.ImageUrl;
-            topic.PeriodId = dto.PeriodId;
-
-            _dbContext.Topics.Update(topic);
+            _mapper.Map(dto, topic);
             _dbContext.SaveChanges();
         }
+
 
         public void DeleteTopic(int id)
         {

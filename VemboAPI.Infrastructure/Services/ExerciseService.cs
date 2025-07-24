@@ -42,14 +42,7 @@ namespace VemboAPI.Infrastructure.Services
             if (exerciseType == null)
                 throw new KeyNotFoundException($"ExerciseType with ID {dto.ExerciseTypeId} not found.");
 
-            var exercise = new Exercise
-            {
-                Title = dto.Title,
-                LessonId = dto.LessonId,
-                Difficulty = dto.Difficulty,
-                ExerciseTypeId = dto.ExerciseTypeId,
-                Order = dto.Order
-            };
+            var exercise = _mapper.Map<Exercise>(dto);
 
             _dbContext.Exercises.Add(exercise);
             _dbContext.SaveChanges();
@@ -71,16 +64,9 @@ namespace VemboAPI.Infrastructure.Services
             if (exerciseType == null)
                 throw new KeyNotFoundException($"ExerciseType with ID {dto.ExerciseTypeId} not found.");
 
-            exercise.Title = dto.Title;
-            exercise.LessonId = dto.LessonId;
-            exercise.Difficulty = dto.Difficulty;
-            exercise.ExerciseTypeId = dto.ExerciseTypeId;
-            exercise.Order = dto.Order;
-
-            _dbContext.Exercises.Update(exercise);
+            _mapper.Map(dto, exercise);
             _dbContext.SaveChanges();
         }
-
 
         public void DeleteExercise(int id)
         {

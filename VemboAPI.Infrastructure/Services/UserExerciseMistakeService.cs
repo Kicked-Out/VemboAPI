@@ -34,12 +34,7 @@ namespace VemboAPI.Infrastructure.Services
 
         public UserExerciseMistakeDto CreateMistake(CreateUserExerciseMistakeDto dto)
         {
-            var mistake = new UserExerciseMistake
-            {
-                UserId = dto.UserId,
-                ExerciseId = dto.ExerciseId,
-                UserAnswer = dto.UserAnswer
-            };
+            var mistake = _mapper.Map<UserExerciseMistake>(dto);
 
             _dbContext.UserExerciseMistakes.Add(mistake);
             _dbContext.SaveChanges();
@@ -47,19 +42,17 @@ namespace VemboAPI.Infrastructure.Services
             return _mapper.Map<UserExerciseMistakeDto>(mistake);
         }
 
+
         public void UpdateMistake(int id, UpdateUserExerciseMistakeDto dto)
         {
             var mistake = _dbContext.UserExerciseMistakes.Find(id);
             if (mistake == null)
                 throw new KeyNotFoundException($"Mistake with ID {id} not found.");
 
-            mistake.UserId = dto.UserId;
-            mistake.ExerciseId = dto.ExerciseId;
-            mistake.UserAnswer = dto.UserAnswer;
-
-            _dbContext.UserExerciseMistakes.Update(mistake);
+            _mapper.Map(dto, mistake);
             _dbContext.SaveChanges();
         }
+
 
 
         public void DeleteMistake(int id)

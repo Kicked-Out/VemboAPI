@@ -3,6 +3,7 @@ using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.Entities;
 using VemboAPI.Domain.DTOs;
 using AutoMapper;
+using VemboAPI.Domain.DTO;
 
 namespace VemboAPI.Infrastructure.Services
 {
@@ -17,24 +18,20 @@ namespace VemboAPI.Infrastructure.Services
             _mapper = mapper;
         }
 
-        public void CreateUser(string nickName, string password, string email)
+        public void CreateUser(CreateUserDto dto)
         {
-            var user = new User
-            {
-                NickName = nickName,
-                Password = password,
-                Email = email,
-                Level = 1,
-                Rating = 0,
-                IsPremium = false,
-                XP = 0,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
+            var user = _mapper.Map<User>(dto);
+            user.Level = 1;
+            user.Rating = 0;
+            user.IsPremium = false;
+            user.XP = 0;
+            user.CreatedAt = DateTime.UtcNow;
+            user.UpdatedAt = DateTime.UtcNow;
 
             _dbContext.Users.Add(user);
             _dbContext.SaveChanges();
         }
+
 
         public void DeleteUser(int id)
         {
@@ -68,15 +65,13 @@ namespace VemboAPI.Infrastructure.Services
             return _mapper.Map<UserDto>(user);
         }
 
-        public void UpdateUser(int id, string nickName, string password, string email)
+        public void UpdateUser(int id, UpdateUserDto dto)
         {
             var user = _dbContext.Users.Find(id);
             if (user == null)
                 throw new KeyNotFoundException($"User with ID {id} not found.");
 
-            user.NickName = nickName;
-            user.Password = password;
-            user.Email = email;
+            _mapper.Map(dto, user);
             user.UpdatedAt = DateTime.UtcNow;
 
             _dbContext.Users.Update(user);
