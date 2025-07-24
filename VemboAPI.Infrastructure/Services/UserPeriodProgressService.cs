@@ -34,18 +34,13 @@ namespace VemboAPI.Infrastructure.Services
 
         public UserPeriodProgressDto CreateUserPeriodProgress(CreateUserPeriodProgressDto dto)
         {
-            var progress = new UserPeriodProgress
-            {
-                UserId = dto.UserId,
-                PeriodId = dto.PeriodId,
-                isCompleted = dto.isCompleted
-            };
-
+            var progress = _mapper.Map<UserPeriodProgress>(dto);
             _dbContext.UserPeriodProgresses.Add(progress);
             _dbContext.SaveChanges();
 
             return _mapper.Map<UserPeriodProgressDto>(progress);
         }
+
 
         public void UpdateUserPeriodProgress(int id, UpdateUserPeriodProgressDto dto)
         {
@@ -53,13 +48,10 @@ namespace VemboAPI.Infrastructure.Services
             if (progress == null)
                 throw new KeyNotFoundException($"UserPeriodProgress with ID {id} not found.");
 
-            progress.UserId = dto.UserId;
-            progress.PeriodId = dto.PeriodId;
-            progress.isCompleted = dto.isCompleted;
-
-            _dbContext.UserPeriodProgresses.Update(progress);
+            _mapper.Map(dto, progress);
             _dbContext.SaveChanges();
         }
+
 
 
         public void DeleteUserPeriodProgress(int id)

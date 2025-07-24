@@ -34,28 +34,23 @@ namespace VemboAPI.Infrastructure.Services
 
         public LevelTypeDto Create(CreateLevelTypeDto dto)
         {
-            var levelType = new LevelType
-            {
-                Title = dto.Title
-            };
-
-            _dbContext.LevelTypes.Add(levelType);
+            var entity = _mapper.Map<LevelType>(dto);
+            _dbContext.LevelTypes.Add(entity);
             _dbContext.SaveChanges();
-
-            return _mapper.Map<LevelTypeDto>(levelType);
+            return _mapper.Map<LevelTypeDto>(entity);
         }
+
 
         public void Update(int id, UpdateLevelTypeDto dto)
         {
-            var levelType = _dbContext.LevelTypes.Find(id);
-            if (levelType == null)
+            var entity = _dbContext.LevelTypes.Find(id);
+            if (entity == null)
                 throw new KeyNotFoundException($"LevelType with ID {id} not found.");
 
-            levelType.Title = dto.Title;
-
-            _dbContext.LevelTypes.Update(levelType);
+            _mapper.Map(dto, entity);
             _dbContext.SaveChanges();
         }
+
 
         public void Delete(int id)
         {

@@ -34,7 +34,7 @@ namespace VemboAPI.Infrastructure.Services
 
         public ExerciseTypeDto CreateExerciseType(CreateExerciseTypeDto dto)
         {
-            var exerciseType = new ExerciseType { Title = dto.Title };
+            var exerciseType = _mapper.Map<ExerciseType>(dto);
 
             _dbContext.ExerciseTypes.Add(exerciseType);
             _dbContext.SaveChanges();
@@ -48,12 +48,10 @@ namespace VemboAPI.Infrastructure.Services
             if (exerciseType == null)
                 throw new KeyNotFoundException($"ExerciseType with ID {id} not found.");
 
-            exerciseType.Title = dto.Title;
+            _mapper.Map(dto, exerciseType);
 
-            _dbContext.ExerciseTypes.Update(exerciseType);
             _dbContext.SaveChanges();
         }
-
 
         public void DeleteExerciseType(int id)
         {

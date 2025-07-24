@@ -34,12 +34,7 @@ namespace VemboAPI.Infrastructure.Services
 
         public UserTopicProgressDto CreateUserTopicProgress(CreateUserTopicProgressDto dto)
         {
-            var progress = new UserTopicProgress
-            {
-                UserId = dto.UserId,
-                TopicId = dto.TopicId,
-                isCompleted = dto.isCompleted
-            };
+            var progress = _mapper.Map<UserTopicProgress>(dto);
 
             _dbContext.UserTopicProgresses.Add(progress);
             _dbContext.SaveChanges();
@@ -53,14 +48,9 @@ namespace VemboAPI.Infrastructure.Services
             if (progress == null)
                 throw new KeyNotFoundException($"UserTopicProgress with ID {id} not found.");
 
-            progress.UserId = dto.UserId;
-            progress.TopicId = dto.TopicId;
-            progress.isCompleted = dto.isCompleted;
-
-            _dbContext.UserTopicProgresses.Update(progress);
+            _mapper.Map(dto, progress);
             _dbContext.SaveChanges();
         }
-
 
         public void DeleteUserTopicProgress(int id)
         {
@@ -72,4 +62,5 @@ namespace VemboAPI.Infrastructure.Services
             _dbContext.SaveChanges();
         }
     }
+
 }

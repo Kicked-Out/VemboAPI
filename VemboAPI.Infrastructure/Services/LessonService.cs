@@ -34,21 +34,16 @@ namespace VemboAPI.Infrastructure.Services
 
         public LessonDto CreateLesson(CreateLessonDto dto)
         {
-            var level = _dbContext.Levels.Find(dto.LevelId);
-            if (level == null)
+            if (!_dbContext.Levels.Any(l => l.Id == dto.LevelId))
                 throw new KeyNotFoundException($"Level with ID {dto.LevelId} not found.");
 
-            var lesson = new Lesson
-            {
-                Order = dto.Order,
-                LevelId = dto.LevelId
-            };
-
+            var lesson = _mapper.Map<Lesson>(dto);
             _dbContext.Lessons.Add(lesson);
             _dbContext.SaveChanges();
 
             return _mapper.Map<LessonDto>(lesson);
         }
+
 
         public void UpdateLesson(int id, UpdateLessonDto dto)
         {
@@ -56,16 +51,13 @@ namespace VemboAPI.Infrastructure.Services
             if (lesson == null)
                 throw new KeyNotFoundException($"Lesson with ID {id} not found.");
 
-            var level = _dbContext.Levels.Find(dto.LevelId);
-            if (level == null)
+            if (!_dbContext.Levels.Any(l => l.Id == dto.LevelId))
                 throw new KeyNotFoundException($"Level with ID {dto.LevelId} not found.");
 
-            lesson.Order = dto.Order;
-            lesson.LevelId = dto.LevelId;
-
-            _dbContext.Lessons.Update(lesson);
+            _mapper.Map(dto, lesson);
             _dbContext.SaveChanges();
         }
+
 
 
         public void DeleteLesson(int id)

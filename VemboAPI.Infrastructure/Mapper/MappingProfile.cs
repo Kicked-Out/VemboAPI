@@ -1,4 +1,5 @@
 using AutoMapper;
+using VemboAPI.Domain.DTO;
 using VemboAPI.Domain.DTOs;
 using VemboAPI.Domain.Entities;
 
@@ -10,6 +11,9 @@ namespace VemboAPI.Infrastructure
         {
             // Користувач
             CreateMap<User, UserDto>().ReverseMap();
+            CreateMap<CreateUserDto, User>();
+            CreateMap<UpdateUserDto, User>();
+
 
             // Прогрес користувача
             CreateMap<UserPeriodProgress, UserPeriodProgressDto>().ReverseMap();

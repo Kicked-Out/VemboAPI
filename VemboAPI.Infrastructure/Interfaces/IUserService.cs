@@ -1,11 +1,13 @@
-﻿using VemboAPI.Domain.DTOs;
+﻿using VemboAPI.Domain.DTO;
+using VemboAPI.Domain.DTOs;
 
 namespace VemboAPI.Infrastructure.Interfaces
 {
     public interface IUserService
     {
-        void CreateUser(string nickName, string password, string email);
-        void UpdateUser(int id, string nickName, string password, string email);
+        void CreateUser(CreateUserDto dto);
+        void UpdateUser(int id, UpdateUserDto dto);
+
         void DeleteUser(int id);
 
         UserDto GetUserById(int id);

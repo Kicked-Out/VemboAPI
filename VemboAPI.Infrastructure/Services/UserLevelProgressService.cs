@@ -34,12 +34,7 @@ namespace VemboAPI.Infrastructure.Services
 
         public UserLevelProgressDto CreateUserLevelProgress(CreateUserLevelProgressDto dto)
         {
-            var progress = new UserLevelProgress
-            {
-                UserId = dto.UserId,
-                LevelId = dto.LevelId,
-                isCompleted = dto.isCompleted
-            };
+            var progress = _mapper.Map<UserLevelProgress>(dto);
 
             _dbContext.UserLevelProgresses.Add(progress);
             _dbContext.SaveChanges();
@@ -47,19 +42,17 @@ namespace VemboAPI.Infrastructure.Services
             return _mapper.Map<UserLevelProgressDto>(progress);
         }
 
+
         public void UpdateUserLevelProgress(int id, UpdateUserLevelProgressDto dto)
         {
             var progress = _dbContext.UserLevelProgresses.Find(id);
             if (progress == null)
                 throw new KeyNotFoundException($"UserLevelProgress with ID {id} not found.");
 
-            progress.UserId = dto.UserId;
-            progress.LevelId = dto.LevelId;
-            progress.isCompleted = dto.isCompleted;
-
-            _dbContext.UserLevelProgresses.Update(progress);
+            _mapper.Map(dto, progress);
             _dbContext.SaveChanges();
         }
+
 
 
         public void DeleteUserLevelProgress(int id)

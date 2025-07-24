@@ -50,21 +50,14 @@ namespace VemboAPI.Infrastructure.Services
 
         public PeriodDto CreatePeriod(CreatePeriodDto dto)
         {
-            var period = new Period
-            {
-                Title = dto.Title,
-                Description = dto.Description,
-                ImageUrl = dto.ImageUrl
-            };
-
+            var period = _mapper.Map<Period>(dto);
             _dbContext.Periods.Add(period);
             _dbContext.SaveChanges();
 
             var result = _mapper.Map<PeriodDto>(period);
-            result.TopicsCount = 0; 
-
             return result;
         }
+
 
 
         public void UpdatePeriod(int id, UpdatePeriodDto dto)
@@ -73,13 +66,10 @@ namespace VemboAPI.Infrastructure.Services
             if (period == null)
                 throw new KeyNotFoundException($"Period with ID {id} not found.");
 
-            period.Title = dto.Title;
-            period.Description = dto.Description;
-            period.ImageUrl = dto.ImageUrl;
-
-            _dbContext.Periods.Update(period);
+            _mapper.Map(dto, period);
             _dbContext.SaveChanges();
         }
+
 
 
         public void DeletePeriod(int id)
