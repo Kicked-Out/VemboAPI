@@ -23,6 +23,12 @@ namespace VemboAPI.Infrastructure.Data
         public DbSet<UserExerciseMistake> UserExerciseMistakes { get; set; }
         public DbSet<LevelType> LevelTypes { get; set; }
         public DbSet<GuideBook> GuideBooks { get; set; }
+        public DbSet<UserAchievement> UserAchievements { get; set; }
+        public DbSet<AchievementLevel> AchievementLevels { get; set; }
+        public DbSet<Achievement> Achievements { get; set; }
+        public DbSet<UserStatistic> UserStatistics { get; set; }
+        public DbSet<UserLeaderBoardEntry> UserLeaderBoardEntries { get; set; }
+
         public VemboDbContext(DbContextOptions<VemboDbContext> options) : base(options)
         {
             // За бажанням: можна видалити EnsureCreated — міграції краще
@@ -34,21 +40,7 @@ namespace VemboAPI.Infrastructure.Data
             base.OnModelCreating(modelBuilder);
 
             // Налаштування User
-            modelBuilder.Entity<User>(entity =>
-            {
-                //entity.HasKey(e => e.Id);
-                //entity.Property(e => e.NickName).IsRequired().HasMaxLength(100);
-                //entity.Property(e => e.Email).IsRequired().HasMaxLength(100);
-                //entity.Property(e => e.Password).IsRequired();
-                //entity.Property(e => e.XP).IsRequired();
-                //entity.Property(e => e.IsPremium).IsRequired();
-                //entity.Property(e => e.Rating).IsRequired();
-                //entity.Property(e => e.Level).IsRequired();
-                //entity.Property(e => e.CreatedAt).IsRequired();
-                //entity.Property(e => e.UpdatedAt).IsRequired();
-            });
-
-            // Автоматично EF Core побудує зв’язок Topic → Parts
+            modelBuilder.Entity<User>();
             modelBuilder.Entity<Topic>();
             modelBuilder.Entity<Unit>();
             modelBuilder.Entity<Period>();
@@ -66,6 +58,11 @@ namespace VemboAPI.Infrastructure.Data
             modelBuilder.Entity<UserExerciseMistake>();
             modelBuilder.Entity<LevelType>();
             modelBuilder.Entity<GuideBook>();
+            modelBuilder.Entity<UserAchievement>();
+            modelBuilder.Entity<AchievementLevel>();
+            modelBuilder.Entity<Achievement>();
+            modelBuilder.Entity<UserStatistic>();
+            modelBuilder.Entity<UserLeaderBoardEntry>();
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
-using VemboAPI.Domain.DTO;
+using VemboAPI.Domain.DTOs;
 using VemboAPI.Infrastructure.Interfaces;
 
 [ApiController]

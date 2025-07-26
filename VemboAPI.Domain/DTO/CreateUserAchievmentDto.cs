@@ -1,0 +1,13 @@
+﻿using System;
+namespace VemboAPI.Domain.DTOs
+{
+    public class CreateUserAchievementDto
+    {
+        public int UserId { get; set; }
+        public int AchievementId { get; set; }
+        public int CurrentLevel { get; set; }
+        public int Progress { get; set; }
+        public DateTime EarnedAt { get; set; }
+    }
+}
+
