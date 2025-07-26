@@ -1,5 +1,5 @@
 ﻿using System;
-namespace VemboAPI.Domain.DTO
+namespace VemboAPI.Domain.DTOs
 {
     public class UpdateUserDto
     {

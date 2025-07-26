@@ -3,7 +3,7 @@ using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.Entities;
 using VemboAPI.Domain.DTOs;
 using AutoMapper;
-using VemboAPI.Domain.DTO;
+
 
 namespace VemboAPI.Infrastructure.Services
 {

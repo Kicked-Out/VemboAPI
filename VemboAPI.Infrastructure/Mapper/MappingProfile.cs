@@ -1,5 +1,5 @@
 using AutoMapper;
-using VemboAPI.Domain.DTO;
+
 using VemboAPI.Domain.DTOs;
 using VemboAPI.Domain.Entities;
 
@@ -89,6 +89,27 @@ namespace VemboAPI.Infrastructure
             CreateMap<GuideBook, GuideBookDto>().ReverseMap();
             CreateMap<GuideBook, CreateGuideBookDto>().ReverseMap();
             CreateMap<GuideBook, UpdateGuideBookDto>().ReverseMap();
+
+            CreateMap<Achievement, AchievementDto>();
+            CreateMap<CreateAchievementDto, Achievement>();
+            CreateMap<UpdateAchievementDto, Achievement>();
+
+            CreateMap<AchievementLevel, AchievementLevelDto>().ReverseMap();
+            CreateMap<CreateAchievementLevelDto, AchievementLevel>();
+            CreateMap<UpdateAchievementLevelDto, AchievementLevel>();
+
+            CreateMap<UserAchievement, UserAchievementDto>();
+            CreateMap<CreateUserAchievementDto, UserAchievement>();
+            CreateMap<UpdateUserAchievementDto, UserAchievement>();
+
+            CreateMap<UserStatistic, UserStatisticDto>();
+            CreateMap<CreateUserStatisticDto, UserStatistic>();
+            CreateMap<UpdateUserStatisticDto, UserStatistic>();
+
+            CreateMap<UserLeaderBoardEntry, UserLeaderBoardEntryDto>();
+            CreateMap<CreateUserLeaderBoardEntryDto, UserLeaderBoardEntry>();
+            CreateMap<UpdateUserLeaderBoardEntryDto, UserLeaderBoardEntry>();
+
 
         }
     }
