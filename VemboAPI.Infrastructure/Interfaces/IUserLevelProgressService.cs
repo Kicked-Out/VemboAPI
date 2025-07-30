@@ -9,6 +9,7 @@ namespace VemboAPI.Infrastructure.Interfaces
         UserLevelProgressDto GetUserLevelProgressById(int id);
         UserLevelProgressDto CreateUserLevelProgress(CreateUserLevelProgressDto dto);
         void UpdateUserLevelProgress(int id, UpdateUserLevelProgressDto dto);
+        UserLevelProgressDto EnsureProgressExists(int userId, int levelId);
 
         void DeleteUserLevelProgress(int id);
     }

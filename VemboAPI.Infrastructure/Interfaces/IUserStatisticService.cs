@@ -8,6 +8,9 @@ namespace VemboAPI.Infrastructure.Interfaces
         Task<List<UserStatisticDto>> GetAllAsync();
         Task<UserStatisticDto> GetByIdAsync(int id);
         Task<UserStatisticDto> CreateAsync(CreateUserStatisticDto dto);
+        Task<UserStatisticDto> GetByUserIdAsync(int userId);
+
+
         Task UpdateAsync(int id, UpdateUserStatisticDto dto);
         Task DeleteAsync(int id);
     }

@@ -52,6 +52,26 @@ namespace VemboAPI.Infrastructure.Services
             _mapper.Map(dto, progress);
             _dbContext.SaveChanges();
         }
+        public UserLessonProgressDto EnsureProgressExists(int userId, int lessonId)
+        {
+            var existing = _dbContext.UserLessonProgresses
+                .FirstOrDefault(p => p.UserId == userId && p.LessonId == lessonId);
+
+            if (existing != null)
+                return _mapper.Map<UserLessonProgressDto>(existing);
+
+            var progress = new UserLessonProgress
+            {
+                UserId = userId,
+                LessonId = lessonId,
+                isCompleted = false
+            };
+
+            _dbContext.UserLessonProgresses.Add(progress);
+            _dbContext.SaveChanges();
+
+            return _mapper.Map<UserLessonProgressDto>(progress);
+        }
 
 
 

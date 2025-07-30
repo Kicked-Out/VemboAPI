@@ -7,6 +7,7 @@ namespace VemboAPI.Infrastructure.Interfaces
     {
         void CreateUser(CreateUserDto dto);
         void UpdateUser(int id, UpdateUserDto dto);
+        Task UpdateRoleAsync(int userId, string newRole);
 
         void DeleteUser(int id);
 

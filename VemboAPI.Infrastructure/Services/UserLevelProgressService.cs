@@ -31,6 +31,26 @@ namespace VemboAPI.Infrastructure.Services
 
             return _mapper.Map<UserLevelProgressDto>(progress);
         }
+        public UserLevelProgressDto EnsureProgressExists(int userId, int levelId)
+        {
+            var existing = _dbContext.UserLevelProgresses
+                .FirstOrDefault(p => p.UserId == userId && p.LevelId == levelId);
+
+            if (existing != null)
+                return _mapper.Map<UserLevelProgressDto>(existing);
+
+            var progress = new UserLevelProgress
+            {
+                UserId = userId,
+                LevelId = levelId,
+                isCompleted = false
+            };
+
+            _dbContext.UserLevelProgresses.Add(progress);
+            _dbContext.SaveChanges();
+
+            return _mapper.Map<UserLevelProgressDto>(progress);
+        }
 
         public UserLevelProgressDto CreateUserLevelProgress(CreateUserLevelProgressDto dto)
         {

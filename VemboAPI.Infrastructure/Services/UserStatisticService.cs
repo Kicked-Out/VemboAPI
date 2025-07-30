@@ -32,6 +32,14 @@ namespace VemboAPI.Infrastructure.Services
 
             return _mapper.Map<UserStatisticDto>(stat);
         }
+        public async Task<UserStatisticDto> GetByUserIdAsync(int userId)
+        {
+            var entity = await _dbContext.UserStatistics.FirstOrDefaultAsync(u => u.UserId == userId)
+                ?? throw new KeyNotFoundException("User statistic not found");
+
+            return _mapper.Map<UserStatisticDto>(entity);
+        }
+
 
         public async Task<UserStatisticDto> CreateAsync(CreateUserStatisticDto dto)
         {
