@@ -10,6 +10,7 @@ namespace VemboAPI.Infrastructure.Interfaces
         UserUnitProgressDto GetUserUnitProgressById(int id);
         UserUnitProgressDto CreateUserUnitProgress(CreateUserUnitProgressDto dto);
         void UpdateUserUnitProgress(int id, UpdateUserUnitProgressDto dto);
+        UserUnitProgressDto EnsureProgressExists(int userId, int unitId);
 
         void DeleteUserUnitProgress(int id);
     }

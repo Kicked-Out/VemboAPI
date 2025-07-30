@@ -77,5 +77,17 @@ namespace VemboAPI.Infrastructure.Services
             _dbContext.Users.Update(user);
             _dbContext.SaveChanges();
         }
+        public async Task UpdateRoleAsync(int userId, string newRole)
+        {
+            var user = await _dbContext.Users.FindAsync(userId);
+            if (user == null)
+                throw new KeyNotFoundException($"User with ID {userId} not found.");
+
+            user.Role = newRole;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _dbContext.SaveChangesAsync();
+        }
+
     }
 }

@@ -32,6 +32,28 @@ namespace VemboAPI.Infrastructure.Services
             return _mapper.Map<UserPeriodProgressDto>(progress);
         }
 
+        public UserPeriodProgressDto EnsureProgressExists(int userId, int periodId)
+        {
+            var existing = _dbContext.UserPeriodProgresses
+                .FirstOrDefault(p => p.UserId == userId && p.PeriodId == periodId);
+
+            if (existing != null)
+                return _mapper.Map<UserPeriodProgressDto>(existing);
+
+            var progress = new UserPeriodProgress
+            {
+                UserId = userId,
+                PeriodId = periodId,
+                isCompleted = false,
+
+            };
+
+            _dbContext.UserPeriodProgresses.Add(progress);
+            _dbContext.SaveChanges();
+
+            return _mapper.Map<UserPeriodProgressDto>(progress);
+        }
+
         public UserPeriodProgressDto CreateUserPeriodProgress(CreateUserPeriodProgressDto dto)
         {
             var progress = _mapper.Map<UserPeriodProgress>(dto);
@@ -40,7 +62,6 @@ namespace VemboAPI.Infrastructure.Services
 
             return _mapper.Map<UserPeriodProgressDto>(progress);
         }
-
 
         public void UpdateUserPeriodProgress(int id, UpdateUserPeriodProgressDto dto)
         {
@@ -51,8 +72,6 @@ namespace VemboAPI.Infrastructure.Services
             _mapper.Map(dto, progress);
             _dbContext.SaveChanges();
         }
-
-
 
         public void DeleteUserPeriodProgress(int id)
         {
