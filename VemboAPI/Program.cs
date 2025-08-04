@@ -41,6 +41,8 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
+        builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
+
 
         var jwtSettings = builder.Configuration.GetSection("Jwt");
         var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
@@ -83,6 +85,7 @@ public class Program
         builder.Services.AddScoped<IUserLessonProgressService, UserLessonProgressService>();
         builder.Services.AddScoped<IUserExerciseMistakeService, UserExerciseMistakeService>();
         builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+        builder.Services.AddScoped<IEmailService, EmailService>();
 
         var app = builder.Build();
 
