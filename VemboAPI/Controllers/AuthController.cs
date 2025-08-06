@@ -54,8 +54,23 @@ namespace VemboAPI.Controllers
             _context.Users.Add(newUser);
             _context.SaveChanges();
 
+            // ✅ Створення статистики одразу після юзера
+            var stat = new UserStatistic
+            {
+                UserId = newUser.Id,
+                Streak = 0,
+                Emeralds = 0,
+                Hearts = 5,
+                CurrentPeriodId = null // або null, якщо ще не прив'язано до курсу
+            };
+
+            _context.UserStatistics.Add(stat);
+            _context.SaveChanges();
+
             var token = _jwtTokenGenerator.GenerateToken(newUser);
             return Ok(new { token });
         }
+
+
     }
 }

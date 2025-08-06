@@ -34,16 +34,14 @@ namespace VemboAPI.Infrastructure.Services
 
         public LevelDto CreateLevel(CreateLevelDto dto)
         {
-            var unit = _dbContext.Units.Find(dto.UnitId);
-            if (unit == null)
+            if (!_dbContext.Units.Any(u => u.Id == dto.UnitId))
                 throw new KeyNotFoundException($"Unit with ID {dto.UnitId} not found.");
 
-            var level = new Level
-            {
-                Title = dto.Title,
-                UnitId = dto.UnitId,
-                Order = dto.Order
-            };
+            if (!_dbContext.LevelTypes.Any(lt => lt.Id == dto.LevelTypeId))
+                throw new KeyNotFoundException($"LevelType with ID {dto.LevelTypeId} not found.");
+
+            var level = _mapper.Map<Level>(dto);
+            level.LevelTypeId = dto.LevelTypeId;
 
             _dbContext.Levels.Add(level);
             _dbContext.SaveChanges();
@@ -57,15 +55,15 @@ namespace VemboAPI.Infrastructure.Services
             if (level == null)
                 throw new KeyNotFoundException($"Level with ID {id} not found.");
 
-            var unit = _dbContext.Units.Find(dto.UnitId);
-            if (unit == null)
+            if (!_dbContext.Units.Any(u => u.Id == dto.UnitId))
                 throw new KeyNotFoundException($"Unit with ID {dto.UnitId} not found.");
 
-            level.Title = dto.Title;
-            level.UnitId = dto.UnitId;
-            level.Order = dto.Order;
+            if (!_dbContext.LevelTypes.Any(lt => lt.Id == dto.LevelTypeId))
+                throw new KeyNotFoundException($"LevelType with ID {dto.LevelTypeId} not found.");
 
-            _dbContext.Levels.Update(level);
+            _mapper.Map(dto, level);
+            level.LevelTypeId = dto.LevelTypeId;
+
             _dbContext.SaveChanges();
         }
 

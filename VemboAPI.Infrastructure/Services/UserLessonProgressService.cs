@@ -32,13 +32,39 @@ namespace VemboAPI.Infrastructure.Services
             return _mapper.Map<UserLessonProgressDto>(progress);
         }
 
-        public UserLessonProgressDto CreateLessonProgress(int userId, int lessonId, bool isCompleted)
+        public UserLessonProgressDto CreateLessonProgress(CreateUserLessonProgressDto dto)
         {
+            var progress = _mapper.Map<UserLessonProgress>(dto);
+
+            _dbContext.UserLessonProgresses.Add(progress);
+            _dbContext.SaveChanges();
+
+            return _mapper.Map<UserLessonProgressDto>(progress);
+        }
+
+
+        public void UpdateLessonProgress(int id, UpdateUserLessonProgressDto dto)
+        {
+            var progress = _dbContext.UserLessonProgresses.Find(id);
+            if (progress == null)
+                throw new KeyNotFoundException($"Lesson progress with ID {id} not found.");
+
+            _mapper.Map(dto, progress);
+            _dbContext.SaveChanges();
+        }
+        public UserLessonProgressDto EnsureProgressExists(int userId, int lessonId)
+        {
+            var existing = _dbContext.UserLessonProgresses
+                .FirstOrDefault(p => p.UserId == userId && p.LessonId == lessonId);
+
+            if (existing != null)
+                return _mapper.Map<UserLessonProgressDto>(existing);
+
             var progress = new UserLessonProgress
             {
                 UserId = userId,
                 LessonId = lessonId,
-                isCompleted = isCompleted
+                isCompleted = false
             };
 
             _dbContext.UserLessonProgresses.Add(progress);
@@ -47,19 +73,7 @@ namespace VemboAPI.Infrastructure.Services
             return _mapper.Map<UserLessonProgressDto>(progress);
         }
 
-        public void UpdateLessonProgress(int id, int userId, int lessonId, bool isCompleted)
-        {
-            var progress = _dbContext.UserLessonProgresses.Find(id);
-            if (progress == null)
-                throw new KeyNotFoundException($"Lesson progress with ID {id} not found.");
 
-            progress.UserId = userId;
-            progress.LessonId = lessonId;
-            progress.isCompleted = isCompleted;
-
-            _dbContext.UserLessonProgresses.Update(progress);
-            _dbContext.SaveChanges();
-        }
 
         public void DeleteLessonProgress(int id)
         {

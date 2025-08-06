@@ -8,5 +8,7 @@ public class UpdateLevelDtoValidator : AbstractValidator<UpdateLevelDto>
         RuleFor(x => x.Title).NotEmpty().MaximumLength(50);
         RuleFor(x => x.UnitId).GreaterThan(0);
         RuleFor(x => x.Order).GreaterThanOrEqualTo(1);
+        RuleFor(x => x.LevelTypeId).GreaterThan(0);
+
     }
 }

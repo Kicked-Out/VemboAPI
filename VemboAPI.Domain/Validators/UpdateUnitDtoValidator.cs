@@ -9,5 +9,7 @@ public class UpdateUnitDtoValidator : AbstractValidator<UpdateUnitDto>
         RuleFor(x => x.Description).MaximumLength(250);
         RuleFor(x => x.Order).GreaterThanOrEqualTo(1);
         RuleFor(x => x.TopicId).GreaterThan(0);
+        RuleFor(x => x.GuideBookId).GreaterThan(0);
+
     }
 }

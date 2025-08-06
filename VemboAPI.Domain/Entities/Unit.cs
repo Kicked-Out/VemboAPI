@@ -16,6 +16,10 @@ namespace VemboAPI.Domain.Entities
 
         public Topic? Topic { get; set; }
 
+        public int GuideBookId { get; set; }
+
+        public GuideBook? GetGuideBook { get; set; }
+
         public ICollection<Level> Levels { get; set; } = new List<Level>();
 
         public ICollection<UserUnitProgress> UserUnitProgresses { get; set; } = new List<UserUnitProgress>();

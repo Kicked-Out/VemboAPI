@@ -1,89 +1,104 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using VemboAPI.Infrastructure.Interfaces;
-using VemboAPI.Domain.Entities;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Data;
+using System.Security.Claims;
+using VemboAPI.Domain.DTOs;
+using VemboAPI.Infrastructure.Interfaces;
 
-namespace VemboAPI.API.Controllers
+[ApiController]
+[Route("api/[controller]")]
+public class UserController : Controller
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class UserController : Controller
+    private readonly IUserService _userService;
+
+    public UserController(IUserService userService)
     {
-        private IUserService _userService;
-        public UserController(IUserService userService)
-        {
-            _userService = userService;
-        }
-        [Authorize]
+        _userService = userService;
+    }
 
-        [HttpGet]
-        public IActionResult Get()
-        {
-            var users = _userService.GetAllUsers();
-            if (users == null || users.Count == 0)
-            {
-                return NotFound("No users found.");
-            }
-            return Ok(users);
-        }
-        [Authorize]
+    [Authorize]
+    [HttpGet]
+    public IActionResult Get()
+    {
+        var users = _userService.GetAllUsers();
+        if (users == null || users.Count == 0)
+            return NotFound("No users found.");
+        return Ok(users);
+    }
 
-        [HttpGet("{id}")]
-        public IActionResult Get(int id)
-        {
-            var user = _userService.GetUserById(id);
-            if (user == null)
-            {
-                return NotFound($"User with ID {id} not found.");
-            }
-            return Ok(user);
-        }
-        [Authorize(Roles = "Admin")]
+    [Authorize]
+    [HttpGet("{id}")]
+    public IActionResult Get(int id)
+    {
+        var user = _userService.GetUserById(id);
+        if (user == null)
+            return NotFound($"User with ID {id} not found.");
+        return Ok(user);
+    }
 
-        [HttpPost]
-        public IActionResult Post([FromBody] User user)
-        {
-            if (user == null || string.IsNullOrEmpty(user.NickName) || string.IsNullOrEmpty(user.Password) || string.IsNullOrEmpty(user.Email))
-            {
-                return BadRequest("Invalid user data.");
-            }
-            _userService.CreateUser(user.NickName, user.Password, user.Email);
-            return CreatedAtAction(nameof(Get), new { id = user.Id }, user);
-        }
-        [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
+    [HttpPost]
+    public IActionResult Post([FromBody] CreateUserDto dto)
+    {
+        if (dto == null || string.IsNullOrEmpty(dto.NickName) || string.IsNullOrEmpty(dto.Password) || string.IsNullOrEmpty(dto.Email))
+            return BadRequest("Invalid user data.");
 
-        [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] User user)
-        {
-            if (user == null || string.IsNullOrEmpty(user.NickName) || string.IsNullOrEmpty(user.Password) || string.IsNullOrEmpty(user.Email))
-            {
-                return BadRequest("Invalid user data.");
-            }
-            try
-            {
-                _userService.UpdateUser(id, user.NickName, user.Password, user.Email);
-                return Ok();
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-        }
-        [Authorize(Roles = "Admin")]
+        _userService.CreateUser(dto);
+        return Ok("User created successfully.");
+    }
 
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+    [Authorize]
+    [HttpPut("me")]
+    public IActionResult UpdateSelf([FromBody] UpdateUserDto dto)
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                          ?? User.FindFirst("sub")?.Value;
+
+        if (userIdClaim == null)
+            return Unauthorized();
+
+        int userId = int.Parse(userIdClaim);
+
+        try
         {
-            try
-            {
-                _userService.DeleteUser(id);
-                return Ok();
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            _userService.UpdateUser(userId, dto);
+            return Ok("User updated successfully.");
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
         }
     }
+
+
+    [Authorize(Roles = "Admin")]
+    [HttpDelete("{id}")]
+    public IActionResult Delete(int id)
+    {
+        try
+        {
+            _userService.DeleteUser(id);
+            return Ok("User deleted successfully.");
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+    }
+    [Authorize]
+    [HttpPut("me/role")]
+    public async Task<IActionResult> UpdateMyRole([FromBody] string newRole)
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                          ?? User.FindFirst("sub")?.Value;
+
+        if (userIdClaim == null)
+            return Unauthorized();
+
+        int userId = int.Parse(userIdClaim);
+
+        await _userService.UpdateRoleAsync(userId, newRole);
+        return Ok($"Role updated to {newRole}.");
+    }
+
 }
