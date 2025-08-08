@@ -42,6 +42,7 @@ public class Program
         });
 
         builder.Services.AddEndpointsApiExplorer();
+        builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
 
         builder.Services.AddSwaggerGen(c =>
         {
@@ -125,6 +126,7 @@ public class Program
         builder.Services.AddScoped<IUserLeaderBoardService, UserLeaderBoardService>();
         builder.Services.AddScoped<IUserAchievementService, UserAchievementService>();
         builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+        builder.Services.AddScoped<IEmailService, EmailService>();
 
         var app = builder.Build();
 
