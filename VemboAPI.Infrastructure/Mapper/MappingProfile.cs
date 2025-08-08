@@ -1,7 +1,7 @@
 using AutoMapper;
+
 using VemboAPI.Domain.DTOs;
 using VemboAPI.Domain.Entities;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace VemboAPI.Infrastructure
 {
@@ -11,30 +11,106 @@ namespace VemboAPI.Infrastructure
         {
             // Користувач
             CreateMap<User, UserDto>().ReverseMap();
+            CreateMap<CreateUserDto, User>();
+            CreateMap<UpdateUserDto, User>();
+
 
             // Прогрес користувача
             CreateMap<UserPeriodProgress, UserPeriodProgressDto>().ReverseMap();
+            CreateMap<UserPeriodProgress, CreateUserPeriodProgressDto>().ReverseMap();
+            CreateMap<UserPeriodProgress, UpdateUserPeriodProgressDto>().ReverseMap();
+
             CreateMap<UserTopicProgress, UserTopicProgressDto>().ReverseMap();
+            CreateMap<UserTopicProgress, CreateUserTopicProgressDto>().ReverseMap();
+            CreateMap<UserTopicProgress, UpdateUserTopicProgressDto>().ReverseMap();
+
             CreateMap<UserUnitProgress, UserUnitProgressDto>().ReverseMap();
+            CreateMap<UserUnitProgress, CreateUserUnitProgressDto>().ReverseMap();
+            CreateMap<UserUnitProgress, UpdateUserUnitProgressDto>().ReverseMap();
+
             CreateMap<UserLevelProgress, UserLevelProgressDto>().ReverseMap();
+            CreateMap<UserLevelProgress, CreateUserLevelProgressDto>().ReverseMap();
+            CreateMap<UserLevelProgress, UpdateUserLevelProgressDto>().ReverseMap();
+
             CreateMap<UserLessonProgress, UserLessonProgressDto>().ReverseMap();
             CreateMap<UserExerciseMistake, UserExerciseMistakeDto>().ReverseMap();
 
-            // Основні сутності
+            // Topic
             CreateMap<Topic, TopicDto>().ReverseMap();
-            CreateMap<Topic, TopicCreateDto>().ReverseMap(); // якщо потрібно
+            CreateMap<Topic, TopicCreateDto>().ReverseMap();
+            CreateMap<Topic, TopicUpdateDto>().ReverseMap();
+
+            // Unit
             CreateMap<Unit, UnitDto>().ReverseMap();
+            CreateMap<Unit, CreateUnitDto>().ReverseMap();
+            CreateMap<Unit, UpdateUnitDto>().ReverseMap();
+
+            // Lesson
             CreateMap<Lesson, LessonDto>().ReverseMap();
+            CreateMap<Lesson, CreateLessonDto>().ReverseMap();
+            CreateMap<Lesson, UpdateLessonDto>().ReverseMap();
+
+            // Level
             CreateMap<Level, LevelDto>().ReverseMap();
+            CreateMap<Level, CreateLevelDto>().ReverseMap();
+            CreateMap<Level, UpdateLevelDto>().ReverseMap();
+
+            // Period
             CreateMap<Period, PeriodDto>().ReverseMap();
+            CreateMap<Period, CreatePeriodDto>().ReverseMap();
+            CreateMap<Period, UpdatePeriodDto>().ReverseMap();
 
-            // Вправи
+            // LevelType
+            CreateMap<LevelType, LevelTypeDto>().ReverseMap();
+            CreateMap<LevelType, CreateLevelTypeDto>().ReverseMap();
+            CreateMap<LevelType, UpdateLevelTypeDto>().ReverseMap();
+
+            // Exercise
             CreateMap<Exercise, ExerciseDto>().ReverseMap();
-            CreateMap<ExerciseType, ExerciseTypeDto>().ReverseMap();
+            CreateMap<Exercise, CreateExerciseDto>().ReverseMap();
+            CreateMap<Exercise, UpdateExerciseDto>().ReverseMap();
 
-            // Питання/Відповіді
+            // ExerciseType
+            CreateMap<ExerciseType, ExerciseTypeDto>().ReverseMap();
+            CreateMap<ExerciseType, CreateExerciseTypeDto>().ReverseMap();
+            CreateMap<ExerciseType, UpdateExerciseTypeDto>().ReverseMap();
+
+            // Question
             CreateMap<Question, QuestionDto>().ReverseMap();
+            CreateMap<Question, CreateQuestionDto>().ReverseMap();
+            CreateMap<Question, UpdateQuestionDto>().ReverseMap();
+
+            // Answer
             CreateMap<Answer, AnswerDto>().ReverseMap();
+            CreateMap<Answer, CreateAnswerDto>().ReverseMap();
+            CreateMap<Answer, UpdateAnswerDto>().ReverseMap();
+
+            // GuideBook
+            CreateMap<GuideBook, GuideBookDto>().ReverseMap();
+            CreateMap<GuideBook, CreateGuideBookDto>().ReverseMap();
+            CreateMap<GuideBook, UpdateGuideBookDto>().ReverseMap();
+
+            CreateMap<Achievement, AchievementDto>();
+            CreateMap<CreateAchievementDto, Achievement>();
+            CreateMap<UpdateAchievementDto, Achievement>();
+
+            CreateMap<AchievementLevel, AchievementLevelDto>().ReverseMap();
+            CreateMap<CreateAchievementLevelDto, AchievementLevel>();
+            CreateMap<UpdateAchievementLevelDto, AchievementLevel>();
+
+            CreateMap<UserAchievement, UserAchievementDto>();
+            CreateMap<CreateUserAchievementDto, UserAchievement>();
+            CreateMap<UpdateUserAchievementDto, UserAchievement>();
+
+            CreateMap<UserStatistic, UserStatisticDto>();
+            CreateMap<CreateUserStatisticDto, UserStatistic>();
+            CreateMap<UpdateUserStatisticDto, UserStatistic>();
+
+            CreateMap<UserLeaderBoardEntry, UserLeaderBoardEntryDto>();
+            CreateMap<CreateUserLeaderBoardEntryDto, UserLeaderBoardEntry>();
+            CreateMap<UpdateUserLeaderBoardEntryDto, UserLeaderBoardEntry>();
+
+
         }
     }
 }

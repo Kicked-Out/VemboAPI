@@ -39,13 +39,7 @@ namespace VemboAPI.Infrastructure.Services
             if (question == null)
                 throw new KeyNotFoundException($"Question with ID {dto.QuestionId} not found.");
 
-            var answer = new Answer
-            {
-                Title = dto.Title,
-                isCorrect = dto.isCorrect,
-                QuestionId = dto.QuestionId
-            };
-
+            var answer = _mapper.Map<Answer>(dto);
             _dbContext.Answers.Add(answer);
             _dbContext.SaveChanges();
 
@@ -62,14 +56,9 @@ namespace VemboAPI.Infrastructure.Services
             if (question == null)
                 throw new KeyNotFoundException($"Question with ID {dto.QuestionId} not found.");
 
-            answer.Title = dto.Title;
-            answer.isCorrect = dto.isCorrect;
-            answer.QuestionId = dto.QuestionId;
-
-            _dbContext.Answers.Update(answer);
+            _mapper.Map(dto, answer);
             _dbContext.SaveChanges();
         }
-
 
         public void DeleteAnswer(int id)
         {

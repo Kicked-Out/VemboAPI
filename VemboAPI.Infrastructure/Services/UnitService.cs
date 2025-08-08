@@ -34,17 +34,14 @@ namespace VemboAPI.Infrastructure.Services
 
         public UnitDto CreateUnit(CreateUnitDto dto)
         {
-            var topic = _dbContext.Topics.Find(dto.TopicId);
-            if (topic == null)
+            if (!_dbContext.Topics.Any(t => t.Id == dto.TopicId))
                 throw new KeyNotFoundException($"Topic with ID {dto.TopicId} not found.");
 
-            var unit = new Unit
-            {
-                Title = dto.Title,
-                Description = dto.Description,
-                Order = dto.Order,
-                TopicId = dto.TopicId
-            };
+            if (!_dbContext.GuideBooks.Any(g => g.Id == dto.GuideBookId))
+                throw new KeyNotFoundException($"GuideBook with ID {dto.GuideBookId} not found.");
+
+            var unit = _mapper.Map<Unit>(dto);
+            unit.GuideBookId = dto.GuideBookId; // На випадок, якщо AutoMapper не встановить
 
             _dbContext.Units.Add(unit);
             _dbContext.SaveChanges();
@@ -58,16 +55,15 @@ namespace VemboAPI.Infrastructure.Services
             if (unit == null)
                 throw new KeyNotFoundException($"Unit with ID {id} not found.");
 
-            var topic = _dbContext.Topics.Find(dto.TopicId);
-            if (topic == null)
+            if (!_dbContext.Topics.Any(t => t.Id == dto.TopicId))
                 throw new KeyNotFoundException($"Topic with ID {dto.TopicId} not found.");
 
-            unit.Title = dto.Title;
-            unit.Description = dto.Description;
-            unit.Order = dto.Order;
-            unit.TopicId = dto.TopicId;
+            if (!_dbContext.GuideBooks.Any(g => g.Id == dto.GuideBookId))
+                throw new KeyNotFoundException($"GuideBook with ID {dto.GuideBookId} not found.");
 
-            _dbContext.Units.Update(unit);
+            _mapper.Map(dto, unit);
+            unit.GuideBookId = dto.GuideBookId;
+
             _dbContext.SaveChanges();
         }
 

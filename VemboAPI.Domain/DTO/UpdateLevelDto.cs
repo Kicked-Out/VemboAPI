@@ -5,5 +5,6 @@
         public string Title { get; set; }
         public int UnitId { get; set; }
         public int Order { get; set; }
+        public int LevelTypeId { get; set; }
     }
 }
