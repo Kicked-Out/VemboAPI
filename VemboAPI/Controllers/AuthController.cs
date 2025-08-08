@@ -94,6 +94,37 @@ namespace VemboAPI.Controllers
             return Ok(new { token });
         }
 
+        [HttpPost("forgot-password")]
+        public IActionResult ForgotPassword([FromBody] ForgotPasswordDto dto)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.Email == dto.Email);
+            if (user == null)
+                return NotFound("User not found");
+
+            var token = Guid.NewGuid().ToString();
+            user.PasswordResetToken = token;
+            user.PasswordResetTokenExpires = DateTime.UtcNow.AddHours(1);
+            _context.SaveChanges();
+
+            // Тут можна надіслати токен на email користувача
+            return Ok(new { token });
+        }
+
+        [HttpPost("reset-password")]
+        public IActionResult ResetPassword([FromBody] ResetPasswordDto dto)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.Email == dto.Email && u.PasswordResetToken == dto.Token);
+            if (user == null || user.PasswordResetTokenExpires < DateTime.UtcNow)
+                return BadRequest("Invalid token or email");
+
+            user.Password = dto.NewPassword;
+            user.PasswordResetToken = null;
+            user.PasswordResetTokenExpires = null;
+            _context.SaveChanges();
+
+            return Ok();
+        }
+
 
     }
 }
