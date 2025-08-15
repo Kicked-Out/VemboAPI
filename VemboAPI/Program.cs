@@ -11,7 +11,11 @@ using FluentValidation.AspNetCore;
 using VemboAPI.Domain.Validators;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-
+using Microsoft.Extensions.Caching.StackExchangeRedis;
+using System.Text.Json;
+using Hangfire;
+using Hangfire.SqlServer;
+using VemboAPI.Jobs;
 public class Program
 {
     public static void Main(string[] args)
@@ -43,6 +47,19 @@ public class Program
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
+        // Redis (IDistributedCache)
+        builder.Services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = builder.Configuration["Redis:Configuration"];
+            options.InstanceName = builder.Configuration["Redis:InstanceName"];
+        });
+
+        // JSON options для серіалізації в кеші
+        builder.Services.Configure<JsonSerializerOptions>(opts =>
+        {
+            opts.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            opts.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+        });
 
         builder.Services.AddSwaggerGen(c =>
         {
@@ -127,6 +144,24 @@ public class Program
         builder.Services.AddScoped<IUserAchievementService, UserAchievementService>();
         builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         builder.Services.AddScoped<IEmailService, EmailService>();
+        builder.Services.AddSingleton<ICacheService, RedisCacheService>();
+        builder.Services.AddSingleton<IContentVersionService, ContentVersionService>();
+
+        builder.Services.AddTransient<CacheWarmupJob>(); 
+
+        var sql = builder.Configuration.GetConnectionString("DbContext");
+
+        builder.Services.AddHangfire(cfg => cfg
+            .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UseSqlServerStorage(sql, new SqlServerStorageOptions
+            {
+                PrepareSchemaIfNecessary = true,
+                QueuePollInterval = TimeSpan.FromSeconds(15)
+            })
+        );
+        builder.Services.AddHangfireServer();
 
         var app = builder.Build();
 
@@ -138,9 +173,15 @@ public class Program
 
         //app.UseHttpsRedirection();
 
-        app.UseAuthentication(); // ⬅️ Це має бути до Authorization
+        app.UseAuthentication();
         app.UseAuthorization();
+        app.UseHangfireDashboard("/hangfire"); 
 
+        BackgroundJob.Enqueue<CacheWarmupJob>(j => j.RunAsync());
+        RecurringJob.AddOrUpdate<CacheWarmupJob>(
+            "warm-content-cache",
+            j => j.RunAsync(),
+            "0 3 * * *");
         app.MapControllers();
         app.Run();
     }
