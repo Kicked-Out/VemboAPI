@@ -125,6 +125,8 @@ public class Program
         builder.Services.AddScoped<IUserLeaderBoardService, UserLeaderBoardService>();
         builder.Services.AddScoped<IUserAchievementService, UserAchievementService>();
         builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+        builder.Services.AddScoped<IEmailSender, EmailService>();
+        builder.Services.AddScoped<IUserManager, UserManager>();
 
         var app = builder.Build();
 

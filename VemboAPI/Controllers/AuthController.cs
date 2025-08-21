@@ -15,12 +15,21 @@ namespace VemboAPI.Controllers
         private readonly VemboDbContext _context;
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
         private readonly IConfiguration _configuration;
+        private readonly IUserManager _userManager;
+        private readonly IEmailSender _emailSender;
 
-        public AuthController(VemboDbContext context, IJwtTokenGenerator jwtTokenGenerator, IConfiguration configuration)
+        public AuthController(
+            VemboDbContext context,
+            IJwtTokenGenerator jwtTokenGenerator,
+            IConfiguration configuration,
+            IUserManager userManager,
+            IEmailSender emailSender)
         {
             _context = context;
             _jwtTokenGenerator = jwtTokenGenerator;
             _configuration = configuration;
+            _userManager = userManager;
+            _emailSender = emailSender;
         }
 
         [HttpPost("login")]
@@ -95,32 +104,29 @@ namespace VemboAPI.Controllers
         }
 
         [HttpPost("forgot-password")]
-        public IActionResult ForgotPassword([FromBody] ForgotPasswordDto dto)
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
         {
             var user = _context.Users.FirstOrDefault(u => u.Email == dto.Email);
             if (user == null)
                 return NotFound("User not found");
 
-            var token = Guid.NewGuid().ToString();
-            user.PasswordResetToken = token;
-            user.PasswordResetTokenExpires = DateTime.UtcNow.AddHours(1);
-            _context.SaveChanges();
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var callback = $"https://example.com/reset-password?token={token}&email={user.Email}";
+            await _emailSender.SendEmailAsync(user.Email, "Vembo Password reset token", callback);
 
-            // Тут можна надіслати токен на email користувача
-            return Ok(new { token });
+            return Ok();
         }
 
         [HttpPost("reset-password")]
-        public IActionResult ResetPassword([FromBody] ResetPasswordDto dto)
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
         {
-            var user = _context.Users.FirstOrDefault(u => u.Email == dto.Email && u.PasswordResetToken == dto.Token);
-            if (user == null || user.PasswordResetTokenExpires < DateTime.UtcNow)
-                return BadRequest("Invalid token or email");
+            var user = _context.Users.FirstOrDefault(u => u.Email == dto.Email);
+            if (user == null)
+                return NotFound("User not found");
 
-            user.Password = dto.NewPassword;
-            user.PasswordResetToken = null;
-            user.PasswordResetTokenExpires = null;
-            _context.SaveChanges();
+            var result = await _userManager.ResetPasswordAsync(user, dto.Token!, dto.Password!);
+            if (!result)
+                return BadRequest("Invalid token or email");
 
             return Ok();
         }
