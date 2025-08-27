@@ -3,6 +3,7 @@ using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.Entities;
 using VemboAPI.Domain.DTOs;
 using AutoMapper;
+using System.Security.Claims;
 
 
 namespace VemboAPI.Infrastructure.Services
@@ -21,6 +22,7 @@ namespace VemboAPI.Infrastructure.Services
         public void CreateUser(CreateUserDto dto)
         {
             var user = _mapper.Map<User>(dto);
+            user.NickNameSlug = dto.NickName.ToLower().Replace(" ", "-");
             user.Level = 1;
             user.Rating = 0;
             user.IsPremium = false;
@@ -54,13 +56,20 @@ namespace VemboAPI.Infrastructure.Services
             return _mapper.Map<List<UserDto>>(users);
         }
 
-        public UserDto GetUserById(int id)
+        public UserDto GetUserById(string id)
         {
             var user = _dbContext.Users.Find(id);
             if (user == null)
                 throw new KeyNotFoundException($"User with ID {id} not found.");
 
-            user.NickName = user.NickName.ToUpper();
+            return _mapper.Map<UserDto>(user);
+        }
+
+        public UserDto GetUserByNickNameSlug(string nickNameSlug)
+        {
+            var user = _dbContext.Users
+                .ToList()
+                .Find(user => user.NickNameSlug == nickNameSlug);
 
             return _mapper.Map<UserDto>(user);
         }

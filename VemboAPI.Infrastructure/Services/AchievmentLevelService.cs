@@ -65,6 +65,16 @@ namespace VemboAPI.Infrastructure.Services
             _dbContext.AchievementLevels.Remove(level);
             await _dbContext.SaveChangesAsync();
         }
+
+        public async Task<AchievementLevelDto> GetByAchievementIdAndLevelId(int achievementId, int levelId)
+        {
+            var level = _dbContext.AchievementLevels
+                .ToList()
+                .FindAll(achievementLevel => achievementLevel.AchievementId == achievementId)
+                .Find(achievementLevel => achievementLevel.Level == levelId);
+
+            return _mapper.Map<AchievementLevelDto>(level);
+        }
     }
 
 }

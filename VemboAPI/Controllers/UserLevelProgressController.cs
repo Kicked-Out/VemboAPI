@@ -22,7 +22,9 @@ namespace VemboAPI.API.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            var result = _service.GetAllUserLevelProgress();
+            string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
+
+            var result = _service.GetAllUserLevelProgress(userId);
             return Ok(result);
         }
         [Authorize]
@@ -40,7 +42,25 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
-        [Authorize(Roles = "Admin")]
+
+        [Authorize]
+        [HttpGet("Level/{levelId}")]
+        public IActionResult GetByLevelId(int levelId)
+        {
+            try
+            {
+                string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
+
+                var progress = _service.GetUserLevelProgressByLevelId(userId, levelId);
+
+                return Ok(progress);
+            } catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
+        [Authorize]
         [HttpPost]
         public IActionResult Post([FromBody] CreateUserLevelProgressDto dto)
         {

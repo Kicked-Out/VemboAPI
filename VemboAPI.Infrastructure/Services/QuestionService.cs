@@ -70,5 +70,14 @@ namespace VemboAPI.Infrastructure.Services
             _dbContext.Questions.Remove(question);
             _dbContext.SaveChanges();
         }
+
+        public List<QuestionDto> GetAllQuestionsByExcerciseId(int excerciseId)
+        {
+            var questions = _dbContext.Questions
+                .ToList()
+                .FindAll(question => question.ExerciseId == excerciseId);
+
+            return _mapper.Map<List<QuestionDto>>(questions);
+        }
     }
 }

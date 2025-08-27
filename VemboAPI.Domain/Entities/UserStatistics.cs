@@ -5,11 +5,11 @@ namespace VemboAPI.Domain.Entities
     {
         public int Id { get; set; }
 
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         public User User { get; set; }
 
         public int Streak { get; set; } = 0;
-        public int Emeralds { get; set; } = 0;
+        public int VBucks { get; set; } = 0;
         public int Hearts { get; set; } = 5;
 
         public int CurrentPeriodId { get; set; }

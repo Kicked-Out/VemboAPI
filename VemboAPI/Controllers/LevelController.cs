@@ -17,16 +17,25 @@ namespace VemboAPI.API.Controllers
         {
             _levelService = levelService;
         }
-        [Authorize]
 
+        [Authorize]
         [HttpGet]
         public IActionResult Get()
         {
             var levels = _levelService.GetAllLevels();
             return Ok(levels);
         }
-        [Authorize]
 
+        [Authorize]
+        [HttpGet("Unit/{unitId}")]
+        public IActionResult GetAllByUnitId(int unitId)
+        {
+            var levels = _levelService.GetAllLevelsByUnitId(unitId);
+
+            return Ok(levels);
+        }
+
+        [Authorize]
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
@@ -40,7 +49,7 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         [HttpPost]
         public IActionResult Post([FromBody] CreateLevelDto dto)
         {

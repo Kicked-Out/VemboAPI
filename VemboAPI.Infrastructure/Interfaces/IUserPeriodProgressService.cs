@@ -6,8 +6,10 @@ namespace VemboAPI.Infrastructure.Interfaces
 {
     public interface IUserPeriodProgressService
     {
-        List<UserPeriodProgressDto> GetAllUserPeriodProgress();
+        List<UserPeriodProgressDto> GetAllUserPeriodProgress(string userId);
         UserPeriodProgressDto GetUserPeriodProgressById(int id);
+        UserPeriodProgressDto GetUserPeriodProgressByPeriodId(string userId, int periodId);
+        UserPeriodProgressDto GetUserPeriodProgressWithMostXPByUserId(string userId);
         UserPeriodProgressDto CreateUserPeriodProgress(CreateUserPeriodProgressDto dto);
         void UpdateUserPeriodProgress(int id, UpdateUserPeriodProgressDto dto);
 

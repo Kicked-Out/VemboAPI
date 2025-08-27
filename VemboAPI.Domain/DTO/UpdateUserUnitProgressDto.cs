@@ -2,8 +2,8 @@
 {
     public class UpdateUserUnitProgressDto
     {
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         public int UnitId { get; set; }
-        public bool isCompleted { get; set; }
+        public int CompletedCount { get; set; }
     }
 }

@@ -17,9 +17,12 @@ namespace VemboAPI.Infrastructure.Services
             _mapper = mapper;
         }
 
-        public List<UserUnitProgressDto> GetAllUserUnitProgress()
+        public List<UserUnitProgressDto> GetAllUserUnitProgress(string userId)
         {
-            var unitProgressList = _dbContext.UserUnitProgresses.ToList();
+            var unitProgressList = _dbContext.UserUnitProgresses
+                .ToList()
+                .FindAll(unitProgress => unitProgress.UserId == userId);
+
             return _mapper.Map<List<UserUnitProgressDto>>(unitProgressList);
         }
 
@@ -60,6 +63,37 @@ namespace VemboAPI.Infrastructure.Services
 
             _dbContext.UserUnitProgresses.Remove(progress);
             _dbContext.SaveChanges();
+        }
+
+        public List<UserUnitProgressDto> GetAllUserUnitProgressByTopicId(string userId, int topicId)
+        {
+            var progresses = _dbContext.UserUnitProgresses
+                .ToList()
+                .FindAll(unitProgress => unitProgress.UserId == userId)
+                .FindAll(unitProgress => unitProgress.Unit.TopicId == topicId);
+
+            return _mapper.Map<List<UserUnitProgressDto>>(progresses);
+        }
+
+        public UserUnitProgressDto GetUserUnitProgressByUnitId(string userId, int unitId)
+        {
+            var progress = _dbContext.UserUnitProgresses
+                .ToList()
+                .FindAll(unitProgress => unitProgress.UserId == userId)
+                .Find(unitProgress => unitProgress.UnitId == unitId);
+
+            return _mapper.Map<UserUnitProgressDto>(progress);
+        }
+
+        public UserUnitProgressDto GetCurrentUserUnitProgress(string userId, int topicId)
+        {
+            var progress = _dbContext.UserUnitProgresses
+                .ToList()
+                .FindAll(unitProgress => unitProgress.UserId == userId)
+                .FindAll(unitProgress => unitProgress.Unit.TopicId == topicId)
+                .LastOrDefault();
+
+            return _mapper.Map<UserUnitProgressDto>(progress);
         }
     }
 

@@ -1,5 +1,4 @@
-﻿
-using VemboAPI.Domain.DTOs;
+﻿using VemboAPI.Domain.DTOs;
 
 namespace VemboAPI.Infrastructure.Interfaces
 {
@@ -7,10 +6,10 @@ namespace VemboAPI.Infrastructure.Interfaces
     {
         void CreateUser(CreateUserDto dto);
         void UpdateUser(int id, UpdateUserDto dto);
-
         void DeleteUser(int id);
 
-        UserDto GetUserById(int id);
+        UserDto GetUserByNickNameSlug(string nickNameSlug);
+        UserDto GetUserById(string id);
         List<UserDto> GetAllUsers();
     }
 }

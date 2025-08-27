@@ -2,7 +2,6 @@
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.DTOs;
 using Microsoft.AspNetCore.Authorization;
-using System.Data;
 
 namespace VemboAPI.API.Controllers
 {
@@ -17,15 +16,24 @@ namespace VemboAPI.API.Controllers
             _questionService = questionService;
         }
         [Authorize]
-
         [HttpGet]
         public IActionResult Get()
         {
             var questions = _questionService.GetAllQuestions();
             return Ok(questions);
         }
-        [Authorize]
 
+        [Authorize]
+        [HttpGet("Exercise/{exerciseId}")]
+        public IActionResult GetByExcerciseId(int exerciseId)
+        {
+            var questions = _questionService.GetAllQuestionsByExcerciseId(exerciseId);
+
+            return Ok(questions);
+        }
+
+
+        [Authorize]
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
@@ -39,7 +47,7 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         [HttpPost]
         public IActionResult Post([FromBody] CreateQuestionDto dto)
         {

@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿using Microsoft.AspNetCore.Identity;
 
 namespace VemboAPI.Domain.Entities
 {
-    public class User
+    public class User: IdentityUser
     {
-        public int Id { get; set; }
         public string NickName { get; set; }
-        public string Password { get; set; }
-        public string Email { get; set; }
+        public string NickNameSlug { get; set; }
         public int Level { get; set; }
         public int Rating { get; set; }
         public bool IsPremium { get; set; }

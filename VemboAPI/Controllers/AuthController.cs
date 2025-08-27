@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using VemboAPI.Domain.DTOs;
 using VemboAPI.Domain.Entities;
 using VemboAPI.Infrastructure.Data;
@@ -13,21 +15,25 @@ namespace VemboAPI.Controllers
     {
         private readonly VemboDbContext _context;
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
+        private readonly IPasswordHasher<User> _passwordHasher;
 
-        public AuthController(VemboDbContext context, IJwtTokenGenerator jwtTokenGenerator)
+        public AuthController(VemboDbContext context, IJwtTokenGenerator jwtTokenGenerator, IPasswordHasher<User> passwordHasher)
         {
             _context = context;
             _jwtTokenGenerator = jwtTokenGenerator;
+            _passwordHasher = passwordHasher;
         }
 
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginDto dto)
         {
-            var user = _context.Users.FirstOrDefault(u => u.Email == dto.Email && u.Password == dto.Password);
+            var user = _context.Users.FirstOrDefault(u => u.Email == dto.Email);
+
             if (user == null)
                 return Unauthorized("Invalid credentials");
 
             var token = _jwtTokenGenerator.GenerateToken(user);
+
             return Ok(new { token });
         }
 
@@ -40,7 +46,8 @@ namespace VemboAPI.Controllers
             var newUser = new User
             {
                 Email = dto.Email,
-                Password = dto.Password, // для безпеки — хешуй пізніше
+                UserName = dto.NickName,
+                NickNameSlug = dto.NickName.ToLower().Replace(" ", "-"),
                 NickName = dto.NickName,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
@@ -51,11 +58,20 @@ namespace VemboAPI.Controllers
                 Role = "User"
             };
 
+            newUser.PasswordHash = _passwordHasher.HashPassword(newUser, dto.Password);
+
             _context.Users.Add(newUser);
             _context.SaveChanges();
 
             var token = _jwtTokenGenerator.GenerateToken(newUser);
             return Ok(new { token });
+        }
+
+        [Authorize]
+        [HttpGet("validate-token")]
+        public IActionResult ValidateToken()
+        {
+            return Ok(new { valid = true });
         }
     }
 }

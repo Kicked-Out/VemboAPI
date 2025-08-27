@@ -76,5 +76,14 @@ namespace VemboAPI.Infrastructure.Services
             _dbContext.Levels.Remove(level);
             _dbContext.SaveChanges();
         }
+
+        public List<LevelDto> GetAllLevelsByUnitId(int unitId)
+        {
+            var levels = _dbContext.Levels
+                .Where(level => level.UnitId == unitId)
+                .ToList();
+
+            return _mapper.Map<List<LevelDto>>(levels);
+        }
     }
 }

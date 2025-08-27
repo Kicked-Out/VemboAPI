@@ -69,5 +69,14 @@ namespace VemboAPI.Infrastructure.Services
             _dbContext.Lessons.Remove(lesson);
             _dbContext.SaveChanges();
         }
+
+        public List<LessonDto> GetAllLessonsByLevelId(int levelId)
+        {
+            var lessons = _dbContext.Lessons
+                .ToList()
+                .FindAll(lesson => lesson.LevelId == levelId);
+
+            return _mapper.Map<List<LessonDto>>(lessons);
+        }
     }
 }
