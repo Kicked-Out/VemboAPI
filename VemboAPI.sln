@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VemboAPI.Domain", "VemboAPI
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VemboAPI.Infrastructure", "VemboAPI.Infrastructure\VemboAPI.Infrastructure.csproj", "{74EE9748-B2E7-4B1E-9B55-760274EAD411}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityService", "IdentityService\IdentityService.csproj", "{F6B56CB0-4FC5-4481-8226-39B71C135ABD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{74EE9748-B2E7-4B1E-9B55-760274EAD411}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{74EE9748-B2E7-4B1E-9B55-760274EAD411}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{74EE9748-B2E7-4B1E-9B55-760274EAD411}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F6B56CB0-4FC5-4481-8226-39B71C135ABD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6B56CB0-4FC5-4481-8226-39B71C135ABD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6B56CB0-4FC5-4481-8226-39B71C135ABD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6B56CB0-4FC5-4481-8226-39B71C135ABD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
