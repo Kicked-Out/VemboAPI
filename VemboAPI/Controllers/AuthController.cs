@@ -1,3 +1,5 @@
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -14,19 +16,22 @@ namespace VemboAPI.Controllers
     {
         private readonly VemboDbContext _context;
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
+        private readonly IPasswordHasher<User> _passwordHasher;
         private readonly IConfiguration _configuration;
 
-        public AuthController(VemboDbContext context, IJwtTokenGenerator jwtTokenGenerator, IConfiguration configuration)
+        public AuthController(VemboDbContext context, IJwtTokenGenerator jwtTokenGenerator, IPasswordHasher<User> passwordHasher, IConfiguration configuration)
         {
             _context = context;
             _jwtTokenGenerator = jwtTokenGenerator;
+            _passwordHasher = passwordHasher;
             _configuration = configuration;
         }
 
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginDto dto)
         {
-            var user = _context.Users.FirstOrDefault(u => u.Email == dto.Email && u.Password == dto.Password);
+            var user = _context.Users.FirstOrDefault(u => u.Email == dto.Email);
+
             if (user == null)
                 return Unauthorized("Invalid credentials");
 
@@ -53,7 +58,8 @@ namespace VemboAPI.Controllers
             var newUser = new User
             {
                 Email = dto.Email,
-                Password = dto.Password, // для безпеки — хешуй пізніше
+                UserName = dto.NickName,
+                NickNameSlug = dto.NickName.ToLower().Replace(" ", "-"),
                 NickName = dto.NickName,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
@@ -63,6 +69,8 @@ namespace VemboAPI.Controllers
                 Level = 1,
                 Role = "User",
             };
+
+            newUser.PasswordHash = _passwordHasher.HashPassword(newUser, dto.Password);
 
             _context.Users.Add(newUser);
             _context.SaveChanges();
@@ -94,7 +102,12 @@ namespace VemboAPI.Controllers
             return Ok(new { token });
         }
 
-
+        [Authorize]
+        [HttpGet("validate-token")]
+        public IActionResult ValidateToken()
+        {
+            return Ok(new { valid = true });
+        }
     }
 }
 

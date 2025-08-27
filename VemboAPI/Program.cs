@@ -10,12 +10,16 @@ using VemboAPI.Infrastructure;
 using FluentValidation.AspNetCore;
 using VemboAPI.Domain.Validators;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Identity;
+using VemboAPI.Domain.Entities;
 using System.Security.Claims;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 using System.Text.Json;
 using Hangfire;
 using Hangfire.SqlServer;
 using VemboAPI.Jobs;
+
 public class Program
 {
     public static void Main(string[] args)
@@ -45,7 +49,44 @@ public class Program
             options.SuppressModelStateInvalidFilter = false;
         });
 
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowLocalhost",
+                policy =>
+                {
+                    policy.WithOrigins("http://localhost:5173")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+                });
+        });
+
         builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen(options =>
+        {
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                In = ParameterLocation.Header,
+                Description = "Please enter a valid token",
+                Name = "Authorization",
+                Type = SecuritySchemeType.Http,
+                BearerFormat = "JWT",
+                Scheme = "Bearer"
+            });
+
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    new string[]{}
+                }
+            });
         builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
         // Redis (IDistributedCache)
         builder.Services.AddStackExchangeRedisCache(options =>
@@ -118,7 +159,6 @@ public class Program
             };
         });
 
-        // Services
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<ITopicService, TopicService>();
         builder.Services.AddScoped<IUnitService, UnitService>();
@@ -127,8 +167,13 @@ public class Program
         builder.Services.AddScoped<ILessonService, LessonService>();
         builder.Services.AddScoped<IExerciseService, ExerciseService>();
         builder.Services.AddScoped<IExerciseTypeService, ExerciseTypeService>();
+        builder.Services.AddScoped<IAchievementService, AchievementService>();
+        builder.Services.AddScoped<IAchievementLevelService, AchievementLevelService>();
         builder.Services.AddScoped<IAnswerService, AnswerService>();
         builder.Services.AddScoped<IQuestionService, QuestionService>();
+        builder.Services.AddScoped<IUserLeaderBoardService, UserLeaderBoardService>();
+        builder.Services.AddScoped<IUserAchievementService, UserAchievementService>();
+        builder.Services.AddScoped<IUserStatisticService, UserStatisticService>();
         builder.Services.AddScoped<IUserPeriodProgressService, UserPeriodProgressService>();
         builder.Services.AddScoped<IUserTopicProgressService, UserTopicProgressService>();
         builder.Services.AddScoped<IUserUnitProgressService, UserUnitProgressService>();
@@ -163,6 +208,8 @@ public class Program
         );
         builder.Services.AddHangfireServer();
 
+        builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+
         var app = builder.Build();
 
         if (app.Environment.IsDevelopment())
@@ -171,8 +218,11 @@ public class Program
             app.UseSwaggerUI();
         }
 
-        //app.UseHttpsRedirection();
+        app.UseCors("AllowLocalhost");
 
+        app.UseDeveloperExceptionPage();
+
+        app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseAuthorization();
         app.UseHangfireDashboard("/hangfire"); 

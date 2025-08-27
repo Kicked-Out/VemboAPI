@@ -99,5 +99,14 @@ namespace VemboAPI.Infrastructure.Services
 
             _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідація кешу
         }
+
+        public List<QuestionDto> GetAllQuestionsByExcerciseId(int excerciseId)
+        {
+            var questions = _dbContext.Questions
+                .ToList()
+                .FindAll(question => question.ExerciseId == excerciseId);
+
+            return _mapper.Map<List<QuestionDto>>(questions);
+        }
     }
 }

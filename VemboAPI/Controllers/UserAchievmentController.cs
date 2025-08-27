@@ -1,7 +1,5 @@
-﻿using System;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Data;
 using VemboAPI.Domain.DTOs;
 using VemboAPI.Infrastructure.Interfaces;
 
@@ -18,7 +16,7 @@ namespace VemboAPI.API.Controllers
             _service = service;
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAll() => Ok(await _service.GetAllAsync());
 
@@ -30,7 +28,15 @@ namespace VemboAPI.API.Controllers
             catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize]
+        [HttpGet("User/{userId}")]
+        public async Task<IActionResult> GetAllByUserId(string userId)
+        {
+            try { return Ok(await _service.GetAllByUserId(userId)); }
+            catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
+        }
+
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateUserAchievementDto dto)
         {

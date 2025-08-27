@@ -5,7 +5,7 @@ public class CreateUserLevelProgressDtoValidator : AbstractValidator<CreateUserL
 {
     public CreateUserLevelProgressDtoValidator()
     {
-        RuleFor(x => x.UserId).GreaterThan(0);
+        RuleFor(x => x.UserId).NotNull();
         RuleFor(x => x.LevelId).GreaterThan(0);
     }
 }

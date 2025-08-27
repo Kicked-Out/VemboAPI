@@ -109,5 +109,14 @@ namespace VemboAPI.Infrastructure.Services
 
             _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідація кешу
         }
+
+        public List<ExerciseDto> GetAllExerciseByLessonId(int lessonId)
+        {
+            var exercises = _dbContext.Exercises
+                .Where(exercise => exercise.LessonId == lessonId)
+                .ToList();
+
+            return _mapper.Map<List<ExerciseDto>>(exercises);
+        }
     }
 }

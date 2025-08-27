@@ -15,6 +15,7 @@ namespace VemboAPI.API.Controllers
         {
             _answerService = answerService;
         }
+        
         [Authorize]
         [HttpGet]
         public IActionResult Get()
@@ -22,6 +23,16 @@ namespace VemboAPI.API.Controllers
             var answers = _answerService.GetAllAnswers();
             return Ok(answers);
         }
+
+        [Authorize]
+        [HttpGet("Question/{questionId}")]
+        public IActionResult GetByQuestionId(int questionId)
+        {
+            var answers = _answerService.GetAllAnswersByQuestionId(questionId);
+
+            return Ok(answers);
+        }
+
         [Authorize]
         [HttpGet("{id}")]
         public IActionResult Get(int id)
@@ -36,7 +47,7 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         [HttpPost]
         public IActionResult Post([FromBody] CreateAnswerDto dto)
         {

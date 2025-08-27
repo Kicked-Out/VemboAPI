@@ -2,8 +2,8 @@
 {
     public class CreateUserLevelProgressDto
     {
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         public int LevelId { get; set; }
-        public bool isCompleted { get; set; }
+        public int CompletedCount { get; set; }
     }
 }

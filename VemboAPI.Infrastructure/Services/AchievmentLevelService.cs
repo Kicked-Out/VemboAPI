@@ -90,5 +90,15 @@ namespace VemboAPI.Infrastructure.Services
 
             await _ver.BumpAsync(); // інвалідація кешу
         }
+
+        public async Task<AchievementLevelDto> GetByAchievementIdAndLevelId(int achievementId, int levelId)
+        {
+            var level = _dbContext.AchievementLevels
+                .ToList()
+                .FindAll(achievementLevel => achievementLevel.AchievementId == achievementId)
+                .Find(achievementLevel => achievementLevel.Level == levelId);
+
+            return _mapper.Map<AchievementLevelDto>(level);
+        }
     }
 }

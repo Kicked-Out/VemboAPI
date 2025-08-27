@@ -103,5 +103,14 @@ namespace VemboAPI.Infrastructure.Services
             _dbContext.SaveChanges();
             _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідація кешу
         }
+
+        public List<UnitDto> GetAllUnitsByTopicId(int topicId)
+        {
+            var units = _dbContext.Units
+                .Where(unit => unit.TopicId == topicId)
+                .ToList();
+
+            return _mapper.Map<List<UnitDto>>(units);
+        }
     }
 }

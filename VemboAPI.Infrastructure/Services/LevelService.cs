@@ -105,5 +105,14 @@ namespace VemboAPI.Infrastructure.Services
             _dbContext.SaveChanges();
             _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідація кешу
         }
+
+        public List<LevelDto> GetAllLevelsByUnitId(int unitId)
+        {
+            var levels = _dbContext.Levels
+                .Where(level => level.UnitId == unitId)
+                .ToList();
+
+            return _mapper.Map<List<LevelDto>>(levels);
+        }
     }
 }

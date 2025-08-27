@@ -1,11 +1,13 @@
-﻿using VemboAPI.Domain.DTOs;
+using VemboAPI.Domain.DTOs;
 
 namespace VemboAPI.Infrastructure.Interfaces
 {
     public interface IUserTopicProgressService
     {
-        List<UserTopicProgressDto> GetAllUserTopicProgress();
+        List<UserTopicProgressDto> GetAllUserTopicProgress(string userId);
         UserTopicProgressDto GetUserTopicProgressById(int id);
+        UserTopicProgressDto[] GetAllUserTopicProgressByPeriodId(string userId, int periodId);
+        UserTopicProgressDto GetCurrentUserTopicProgress(string userId, int periodId);
         UserTopicProgressDto EnsureProgressExists(int userId, int topicId);
         UserTopicProgressDto CreateUserTopicProgress(CreateUserTopicProgressDto dto);
         void UpdateUserTopicProgress(int id, UpdateUserTopicProgressDto dto);
