@@ -1,5 +1,5 @@
 ﻿using VemboAPI.Infrastructure.Data;
-using VemboAPI.Infrastructure.Interfaces;
+using VemboAPI.Infrastructure.Interfaces; // ICacheService, IContentVersionService
 using VemboAPI.Domain.Entities;
 using VemboAPI.Domain.DTOs;
 using AutoMapper;
@@ -10,26 +10,52 @@ namespace VemboAPI.Infrastructure.Services
     {
         private readonly VemboDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly ICacheService _cache;
+        private readonly IContentVersionService _ver;
 
-        public QuestionService(VemboDbContext dbContext, IMapper mapper)
+        public QuestionService(
+            VemboDbContext dbContext,
+            IMapper mapper,
+            ICacheService cache,
+            IContentVersionService ver)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _cache = cache;
+            _ver = ver;
         }
 
         public List<QuestionDto> GetAllQuestions()
         {
-            var questions = _dbContext.Questions.ToList();
-            return _mapper.Map<List<QuestionDto>>(questions);
+            var v = _ver.GetVersionAsync().GetAwaiter().GetResult();
+            var key = $"content:questions:all:v{v}";
+
+            var list = _cache.GetOrSetAsync(key, () =>
+            {
+                var questions = _dbContext.Questions.ToList(); // синхронно ок
+                var mapped = _mapper.Map<List<QuestionDto>>(questions);
+                return Task.FromResult(mapped);
+            }, ttl: null).GetAwaiter().GetResult();
+
+            return list;
         }
 
         public QuestionDto GetQuestionById(int id)
         {
-            var question = _dbContext.Questions.Find(id);
-            if (question == null)
-                throw new KeyNotFoundException($"Question with ID {id} not found.");
+            var v = _ver.GetVersionAsync().GetAwaiter().GetResult();
+            var key = $"content:question:{id}:v{v}";
 
-            return _mapper.Map<QuestionDto>(question);
+            var dto = _cache.GetOrSetAsync(key, () =>
+            {
+                var question = _dbContext.Questions.Find(id);
+                if (question == null)
+                    throw new KeyNotFoundException($"Question with ID {id} not found.");
+
+                var mapped = _mapper.Map<QuestionDto>(question);
+                return Task.FromResult(mapped);
+            }, ttl: null).GetAwaiter().GetResult();
+
+            return dto!;
         }
 
         public QuestionDto CreateQuestion(CreateQuestionDto dto)
@@ -42,9 +68,10 @@ namespace VemboAPI.Infrastructure.Services
             _dbContext.Questions.Add(question);
             _dbContext.SaveChanges();
 
+            _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідація кешу
+
             return _mapper.Map<QuestionDto>(question);
         }
-
 
         public void UpdateQuestion(int id, UpdateQuestionDto dto)
         {
@@ -57,9 +84,9 @@ namespace VemboAPI.Infrastructure.Services
 
             _mapper.Map(dto, question);
             _dbContext.SaveChanges();
+
+            _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідація кешу
         }
-
-
 
         public void DeleteQuestion(int id)
         {
@@ -69,6 +96,8 @@ namespace VemboAPI.Infrastructure.Services
 
             _dbContext.Questions.Remove(question);
             _dbContext.SaveChanges();
+
+            _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідація кешу
         }
 
         public List<QuestionDto> GetAllQuestionsByExcerciseId(int excerciseId)

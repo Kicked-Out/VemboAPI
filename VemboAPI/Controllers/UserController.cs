@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
+using System.Security.Claims;
 using VemboAPI.Domain.DTOs;
 using VemboAPI.Infrastructure.Interfaces;
 
@@ -71,16 +72,21 @@ public class UserController : Controller
         return Ok("User created successfully.");
     }
 
-    [Authorize(Roles = "Admin")]
-    [HttpPut("{id}")]
-    public IActionResult Update(int id, [FromBody] UpdateUserDto dto)
+    [Authorize]
+    [HttpPut("me")]
+    public IActionResult UpdateSelf([FromBody] UpdateUserDto dto)
     {
-        if (dto == null || string.IsNullOrEmpty(dto.NickName) || string.IsNullOrEmpty(dto.Password) || string.IsNullOrEmpty(dto.Email))
-            return BadRequest("Invalid user data.");
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                          ?? User.FindFirst("sub")?.Value;
+
+        if (userIdClaim == null)
+            return Unauthorized();
+
+        int userId = int.Parse(userIdClaim);
 
         try
         {
-            _userService.UpdateUser(id, dto);
+            _userService.UpdateUser(userId, dto);
             return Ok("User updated successfully.");
         }
         catch (KeyNotFoundException ex)
@@ -88,6 +94,7 @@ public class UserController : Controller
             return NotFound(ex.Message);
         }
     }
+
 
     [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
@@ -103,4 +110,20 @@ public class UserController : Controller
             return NotFound(ex.Message);
         }
     }
+    [Authorize]
+    [HttpPut("me/role")]
+    public async Task<IActionResult> UpdateMyRole([FromBody] string newRole)
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                          ?? User.FindFirst("sub")?.Value;
+
+        if (userIdClaim == null)
+            return Unauthorized();
+
+        int userId = int.Parse(userIdClaim);
+
+        await _userService.UpdateRoleAsync(userId, newRole);
+        return Ok($"Role updated to {newRole}.");
+    }
+
 }

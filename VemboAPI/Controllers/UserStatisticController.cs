@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using VemboAPI.Domain.DTOs;
 using VemboAPI.Infrastructure.Interfaces;
+using System.Security.Claims;
 
 namespace VemboAPI.API.Controllers
 {
@@ -47,6 +48,26 @@ namespace VemboAPI.API.Controllers
         }
 
         [Authorize]
+        [HttpGet("by-user")]
+        public async Task<IActionResult> GetByUser()
+        {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdStr == null || !int.TryParse(userIdStr, out int userId))
+                return Unauthorized("User ID is invalid or missing.");
+
+            try
+            {
+                var result = await _service.GetByUserIdAsync(userId);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
+
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateUserStatisticDto dto)
         {
@@ -82,6 +103,4 @@ namespace VemboAPI.API.Controllers
             catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
         }
     }
-
 }
-

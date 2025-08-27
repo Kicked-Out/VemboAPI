@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using VemboAPI.Domain.DTOs;
 using VemboAPI.Domain.Entities;
 using VemboAPI.Infrastructure.Data;
 using VemboAPI.Infrastructure.Interfaces;
-
 
 namespace VemboAPI.Controllers
 {
@@ -16,12 +17,14 @@ namespace VemboAPI.Controllers
         private readonly VemboDbContext _context;
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
         private readonly IPasswordHasher<User> _passwordHasher;
+        private readonly IConfiguration _configuration;
 
-        public AuthController(VemboDbContext context, IJwtTokenGenerator jwtTokenGenerator, IPasswordHasher<User> passwordHasher)
+        public AuthController(VemboDbContext context, IJwtTokenGenerator jwtTokenGenerator, IPasswordHasher<User> passwordHasher, IConfiguration configuration)
         {
             _context = context;
             _jwtTokenGenerator = jwtTokenGenerator;
             _passwordHasher = passwordHasher;
+            _configuration = configuration;
         }
 
         [HttpPost("login")]
@@ -33,6 +36,15 @@ namespace VemboAPI.Controllers
                 return Unauthorized("Invalid credentials");
 
             var token = _jwtTokenGenerator.GenerateToken(user);
+            var jwtSettings = _configuration.GetSection("Jwt");
+
+            Response.Cookies.Append("token", token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["ExpireMinutes"]))
+            });
 
             return Ok(new { token });
         }
@@ -55,7 +67,7 @@ namespace VemboAPI.Controllers
                 XP = 0,
                 Rating = 0,
                 Level = 1,
-                Role = "User"
+                Role = "User",
             };
 
             newUser.PasswordHash = _passwordHasher.HashPassword(newUser, dto.Password);
@@ -63,7 +75,30 @@ namespace VemboAPI.Controllers
             _context.Users.Add(newUser);
             _context.SaveChanges();
 
+            // ✅ Створення статистики одразу після юзера
+            var stat = new UserStatistic
+            {
+                UserId = newUser.Id,
+                Streak = 0,
+                Emeralds = 0,
+                Hearts = 5,
+                CurrentPeriodId = null // або null, якщо ще не прив'язано до курсу
+            };
+
+            _context.UserStatistics.Add(stat);
+            _context.SaveChanges();
+
             var token = _jwtTokenGenerator.GenerateToken(newUser);
+            var jwtSettings = _configuration.GetSection("Jwt");
+
+            Response.Cookies.Append("token", token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["ExpireMinutes"]))
+            });
+
             return Ok(new { token });
         }
 
@@ -75,3 +110,4 @@ namespace VemboAPI.Controllers
         }
     }
 }
+

@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using VemboAPI.Infrastructure.Interfaces;
 
 using VemboAPI.Domain.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using System.Data;
+using System.Security.Claims;
 
 namespace VemboAPI.API.Controllers
 {
@@ -27,20 +28,15 @@ namespace VemboAPI.API.Controllers
             var result = _service.GetAllUserLevelProgress(userId);
             return Ok(result);
         }
-        [Authorize]
 
+
+        [Authorize]
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            try
-            {
-                var progress = _service.GetUserLevelProgressById(id);
-                return Ok(progress);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var ensured = _service.EnsureProgressExists(userId, id);
+            return Ok(ensured);
         }
 
         [Authorize]

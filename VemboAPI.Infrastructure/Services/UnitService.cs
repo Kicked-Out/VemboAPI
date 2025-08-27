@@ -1,5 +1,5 @@
 ﻿using VemboAPI.Infrastructure.Data;
-using VemboAPI.Infrastructure.Interfaces;
+using VemboAPI.Infrastructure.Interfaces; // ICacheService, IContentVersionService
 using VemboAPI.Domain.Entities;
 using VemboAPI.Domain.DTOs;
 using AutoMapper;
@@ -10,26 +10,50 @@ namespace VemboAPI.Infrastructure.Services
     {
         private readonly VemboDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly ICacheService _cache;
+        private readonly IContentVersionService _ver;
 
-        public UnitService(VemboDbContext dbContext, IMapper mapper)
+        public UnitService(
+            VemboDbContext dbContext,
+            IMapper mapper,
+            ICacheService cache,
+            IContentVersionService ver)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _cache = cache;
+            _ver = ver;
         }
 
         public List<UnitDto> GetAllUnits()
         {
-            var units = _dbContext.Units.ToList();
-            return _mapper.Map<List<UnitDto>>(units);
+            var v = _ver.GetVersionAsync().GetAwaiter().GetResult();
+            var key = $"content:units:all:v{v}";
+
+            var result = _cache.GetOrSetAsync(key, async () =>
+            {
+                var units = _dbContext.Units.ToList();
+                return _mapper.Map<List<UnitDto>>(units);
+            }, ttl: null).GetAwaiter().GetResult();
+
+            return result;
         }
 
         public UnitDto GetUnitById(int id)
         {
-            var unit = _dbContext.Units.Find(id);
-            if (unit == null)
-                throw new KeyNotFoundException($"Unit with ID {id} not found.");
+            var v = _ver.GetVersionAsync().GetAwaiter().GetResult();
+            var key = $"content:unit:{id}:v{v}";
 
-            return _mapper.Map<UnitDto>(unit);
+            var dto = _cache.GetOrSetAsync(key, async () =>
+            {
+                var unit = _dbContext.Units.Find(id);
+                if (unit == null)
+                    throw new KeyNotFoundException($"Unit with ID {id} not found.");
+
+                return _mapper.Map<UnitDto>(unit);
+            }, ttl: null).GetAwaiter().GetResult();
+
+            return dto!;
         }
 
         public UnitDto CreateUnit(CreateUnitDto dto)
@@ -41,10 +65,11 @@ namespace VemboAPI.Infrastructure.Services
                 throw new KeyNotFoundException($"GuideBook with ID {dto.GuideBookId} not found.");
 
             var unit = _mapper.Map<Unit>(dto);
-            unit.GuideBookId = dto.GuideBookId; // На випадок, якщо AutoMapper не встановить
+            unit.GuideBookId = dto.GuideBookId; // на випадок, якщо AutoMapper не встановить
 
             _dbContext.Units.Add(unit);
             _dbContext.SaveChanges();
+            _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідація кешу через нову версію
 
             return _mapper.Map<UnitDto>(unit);
         }
@@ -65,6 +90,7 @@ namespace VemboAPI.Infrastructure.Services
             unit.GuideBookId = dto.GuideBookId;
 
             _dbContext.SaveChanges();
+            _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідація кешу
         }
 
         public void DeleteUnit(int id)
@@ -75,6 +101,7 @@ namespace VemboAPI.Infrastructure.Services
 
             _dbContext.Units.Remove(unit);
             _dbContext.SaveChanges();
+            _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідація кешу
         }
 
         public List<UnitDto> GetAllUnitsByTopicId(int topicId)

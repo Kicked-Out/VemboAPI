@@ -1,5 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
 using VemboAPI.Domain.DTOs;
 
 namespace VemboAPI.Infrastructure.Interfaces
@@ -10,9 +8,9 @@ namespace VemboAPI.Infrastructure.Interfaces
         UserTopicProgressDto GetUserTopicProgressById(int id);
         UserTopicProgressDto[] GetAllUserTopicProgressByPeriodId(string userId, int periodId);
         UserTopicProgressDto GetCurrentUserTopicProgress(string userId, int periodId);
+        UserTopicProgressDto EnsureProgressExists(int userId, int topicId);
         UserTopicProgressDto CreateUserTopicProgress(CreateUserTopicProgressDto dto);
         void UpdateUserTopicProgress(int id, UpdateUserTopicProgressDto dto);
-
         void DeleteUserTopicProgress(int id);
     }
 }

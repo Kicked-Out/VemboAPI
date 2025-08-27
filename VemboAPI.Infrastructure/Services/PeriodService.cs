@@ -1,10 +1,9 @@
 ﻿using VemboAPI.Infrastructure.Data;
-using VemboAPI.Infrastructure.Interfaces;
+using VemboAPI.Infrastructure.Interfaces; // ICacheService, IContentVersionService
 using VemboAPI.Domain.Entities;
 using VemboAPI.Domain.DTOs;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
-
 
 namespace VemboAPI.Infrastructure.Services
 {
@@ -12,40 +11,62 @@ namespace VemboAPI.Infrastructure.Services
     {
         private readonly VemboDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly ICacheService _cache;
+        private readonly IContentVersionService _ver;
 
-        public PeriodService(VemboDbContext dbContext, IMapper mapper)
+        public PeriodService(
+            VemboDbContext dbContext,
+            IMapper mapper,
+            ICacheService cache,
+            IContentVersionService ver)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _cache = cache;
+            _ver = ver;
         }
 
         public List<PeriodDto> GetAllPeriods()
         {
-            var periods = _dbContext.Periods
-                .Include(p => p.Topics)
-                .ToList();
+            var v = _ver.GetVersionAsync().GetAwaiter().GetResult();
+            var key = $"content:periods:v{v}";
 
-            // TopicsCount мапиться вручну, бо не в Entity
-            var result = _mapper.Map<List<PeriodDto>>(periods);
-            for (int i = 0; i < result.Count; i++)
+            var result = _cache.GetOrSetAsync(key, async () =>
             {
-                result[i].TopicsCount = periods[i].Topics.Count;
-            }
+                var periods = await _dbContext.Periods
+                    .Include(p => p.Topics)
+                    .ToListAsync();
+
+                var mapped = _mapper.Map<List<PeriodDto>>(periods);
+                for (int i = 0; i < mapped.Count; i++)
+                    mapped[i].TopicsCount = periods[i].Topics.Count;
+
+                return mapped;
+            }, ttl: null).GetAwaiter().GetResult();
+
             return result;
         }
 
         public PeriodDto GetPeriodById(int id)
         {
-            var period = _dbContext.Periods
-                .Include(p => p.Topics)
-                .FirstOrDefault(p => p.Id == id);
+            var v = _ver.GetVersionAsync().GetAwaiter().GetResult();
+            var key = $"content:period:{id}:v{v}";
 
-            if (period == null)
-                throw new KeyNotFoundException($"Period with ID {id} not found.");
+            var dto = _cache.GetOrSetAsync(key, async () =>
+            {
+                var period = await _dbContext.Periods
+                    .Include(p => p.Topics)
+                    .FirstOrDefaultAsync(p => p.Id == id);
 
-            var dto = _mapper.Map<PeriodDto>(period);
-            dto.TopicsCount = period.Topics.Count;
-            return dto;
+                if (period == null)
+                    throw new KeyNotFoundException($"Period with ID {id} not found.");
+
+                var mapped = _mapper.Map<PeriodDto>(period);
+                mapped.TopicsCount = period.Topics.Count;
+                return mapped;
+            }, ttl: null).GetAwaiter().GetResult();
+
+            return dto!;
         }
 
         public PeriodDto CreatePeriod(CreatePeriodDto dto)
@@ -54,11 +75,11 @@ namespace VemboAPI.Infrastructure.Services
             _dbContext.Periods.Add(period);
             _dbContext.SaveChanges();
 
-            var result = _mapper.Map<PeriodDto>(period);
-            return result;
+            // bump content version, щоб інвалідувати ключі (через v{ver})
+            _ver.BumpAsync().GetAwaiter().GetResult();
+
+            return _mapper.Map<PeriodDto>(period);
         }
-
-
 
         public void UpdatePeriod(int id, UpdatePeriodDto dto)
         {
@@ -68,9 +89,10 @@ namespace VemboAPI.Infrastructure.Services
 
             _mapper.Map(dto, period);
             _dbContext.SaveChanges();
+
+            // інвалідуємо через bump версії
+            _ver.BumpAsync().GetAwaiter().GetResult();
         }
-
-
 
         public void DeletePeriod(int id)
         {
@@ -80,6 +102,9 @@ namespace VemboAPI.Infrastructure.Services
 
             _dbContext.Periods.Remove(period);
             _dbContext.SaveChanges();
+
+            // інвалідуємо через bump версії
+            _ver.BumpAsync().GetAwaiter().GetResult();
         }
     }
 }

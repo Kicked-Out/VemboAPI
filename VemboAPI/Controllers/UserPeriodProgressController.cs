@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.DTOs;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace VemboAPI.API.Controllers
 {
@@ -15,8 +16,8 @@ namespace VemboAPI.API.Controllers
         {
             _service = service;
         }
-        [Authorize]
 
+        [Authorize]
         [HttpGet]
         public IActionResult Get()
         {
@@ -25,20 +26,14 @@ namespace VemboAPI.API.Controllers
             var result = _service.GetAllUserPeriodProgress(userId);
             return Ok(result);
         }
-        [Authorize]
 
+        [Authorize]
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            try
-            {
-                var progress = _service.GetUserPeriodProgressById(id);
-                return Ok(progress);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var ensured = _service.EnsureProgressExists(userId, id);
+            return Ok(ensured);
         }
 
         [Authorize]
@@ -85,7 +80,6 @@ namespace VemboAPI.API.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {

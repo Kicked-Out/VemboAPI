@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using VemboAPI.Domain.DTOs;
+﻿using VemboAPI.Domain.DTOs;
 
 namespace VemboAPI.Infrastructure.Interfaces
 {
@@ -12,7 +10,7 @@ namespace VemboAPI.Infrastructure.Interfaces
         UserPeriodProgressDto GetUserPeriodProgressWithMostXPByUserId(string userId);
         UserPeriodProgressDto CreateUserPeriodProgress(CreateUserPeriodProgressDto dto);
         void UpdateUserPeriodProgress(int id, UpdateUserPeriodProgressDto dto);
-
         void DeleteUserPeriodProgress(int id);
+        UserPeriodProgressDto EnsureProgressExists(int userId, int periodId);
     }
 }

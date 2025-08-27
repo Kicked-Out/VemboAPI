@@ -13,6 +13,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Identity;
 using VemboAPI.Domain.Entities;
+using System.Security.Claims;
+using Microsoft.Extensions.Caching.StackExchangeRedis;
+using System.Text.Json;
+using Hangfire;
+using Hangfire.SqlServer;
+using VemboAPI.Jobs;
 
 public class Program
 {
@@ -20,13 +26,16 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        // Додай це, якщо ти в custom CLI або консольному застосунку:
+        builder.Configuration
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
 
         var connectionString = builder.Configuration.GetConnectionString("DbContext");
         builder.Services.AddDbContext<VemboDbContext>(options => options.UseSqlServer(connectionString));
-        // builder.Services.AddDbContext<VemboDbContext>(options => options.UseNpgsql(connectionString)); // якщо PostgreSQL
 
         builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
-
 
         builder.Services.AddControllers()
             .AddFluentValidation(fv =>
@@ -35,10 +44,9 @@ public class Program
                 fv.AutomaticValidationEnabled = true;
             });
 
- 
         builder.Services.Configure<ApiBehaviorOptions>(options =>
         {
-            options.SuppressModelStateInvalidFilter = false; 
+            options.SuppressModelStateInvalidFilter = false;
         });
 
         builder.Services.AddCors(options =>
@@ -79,8 +87,53 @@ public class Program
                     new string[]{}
                 }
             });
+        builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
+        // Redis (IDistributedCache)
+        builder.Services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = builder.Configuration["Redis:Configuration"];
+            options.InstanceName = builder.Configuration["Redis:InstanceName"];
         });
 
+        // JSON options для серіалізації в кеші
+        builder.Services.Configure<JsonSerializerOptions>(opts =>
+        {
+            opts.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            opts.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+        });
+
+        builder.Services.AddSwaggerGen(c =>
+        {
+            c.SwaggerDoc("v1", new() { Title = "VemboAPI", Version = "v1" });
+
+            c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+                Scheme = "Bearer",
+                BearerFormat = "JWT",
+                In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                Description = "Enter 'Bearer' [space] and then your token.\n\nExample: Bearer eyJhbGciOiJIUzI1NiIs..."
+            });
+
+            c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+            {
+                {
+                    new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                    {
+                        Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                        {
+                            Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        },
+                        Scheme = "oauth2",
+                        Name = "Bearer",
+                        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                    },
+                    new List<string>()
+                }
+            });
+        });
 
         var jwtSettings = builder.Configuration.GetSection("Jwt");
         var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
@@ -101,7 +154,8 @@ public class Program
                 ClockSkew = TimeSpan.Zero,
                 ValidIssuer = jwtSettings["Issuer"],
                 ValidAudience = jwtSettings["Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(key)
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                RoleClaimType = ClaimTypes.Role 
             };
         });
 
@@ -128,8 +182,31 @@ public class Program
         builder.Services.AddScoped<IUserExerciseMistakeService, UserExerciseMistakeService>();
         builder.Services.AddScoped<ILevelTypeService, LevelTypeService>();
         builder.Services.AddScoped<IGuideBookService, GuideBookService>();
-
+        builder.Services.AddScoped<IAchievementLevelService, AchievementLevelService>();
+        builder.Services.AddScoped<IAchievementService, AchievementService>();
+        builder.Services.AddScoped<IUserStatisticService, UserStatisticService>();
+        builder.Services.AddScoped<IUserLeaderBoardService, UserLeaderBoardService>();
+        builder.Services.AddScoped<IUserAchievementService, UserAchievementService>();
         builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+        builder.Services.AddScoped<IEmailService, EmailService>();
+        builder.Services.AddSingleton<ICacheService, RedisCacheService>();
+        builder.Services.AddSingleton<IContentVersionService, ContentVersionService>();
+
+        builder.Services.AddTransient<CacheWarmupJob>(); 
+
+        var sql = builder.Configuration.GetConnectionString("DbContext");
+
+        builder.Services.AddHangfire(cfg => cfg
+            .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UseSqlServerStorage(sql, new SqlServerStorageOptions
+            {
+                PrepareSchemaIfNecessary = true,
+                QueuePollInterval = TimeSpan.FromSeconds(15)
+            })
+        );
+        builder.Services.AddHangfireServer();
 
         builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
@@ -148,8 +225,14 @@ public class Program
         app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseAuthorization();
-        app.MapControllers();
+        app.UseHangfireDashboard("/hangfire"); 
 
+        BackgroundJob.Enqueue<CacheWarmupJob>(j => j.RunAsync());
+        RecurringJob.AddOrUpdate<CacheWarmupJob>(
+            "warm-content-cache",
+            j => j.RunAsync(),
+            "0 3 * * *");
+        app.MapControllers();
         app.Run();
     }
 }
