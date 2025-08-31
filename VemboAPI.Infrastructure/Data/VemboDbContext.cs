@@ -26,6 +26,7 @@ namespace VemboAPI.Infrastructure.Data
         public DbSet<UserAchievement> UserAchievements { get; set; }
         public DbSet<AchievementLevel> AchievementLevels { get; set; }
         public DbSet<Achievement> Achievements { get; set; }
+        public DbSet<Badge> Badges { get; set; }
         public DbSet<UserStatistic> UserStatistics { get; set; }
         public DbSet<UserLeaderBoardEntry> UserLeaderBoardEntries { get; set; }
 
@@ -61,6 +62,7 @@ namespace VemboAPI.Infrastructure.Data
             modelBuilder.Entity<UserAchievement>();
             modelBuilder.Entity<AchievementLevel>();
             modelBuilder.Entity<Achievement>();
+            modelBuilder.Entity<Badge>();
             modelBuilder.Entity<UserStatistic>();
             modelBuilder.Entity<UserLeaderBoardEntry>();
         }
