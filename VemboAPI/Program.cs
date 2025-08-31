@@ -124,6 +124,8 @@ public class Program
         builder.Services.AddScoped<IUserStatisticService, UserStatisticService>();
         builder.Services.AddScoped<IUserLeaderBoardService, UserLeaderBoardService>();
         builder.Services.AddScoped<IUserAchievementService, UserAchievementService>();
+        builder.Services.AddScoped<IMedalService, MedalService>();
+        builder.Services.AddScoped<IUserMedalService, UserMedalService>();
         builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 
         var app = builder.Build();
