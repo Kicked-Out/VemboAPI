@@ -110,6 +110,14 @@ namespace VemboAPI.Infrastructure
             CreateMap<CreateUserLeaderBoardEntryDto, UserLeaderBoardEntry>();
             CreateMap<UpdateUserLeaderBoardEntryDto, UserLeaderBoardEntry>();
 
+            CreateMap<Badge, BadgeDto>();
+            CreateMap<CreateBadgeDto, Badge>();
+            CreateMap<UpdateBadgeDto, Badge>();
+
+            CreateMap<UserBadge, UserBadgeDto>();
+            CreateMap<CreateUserBadgeDto, UserBadge>();
+            CreateMap<UpdateUserBadgeDto, UserBadge>();
+
 
         }
     }
