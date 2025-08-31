@@ -28,6 +28,9 @@ namespace VemboAPI.Infrastructure.Data
         public DbSet<Achievement> Achievements { get; set; }
         public DbSet<UserStatistic> UserStatistics { get; set; }
         public DbSet<UserLeaderBoardEntry> UserLeaderBoardEntries { get; set; }
+        public DbSet<Quest> Quests { get; set; }
+        public DbSet<DailyQuest> DailyQuests { get; set; }
+        public DbSet<UserQuest> UserQuests { get; set; }
 
         public VemboDbContext(DbContextOptions<VemboDbContext> options) : base(options)
         {
@@ -63,6 +66,9 @@ namespace VemboAPI.Infrastructure.Data
             modelBuilder.Entity<Achievement>();
             modelBuilder.Entity<UserStatistic>();
             modelBuilder.Entity<UserLeaderBoardEntry>();
+            modelBuilder.Entity<Quest>();
+            modelBuilder.Entity<DailyQuest>();
+            modelBuilder.Entity<UserQuest>();
         }
     }
 }

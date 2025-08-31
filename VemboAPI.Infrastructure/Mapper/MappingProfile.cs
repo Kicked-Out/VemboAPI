@@ -110,6 +110,18 @@ namespace VemboAPI.Infrastructure
             CreateMap<CreateUserLeaderBoardEntryDto, UserLeaderBoardEntry>();
             CreateMap<UpdateUserLeaderBoardEntryDto, UserLeaderBoardEntry>();
 
+            CreateMap<Quest, QuestDto>().ReverseMap();
+            CreateMap<CreateQuestDto, Quest>();
+            CreateMap<UpdateQuestDto, Quest>();
+
+            CreateMap<DailyQuest, DailyQuestDto>().ReverseMap();
+            CreateMap<CreateDailyQuestDto, DailyQuest>();
+            CreateMap<UpdateDailyQuestDto, DailyQuest>();
+
+            CreateMap<UserQuest, UserQuestDto>().ReverseMap();
+            CreateMap<CreateUserQuestDto, UserQuest>();
+            CreateMap<UpdateUserQuestDto, UserQuest>();
+
 
         }
     }
