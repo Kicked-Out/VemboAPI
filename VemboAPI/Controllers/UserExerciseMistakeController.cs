@@ -2,7 +2,6 @@
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.DTOs;
 using Microsoft.AspNetCore.Authorization;
-using System.Data;
 
 namespace VemboAPI.API.Controllers
 {
@@ -39,7 +38,7 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         [HttpPost]
         public IActionResult Post([FromBody] CreateUserExerciseMistakeDto dto)
         {

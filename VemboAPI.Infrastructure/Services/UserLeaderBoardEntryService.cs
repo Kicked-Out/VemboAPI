@@ -1,9 +1,8 @@
-﻿using System;
-using AutoMapper;
+﻿using AutoMapper;
 using VemboAPI.Domain.DTOs;
 using VemboAPI.Domain.Entities;
 using VemboAPI.Infrastructure.Data;
-using VemboAPI.Infrastructure.Interfaces;
+using VemboAPI.Infrastructure.Interfaces; // ICacheService
 using Microsoft.EntityFrameworkCore;
 
 namespace VemboAPI.Infrastructure.Services
@@ -12,25 +11,46 @@ namespace VemboAPI.Infrastructure.Services
     {
         private readonly VemboDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly ICacheService _cache;
 
-        public UserLeaderBoardService(VemboDbContext dbContext, IMapper mapper)
+        private const string AllKey = "leaderboard_all";
+        private static string UserKey(int id) => $"leaderboard_user_{id}";
+        private static readonly TimeSpan Ttl = TimeSpan.FromMinutes(1);
+
+        public UserLeaderBoardService(
+            VemboDbContext dbContext,
+            IMapper mapper,
+            ICacheService cache)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _cache = cache;
         }
 
         public async Task<List<UserLeaderBoardEntryDto>> GetAllAsync()
         {
+            var cached = await _cache.GetAsync<List<UserLeaderBoardEntryDto>>(AllKey);
+            if (cached is not null) return cached;
+
             var entries = await _dbContext.UserLeaderBoardEntries.ToListAsync();
-            return _mapper.Map<List<UserLeaderBoardEntryDto>>(entries);
+            var result = _mapper.Map<List<UserLeaderBoardEntryDto>>(entries);
+
+            await _cache.SetAsync(AllKey, result, Ttl);
+            return result;
         }
 
         public async Task<UserLeaderBoardEntryDto> GetByIdAsync(int id)
         {
+            var key = UserKey(id);
+            var cached = await _cache.GetAsync<UserLeaderBoardEntryDto>(key);
+            if (cached is not null) return cached;
+
             var entry = await _dbContext.UserLeaderBoardEntries.FindAsync(id)
                 ?? throw new KeyNotFoundException($"Leaderboard entry with ID {id} not found.");
 
-            return _mapper.Map<UserLeaderBoardEntryDto>(entry);
+            var dto = _mapper.Map<UserLeaderBoardEntryDto>(entry);
+            await _cache.SetAsync(key, dto, Ttl);
+            return dto;
         }
 
         public async Task<UserLeaderBoardEntryDto> CreateAsync(CreateUserLeaderBoardEntryDto dto)
@@ -42,6 +62,11 @@ namespace VemboAPI.Infrastructure.Services
             _dbContext.UserLeaderBoardEntries.Add(entity);
             await _dbContext.SaveChangesAsync();
 
+            // інвалідація кешу
+            await _cache.RemoveAsync(AllKey);
+            // новий запис ще не має власного Id у ключі user_{id} (ми кешуємо за entry.Id, не userId),
+            // але якщо ти кешуєш за entry.Id — зніми цей коментар і видали відповідний ключ.
+
             return _mapper.Map<UserLeaderBoardEntryDto>(entity);
         }
 
@@ -52,6 +77,10 @@ namespace VemboAPI.Infrastructure.Services
 
             _mapper.Map(dto, entry);
             await _dbContext.SaveChangesAsync();
+
+            // інвалідація кешу
+            await _cache.RemoveAsync(AllKey);
+            await _cache.RemoveAsync(UserKey(id));
         }
 
         public async Task DeleteAsync(int id)
@@ -61,8 +90,10 @@ namespace VemboAPI.Infrastructure.Services
 
             _dbContext.UserLeaderBoardEntries.Remove(entry);
             await _dbContext.SaveChangesAsync();
+
+            // інвалідація кешу
+            await _cache.RemoveAsync(AllKey);
+            await _cache.RemoveAsync(UserKey(id));
         }
     }
-
 }
-

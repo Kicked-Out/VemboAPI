@@ -10,7 +10,15 @@ using VemboAPI.Infrastructure;
 using FluentValidation.AspNetCore;
 using VemboAPI.Domain.Validators;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Identity;
+using VemboAPI.Domain.Entities;
 using System.Security.Claims;
+using Microsoft.Extensions.Caching.StackExchangeRedis;
+using System.Text.Json;
+using Hangfire;
+using Hangfire.SqlServer;
+using VemboAPI.Jobs;
 
 public class Program
 {
@@ -41,7 +49,58 @@ public class Program
             options.SuppressModelStateInvalidFilter = false;
         });
 
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowLocalhost",
+                policy =>
+                {
+                    policy.WithOrigins("http://localhost:5173")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+                });
+        });
+
         builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen(options =>
+        {
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                In = ParameterLocation.Header,
+                Description = "Please enter a valid token",
+                Name = "Authorization",
+                Type = SecuritySchemeType.Http,
+                BearerFormat = "JWT",
+                Scheme = "Bearer"
+            });
+
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    new string[]{}
+                }
+            });
+        builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
+        // Redis (IDistributedCache)
+        builder.Services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = builder.Configuration["Redis:Configuration"];
+            options.InstanceName = builder.Configuration["Redis:InstanceName"];
+        });
+
+        // JSON options для серіалізації в кеші
+        builder.Services.Configure<JsonSerializerOptions>(opts =>
+        {
+            opts.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            opts.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+        });
 
         builder.Services.AddSwaggerGen(c =>
         {
@@ -100,7 +159,6 @@ public class Program
             };
         });
 
-        // Services
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<ITopicService, TopicService>();
         builder.Services.AddScoped<IUnitService, UnitService>();
@@ -109,8 +167,13 @@ public class Program
         builder.Services.AddScoped<ILessonService, LessonService>();
         builder.Services.AddScoped<IExerciseService, ExerciseService>();
         builder.Services.AddScoped<IExerciseTypeService, ExerciseTypeService>();
+        builder.Services.AddScoped<IAchievementService, AchievementService>();
+        builder.Services.AddScoped<IAchievementLevelService, AchievementLevelService>();
         builder.Services.AddScoped<IAnswerService, AnswerService>();
         builder.Services.AddScoped<IQuestionService, QuestionService>();
+        builder.Services.AddScoped<IUserLeaderBoardService, UserLeaderBoardService>();
+        builder.Services.AddScoped<IUserAchievementService, UserAchievementService>();
+        builder.Services.AddScoped<IUserStatisticService, UserStatisticService>();
         builder.Services.AddScoped<IUserPeriodProgressService, UserPeriodProgressService>();
         builder.Services.AddScoped<IUserTopicProgressService, UserTopicProgressService>();
         builder.Services.AddScoped<IUserUnitProgressService, UserUnitProgressService>();
@@ -127,6 +190,31 @@ public class Program
         builder.Services.AddScoped<IMedalService, MedalService>();
         builder.Services.AddScoped<IUserMedalService, UserMedalService>();
         builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+        builder.Services.AddScoped<IQuestService, QuestService>();
+        builder.Services.AddScoped<IDailyQuestService, DailyQuestService>();
+        builder.Services.AddScoped<IUserQuestService, UserQuestService>();
+        builder.Services.AddScoped<IEmailSender, EmailService>();
+        builder.Services.AddScoped<IUserManager, UserManager>();
+        builder.Services.AddSingleton<ICacheService, RedisCacheService>();
+        builder.Services.AddSingleton<IContentVersionService, ContentVersionService>();
+
+        builder.Services.AddTransient<CacheWarmupJob>(); 
+
+        var sql = builder.Configuration.GetConnectionString("DbContext");
+
+        builder.Services.AddHangfire(cfg => cfg
+            .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UseSqlServerStorage(sql, new SqlServerStorageOptions
+            {
+                PrepareSchemaIfNecessary = true,
+                QueuePollInterval = TimeSpan.FromSeconds(15)
+            })
+        );
+        builder.Services.AddHangfireServer();
+
+        builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
         var app = builder.Build();
 
@@ -136,11 +224,20 @@ public class Program
             app.UseSwaggerUI();
         }
 
-        //app.UseHttpsRedirection();
+        app.UseCors("AllowLocalhost");
 
-        app.UseAuthentication(); // ⬅️ Це має бути до Authorization
+        app.UseDeveloperExceptionPage();
+
+        app.UseHttpsRedirection();
+        app.UseAuthentication();
         app.UseAuthorization();
+        app.UseHangfireDashboard("/hangfire"); 
 
+        BackgroundJob.Enqueue<CacheWarmupJob>(j => j.RunAsync());
+        RecurringJob.AddOrUpdate<CacheWarmupJob>(
+            "warm-content-cache",
+            j => j.RunAsync(),
+            "0 3 * * *");
         app.MapControllers();
         app.Run();
     }

@@ -1,5 +1,4 @@
-﻿using System;
-using VemboAPI.Domain.DTOs;
+﻿using VemboAPI.Domain.DTOs;
 
 namespace VemboAPI.Infrastructure.Interfaces
 {

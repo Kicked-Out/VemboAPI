@@ -17,9 +17,9 @@ namespace VemboAPI.Infrastructure.Services
             _mapper = mapper;
         }
 
-        public List<UserLevelProgressDto> GetAllUserLevelProgress()
+        public List<UserLevelProgressDto> GetAllUserLevelProgress(string userId)
         {
-            var progresses = _dbContext.UserLevelProgresses.ToList();
+            var progresses = _dbContext.UserLevelProgresses.ToList().FindAll(levelProgress => levelProgress.UserId == userId);
             return _mapper.Map<List<UserLevelProgressDto>>(progresses);
         }
 
@@ -48,6 +48,21 @@ namespace VemboAPI.Infrastructure.Services
 
             _dbContext.UserLevelProgresses.Add(progress);
             _dbContext.SaveChanges();
+
+            return _mapper.Map<UserLevelProgressDto>(progress);
+        }
+
+        public UserLevelProgressDto GetUserLevelProgressByLevelId(string userId, int levelId)
+        {
+            var progress = _dbContext.UserLevelProgresses
+                .ToList()
+                .FindAll(levelProgress => levelProgress.UserId == userId)
+                .Find(levelProgress => levelProgress.LevelId == levelId);
+
+            if (progress == null)
+            {
+                throw new KeyNotFoundException($"UserLevelProgress with LevelId {levelId} not found.");
+            }
 
             return _mapper.Map<UserLevelProgressDto>(progress);
         }

@@ -12,18 +12,207 @@ using VemboAPI.Infrastructure.Data;
 namespace VemboAPI.Infrastructure.Migrations
 {
     [DbContext(typeof(VemboDbContext))]
-    [Migration("20250707231722_UserLessonExerciseProgressMistakeTable")]
-    partial class UserLessonExerciseProgressMistakeTable
+    [Migration("20250825152800_ModifiedDb")]
+    partial class ModifiedDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.5")
+                .HasAnnotation("ProductVersion", "9.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex")
+                        .HasFilter("[NormalizedName] IS NOT NULL");
+
+                    b.ToTable("AspNetRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RoleId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetRoleClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserLogins", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("RoleId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetUserRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("VemboAPI.Domain.Entities.Achievement", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IconUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Achievements");
+                });
+
+            modelBuilder.Entity("VemboAPI.Domain.Entities.AchievementLevel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AchievementId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Level")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RewardXP")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TargetValue")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AchievementId");
+
+                    b.ToTable("AchievementLevels");
+                });
 
             modelBuilder.Entity("VemboAPI.Domain.Entities.Answer", b =>
                 {
@@ -33,15 +222,15 @@ namespace VemboAPI.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("IsCorrect")
+                        .HasColumnType("bit");
+
                     b.Property<int>("QuestionId")
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("isCorrect")
-                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
@@ -100,6 +289,27 @@ namespace VemboAPI.Infrastructure.Migrations
                     b.ToTable("ExerciseTypes");
                 });
 
+            modelBuilder.Entity("VemboAPI.Domain.Entities.GuideBook", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("GuideBooks");
+                });
+
             modelBuilder.Entity("VemboAPI.Domain.Entities.Lesson", b =>
                 {
                     b.Property<int>("Id")
@@ -129,6 +339,9 @@ namespace VemboAPI.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("LevelTypeId")
+                        .HasColumnType("int");
+
                     b.Property<int>("Order")
                         .HasColumnType("int");
 
@@ -141,9 +354,28 @@ namespace VemboAPI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("LevelTypeId");
+
                     b.HasIndex("UnitId");
 
                     b.ToTable("Levels");
+                });
+
+            modelBuilder.Entity("VemboAPI.Domain.Entities.LevelType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LevelTypes");
                 });
 
             modelBuilder.Entity("VemboAPI.Domain.Entities.Period", b =>
@@ -235,6 +467,9 @@ namespace VemboAPI.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("GuideBookId")
+                        .HasColumnType("int");
+
                     b.Property<int>("Order")
                         .HasColumnType("int");
 
@@ -247,6 +482,8 @@ namespace VemboAPI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("GuideBookId");
+
                     b.HasIndex("TopicId");
 
                     b.ToTable("Units");
@@ -254,19 +491,25 @@ namespace VemboAPI.Infrastructure.Migrations
 
             modelBuilder.Entity("VemboAPI.Domain.Entities.User", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsPremium")
                         .HasColumnType("bit");
@@ -274,27 +517,104 @@ namespace VemboAPI.Infrastructure.Migrations
                     b.Property<int>("Level")
                         .HasColumnType("int");
 
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<string>("NickName")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Password")
+                    b.Property<string>("NickNameSlug")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
 
                     b.Property<int>("Rating")
                         .HasColumnType("int");
 
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<long>("XP")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("VemboAPI.Domain.Entities.UserAchievement", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AchievementId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CurrentLevel")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("EarnedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Progress")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AchievementId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserAchievements");
                 });
 
             modelBuilder.Entity("VemboAPI.Domain.Entities.UserExerciseMistake", b =>
@@ -312,14 +632,42 @@ namespace VemboAPI.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("UserId")
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExerciseId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserExerciseMistakes");
+                });
+
+            modelBuilder.Entity("VemboAPI.Domain.Entities.UserLeaderBoardEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Rank")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("XP")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserExerciseMistakes");
+                    b.ToTable("UserLeaderBoardEntries");
                 });
 
             modelBuilder.Entity("VemboAPI.Domain.Entities.UserLessonProgress", b =>
@@ -330,14 +678,15 @@ namespace VemboAPI.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("CompletedCount")
+                        .HasColumnType("int");
+
                     b.Property<int>("LessonId")
                         .HasColumnType("int");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("isCompleted")
-                        .HasColumnType("bit");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
@@ -356,14 +705,15 @@ namespace VemboAPI.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("CompletedCount")
+                        .HasColumnType("int");
+
                     b.Property<int>("LevelId")
                         .HasColumnType("int");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("isCompleted")
-                        .HasColumnType("bit");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
@@ -382,14 +732,18 @@ namespace VemboAPI.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("CompletedCount")
+                        .HasColumnType("int");
+
                     b.Property<int>("PeriodId")
                         .HasColumnType("int");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<bool>("isCompleted")
-                        .HasColumnType("bit");
+                    b.Property<int>("XP")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -400,6 +754,39 @@ namespace VemboAPI.Infrastructure.Migrations
                     b.ToTable("UserPeriodProgresses");
                 });
 
+            modelBuilder.Entity("VemboAPI.Domain.Entities.UserStatistic", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CurrentPeriodId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Hearts")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Streak")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("VBucks")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CurrentPeriodId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserStatistics");
+                });
+
             modelBuilder.Entity("VemboAPI.Domain.Entities.UserTopicProgress", b =>
                 {
                     b.Property<int>("Id")
@@ -408,14 +795,15 @@ namespace VemboAPI.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("CompletedCount")
+                        .HasColumnType("int");
+
                     b.Property<int>("TopicId")
                         .HasColumnType("int");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("isCompleted")
-                        .HasColumnType("bit");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
@@ -434,14 +822,15 @@ namespace VemboAPI.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("CompletedCount")
+                        .HasColumnType("int");
+
                     b.Property<int>("UnitId")
                         .HasColumnType("int");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("isCompleted")
-                        .HasColumnType("bit");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
@@ -450,6 +839,68 @@ namespace VemboAPI.Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserUnitProgresses");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.HasOne("VemboAPI.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.HasOne("VemboAPI.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VemboAPI.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.HasOne("VemboAPI.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("VemboAPI.Domain.Entities.AchievementLevel", b =>
+                {
+                    b.HasOne("VemboAPI.Domain.Entities.Achievement", "Achievement")
+                        .WithMany("Levels")
+                        .HasForeignKey("AchievementId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Achievement");
                 });
 
             modelBuilder.Entity("VemboAPI.Domain.Entities.Answer", b =>
@@ -495,11 +946,19 @@ namespace VemboAPI.Infrastructure.Migrations
 
             modelBuilder.Entity("VemboAPI.Domain.Entities.Level", b =>
                 {
+                    b.HasOne("VemboAPI.Domain.Entities.LevelType", "LevelType")
+                        .WithMany("Levels")
+                        .HasForeignKey("LevelTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("VemboAPI.Domain.Entities.Unit", "Unit")
                         .WithMany("Levels")
                         .HasForeignKey("UnitId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("LevelType");
 
                     b.Navigation("Unit");
                 });
@@ -507,7 +966,7 @@ namespace VemboAPI.Infrastructure.Migrations
             modelBuilder.Entity("VemboAPI.Domain.Entities.Question", b =>
                 {
                     b.HasOne("VemboAPI.Domain.Entities.Exercise", "Exercise")
-                        .WithMany()
+                        .WithMany("Questions")
                         .HasForeignKey("ExerciseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -528,22 +987,70 @@ namespace VemboAPI.Infrastructure.Migrations
 
             modelBuilder.Entity("VemboAPI.Domain.Entities.Unit", b =>
                 {
+                    b.HasOne("VemboAPI.Domain.Entities.GuideBook", "GetGuideBook")
+                        .WithMany("Units")
+                        .HasForeignKey("GuideBookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("VemboAPI.Domain.Entities.Topic", "Topic")
                         .WithMany("Units")
                         .HasForeignKey("TopicId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("GetGuideBook");
+
                     b.Navigation("Topic");
+                });
+
+            modelBuilder.Entity("VemboAPI.Domain.Entities.UserAchievement", b =>
+                {
+                    b.HasOne("VemboAPI.Domain.Entities.Achievement", "Achievement")
+                        .WithMany("UserAchievements")
+                        .HasForeignKey("AchievementId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VemboAPI.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Achievement");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("VemboAPI.Domain.Entities.UserExerciseMistake", b =>
                 {
-                    b.HasOne("VemboAPI.Domain.Entities.User", null)
+                    b.HasOne("VemboAPI.Domain.Entities.Exercise", "Exercise")
+                        .WithMany()
+                        .HasForeignKey("ExerciseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VemboAPI.Domain.Entities.User", "User")
                         .WithMany("UserExerciseMistakes")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Exercise");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("VemboAPI.Domain.Entities.UserLeaderBoardEntry", b =>
+                {
+                    b.HasOne("VemboAPI.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("VemboAPI.Domain.Entities.UserLessonProgress", b =>
@@ -603,6 +1110,25 @@ namespace VemboAPI.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("VemboAPI.Domain.Entities.UserStatistic", b =>
+                {
+                    b.HasOne("VemboAPI.Domain.Entities.Period", "CurrentPeriod")
+                        .WithMany()
+                        .HasForeignKey("CurrentPeriodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VemboAPI.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CurrentPeriod");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("VemboAPI.Domain.Entities.UserTopicProgress", b =>
                 {
                     b.HasOne("VemboAPI.Domain.Entities.Topic", "Topic")
@@ -641,9 +1167,26 @@ namespace VemboAPI.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("VemboAPI.Domain.Entities.Achievement", b =>
+                {
+                    b.Navigation("Levels");
+
+                    b.Navigation("UserAchievements");
+                });
+
+            modelBuilder.Entity("VemboAPI.Domain.Entities.Exercise", b =>
+                {
+                    b.Navigation("Questions");
+                });
+
             modelBuilder.Entity("VemboAPI.Domain.Entities.ExerciseType", b =>
                 {
                     b.Navigation("Exercises");
+                });
+
+            modelBuilder.Entity("VemboAPI.Domain.Entities.GuideBook", b =>
+                {
+                    b.Navigation("Units");
                 });
 
             modelBuilder.Entity("VemboAPI.Domain.Entities.Lesson", b =>
@@ -658,6 +1201,11 @@ namespace VemboAPI.Infrastructure.Migrations
                     b.Navigation("Lessons");
 
                     b.Navigation("UserLevelProgresses");
+                });
+
+            modelBuilder.Entity("VemboAPI.Domain.Entities.LevelType", b =>
+                {
+                    b.Navigation("Levels");
                 });
 
             modelBuilder.Entity("VemboAPI.Domain.Entities.Period", b =>

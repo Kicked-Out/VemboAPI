@@ -17,9 +17,11 @@ namespace VemboAPI.Infrastructure.Services
             _mapper = mapper;
         }
 
-        public List<UserPeriodProgressDto> GetAllUserPeriodProgress()
+        public List<UserPeriodProgressDto> GetAllUserPeriodProgress(string userId)
         {
-            var progresses = _dbContext.UserPeriodProgresses.ToList();
+            var progresses = _dbContext.UserPeriodProgresses
+                .ToList()
+                .FindAll(periodProgress => periodProgress.UserId == userId);
             return _mapper.Map<List<UserPeriodProgressDto>>(progresses);
         }
 
@@ -81,6 +83,32 @@ namespace VemboAPI.Infrastructure.Services
 
             _dbContext.UserPeriodProgresses.Remove(progress);
             _dbContext.SaveChanges();
+        }
+
+        public UserPeriodProgressDto GetUserPeriodProgressByPeriodId(string userId, int periodId)
+        {
+            var progress = _dbContext.UserPeriodProgresses
+                .ToList()
+                .FindAll(periodProgress => periodProgress.UserId == userId)
+                .Find(periodProgress => periodProgress.PeriodId == periodId);
+
+            if (progress == null)
+            {
+                throw new KeyNotFoundException($"$UserPeriodProgress with PeriodId {periodId} not found.");
+            }
+
+            return _mapper.Map<UserPeriodProgressDto>(progress);
+        }
+
+        public UserPeriodProgressDto GetUserPeriodProgressWithMostXPByUserId(string userId)
+        {
+            var progresses = _dbContext.UserPeriodProgresses
+                .ToList()
+                .FindAll(userPeriodProgress => userPeriodProgress.UserId == userId);
+            
+            var progress = progresses.OrderByDescending(progress => progress.XP).FirstOrDefault();
+
+            return _mapper.Map<UserPeriodProgressDto>(progress);
         }
     }
 }

@@ -17,9 +17,9 @@ namespace VemboAPI.Infrastructure.Services
             _mapper = mapper;
         }
 
-        public List<UserLessonProgressDto> GetAllLessonProgress()
+        public List<UserLessonProgressDto> GetAllLessonProgress(string userId)
         {
-            var progresses = _dbContext.UserLessonProgresses.ToList();
+            var progresses = _dbContext.UserLessonProgresses.ToList().FindAll(lessonProgresses => lessonProgresses.UserId == userId);
             return _mapper.Map<List<UserLessonProgressDto>>(progresses);
         }
 
@@ -83,6 +83,27 @@ namespace VemboAPI.Infrastructure.Services
 
             _dbContext.UserLessonProgresses.Remove(progress);
             _dbContext.SaveChanges();
+        }
+
+        public List<UserLessonProgressDto> GetAllLessonProgressByLevelId(string userId, int levelId)
+        {
+            var progresses = _dbContext.UserLessonProgresses
+                .ToList()
+                .FindAll(lessonProgress => lessonProgress.UserId == userId)
+                .FindAll(lessonProgress => lessonProgress.Id == levelId);
+
+            return _mapper.Map<List<UserLessonProgressDto>>(progresses);
+        }
+
+        public UserLessonProgressDto GetCurrentLessonProgressByLevelId(string userId, int levelId)
+        {
+            var progress = _dbContext.UserLessonProgresses
+                .ToList()
+                .FindAll(lessonProgress => lessonProgress.UserId == userId)
+                .FindAll(lessonProgress => lessonProgress.Id == levelId)
+                .LastOrDefault();
+
+            return _mapper.Map<UserLessonProgressDto>(progress);
         }
     }
 }

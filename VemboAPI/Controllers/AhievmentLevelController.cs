@@ -37,7 +37,21 @@ namespace VemboAPI.API.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize]
+        [HttpGet("Achievement/{achievementId}/Level/{levelId}")]
+        public async Task<IActionResult> GetByAchievementIdAndLevelId(int achievementId, int levelId)
+        {
+            try
+            {
+                return Ok(await _service.GetByAchievementIdAndLevelId(achievementId, levelId));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateAchievementLevelDto dto)
         {

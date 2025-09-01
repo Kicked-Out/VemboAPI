@@ -63,6 +63,15 @@ namespace VemboAPI.Infrastructure.Services
             _dbContext.UserAchievements.Remove(entity);
             await _dbContext.SaveChangesAsync();
         }
+
+        public async Task<List<UserAchievementDto>> GetAllByUserId(string userId)
+        {
+            var entities = await _dbContext.UserAchievements
+                .Where(userAchievement => userAchievement.UserId == userId)
+                .ToListAsync();
+
+            return _mapper.Map<List<UserAchievementDto>>(entities);
+        }
     }
 
 }

@@ -1,6 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Authorization;
-using System.Data;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VemboAPI.Domain.DTOs;
 using VemboAPI.Infrastructure.Interfaces;
@@ -18,7 +16,7 @@ namespace VemboAPI.API.Controllers
             _service = service;
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -26,7 +24,7 @@ namespace VemboAPI.API.Controllers
             return Ok(achievements);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
@@ -41,7 +39,7 @@ namespace VemboAPI.API.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateAchievementDto dto)
         {
