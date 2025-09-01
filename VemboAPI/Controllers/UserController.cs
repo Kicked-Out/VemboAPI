@@ -18,7 +18,7 @@ public class UserController : Controller
 
     [Authorize]
     [HttpGet]
-    public IActionResult Get()
+    public IActionResult GetAll()
     {
         var users = _userService.GetAllUsers();
         if (users == null || users.Count == 0)
@@ -27,8 +27,19 @@ public class UserController : Controller
     }
 
     [Authorize]
+    [HttpGet("Current")]
+    public IActionResult Get()
+    {
+        string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
+
+        UserDto user = _userService.GetUserById(userId);
+
+        return Ok(user);
+    }
+
+    [Authorize]
     [HttpGet("{id}")]
-    public IActionResult Get(int id)
+    public IActionResult Get(string id)
     {
         var user = _userService.GetUserById(id);
         if (user == null)
@@ -36,7 +47,21 @@ public class UserController : Controller
         return Ok(user);
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize]
+    [HttpGet("NickNameSlug/{nickNameSlug}")]
+    public IActionResult GetByNickNameSlug(string nickNameSlug)
+    {
+        var user = _userService.GetUserByNickNameSlug(nickNameSlug);
+
+        if (user == null)
+        {
+            return NotFound($"User with NickNameSlug {nickNameSlug} not found.");
+        }
+
+        return Ok(user);
+    }
+
+    [Authorize]
     [HttpPost]
     public IActionResult Post([FromBody] CreateUserDto dto)
     {

@@ -19,9 +19,11 @@ namespace VemboAPI.API.Controllers
 
         [Authorize]
         [HttpGet]
-        public IActionResult Get()
+        public IActionResult GetAll()
         {
-            var result = _service.GetAllUserTopicProgress();
+            string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
+            
+            var result = _service.GetAllUserTopicProgress(userId);
             return Ok(result);
         }
 
@@ -34,7 +36,29 @@ namespace VemboAPI.API.Controllers
             return Ok(ensured);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize]
+        [HttpGet("Period/{periodId}")]
+        public IActionResult GetAllByPeriodId(int periodId)
+        {
+            string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
+
+            var result = _service.GetAllUserTopicProgressByPeriodId(userId, periodId);
+
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpGet("Current/Period/{periodId}")]
+        public IActionResult GetCurrentByPeriodId(int periodId)
+        {
+            string userId = User.FindFirst("\"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
+
+            var result = _service.GetCurrentUserTopicProgress(userId, periodId);
+
+            return Ok(result);
+        }
+
+        [Authorize]
         [HttpPost]
         public IActionResult Post([FromBody] CreateUserTopicProgressDto dto)
         {

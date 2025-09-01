@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using VemboAPI.Domain.Entities;
 
 namespace VemboAPI.Infrastructure.Data 
 {
-    public class VemboDbContext : DbContext
+    public class VemboDbContext : IdentityDbContext<User>
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Topic> Topics { get; set; }
@@ -35,7 +36,7 @@ namespace VemboAPI.Infrastructure.Data
         public VemboDbContext(DbContextOptions<VemboDbContext> options) : base(options)
         {
             // За бажанням: можна видалити EnsureCreated — міграції краще
-            // Database.EnsureCreated(); 
+             //Database.EnsureCreated();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

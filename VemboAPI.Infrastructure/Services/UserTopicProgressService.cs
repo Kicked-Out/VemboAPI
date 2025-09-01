@@ -1,8 +1,9 @@
-﻿using VemboAPI.Infrastructure.Data;
+using VemboAPI.Infrastructure.Data;
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.Entities;
 using VemboAPI.Domain.DTOs;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace VemboAPI.Infrastructure.Services
 {
@@ -17,9 +18,11 @@ namespace VemboAPI.Infrastructure.Services
             _mapper = mapper;
         }
 
-        public List<UserTopicProgressDto> GetAllUserTopicProgress()
+        public List<UserTopicProgressDto> GetAllUserTopicProgress(string userId)
         {
-            var progressList = _dbContext.UserTopicProgresses.ToList();
+            var progressList = _dbContext.UserTopicProgresses
+                .ToList()
+                .FindAll(topicProgress => topicProgress.UserId == userId);
             return _mapper.Map<List<UserTopicProgressDto>>(progressList);
         }
 
@@ -80,6 +83,26 @@ namespace VemboAPI.Infrastructure.Services
 
             _dbContext.UserTopicProgresses.Remove(progress);
             _dbContext.SaveChanges();
+        }
+
+        public UserTopicProgressDto[] GetAllUserTopicProgressByPeriodId(string userId, int periodId)
+        {
+            var progresses = _dbContext.UserTopicProgresses
+                .Include(topicProgress => topicProgress.Topic)
+                .Where(topicProgress => topicProgress.Topic.PeriodId == periodId)
+                .ToList();
+
+            return _mapper.Map<UserTopicProgressDto[]>(progresses);
+        }
+
+        public UserTopicProgressDto GetCurrentUserTopicProgress(string userId, int periodId)
+        {
+            var progress = _dbContext.UserTopicProgresses
+                .ToList()
+                .FindAll(topicProgress => topicProgress.UserId == userId && topicProgress.Topic.PeriodId == periodId)
+                .LastOrDefault();
+
+            return _mapper.Map<UserTopicProgressDto>(progress);
         }
     }
 }
