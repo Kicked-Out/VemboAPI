@@ -5,7 +5,7 @@ public class CreateUserExerciseMistakeDtoValidator : AbstractValidator<CreateUse
 {
     public CreateUserExerciseMistakeDtoValidator()
     {
-        RuleFor(x => x.UserId).GreaterThan(0);
+        RuleFor(x => x.UserId).NotNull();
         RuleFor(x => x.ExerciseId).GreaterThan(0);
         RuleFor(x => x.UserAnswer).NotEmpty();
     }

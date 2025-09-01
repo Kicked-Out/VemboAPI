@@ -2,11 +2,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VemboAPI.Domain.DTOs;
 using VemboAPI.Infrastructure.Interfaces;
+using System.Collections.Generic;
 
 namespace VemboAPI.API.Controllers
 {
     [ApiController]
-    [Route("api/admin/badges")]
+    [Route("api/[controller]")]
     public class BadgeController : ControllerBase
     {
         private readonly IBadgeService _service;
@@ -16,52 +17,71 @@ namespace VemboAPI.API.Controllers
             _service = service;
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         [HttpGet]
-        public async Task<IActionResult> GetAll() => Ok(await _service.GetAllAsync());
-
-        [Authorize(Roles = "Admin")]
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        public IActionResult Get()
         {
-            try { return Ok(await _service.GetByIdAsync(id)); }
-            catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
+            var items = _service.GetAllBadges();
+            return Ok(items);
+        }
+
+        [Authorize]
+        [HttpGet("{id}")]
+        public IActionResult Get(int id)
+        {
+            try
+            {
+                var item = _service.GetBadgeById(id);
+                return Ok(item);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateBadgeDto dto)
+        public IActionResult Post([FromBody] CreateBadgeDto dto)
         {
-            try
-            {
-                var created = await _service.CreateAsync(dto);
-                return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
-            }
-            catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var created = _service.CreateBadge(dto);
+            return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateBadgeDto dto)
+        public IActionResult Put(int id, [FromBody] UpdateBadgeDto dto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             try
             {
-                var updated = await _service.UpdateAsync(id, dto);
-                return Ok(updated);
+                _service.UpdateBadge(id, dto);
+                return Ok();
             }
-            catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public IActionResult Delete(int id)
         {
             try
             {
-                await _service.DeleteAsync(id);
-                return NoContent();
+                _service.DeleteBadge(id);
+                return Ok();
             }
-            catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
     }
 }

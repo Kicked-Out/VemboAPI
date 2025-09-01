@@ -18,13 +18,37 @@ namespace VemboAPI.API.Controllers
             _service = service;
         }
         [Authorize]
-
         [HttpGet]
-        public IActionResult Get()
+        public IActionResult GetAll()
         {
-            var result = _service.GetAllLessonProgress();
+            string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
+
+            var result = _service.GetAllLessonProgress(userId);
             return Ok(result);
         }
+
+        [Authorize]
+        [HttpGet("Level/{levelId}")]
+        public IActionResult GetAll(int levelId)
+        {
+            string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
+
+            var result = _service.GetAllLessonProgressByLevelId(userId, levelId);
+
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpGet("Current/{levelId}")]
+        public IActionResult GetCurrent(int levelId)
+        {
+            string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
+
+            var result = _service.GetCurrentLessonProgressByLevelId(userId, levelId);
+
+            return Ok(result);
+        }
+
         [Authorize]
         [HttpGet("{id}")]
         public IActionResult Get(int id)
@@ -33,8 +57,7 @@ namespace VemboAPI.API.Controllers
             var ensured = _service.EnsureProgressExists(userId, id);
             return Ok(ensured);
         }
-
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         [HttpPost]
         public IActionResult Post([FromBody] CreateUserLessonProgressDto dto)
         {
