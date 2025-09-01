@@ -107,6 +107,18 @@ namespace VemboAPI.Infrastructure
             CreateMap<CreateUserAchievementDto, UserAchievement>().ReverseMap();
             CreateMap<UpdateUserAchievementDto, UserAchievement>().ReverseMap();
 
+            CreateMap<Quest, QuestDto>().ReverseMap();
+            CreateMap<CreateQuestDto, Quest>();
+            CreateMap<UpdateQuestDto, Quest>();
+
+            CreateMap<DailyQuest, DailyQuestDto>().ReverseMap();
+            CreateMap<CreateDailyQuestDto, DailyQuest>();
+            CreateMap<UpdateDailyQuestDto, DailyQuest>();
+
+            CreateMap<UserQuest, UserQuestDto>().ReverseMap();
+            CreateMap<CreateUserQuestDto, UserQuest>();
+            CreateMap<UpdateUserQuestDto, UserQuest>();
+
             CreateMap<UserStatistic, UserStatisticDto>().ReverseMap();
             CreateMap<CreateUserStatisticDto, UserStatistic>().ReverseMap();
             CreateMap<UpdateUserStatisticDto, UserStatistic>().ReverseMap();
