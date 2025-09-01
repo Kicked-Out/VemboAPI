@@ -29,6 +29,8 @@ namespace VemboAPI.Infrastructure.Data
         public DbSet<Achievement> Achievements { get; set; }
         public DbSet<UserStatistic> UserStatistics { get; set; }
         public DbSet<UserLeaderBoardEntry> UserLeaderBoardEntries { get; set; }
+        public DbSet<Medal> Medals { get; set; }
+        public DbSet<UserMedal> UserMedals { get; set; }
         public DbSet<Quest> Quests { get; set; }
         public DbSet<DailyQuest> DailyQuests { get; set; }
         public DbSet<UserQuest> UserQuests { get; set; }
@@ -67,6 +69,8 @@ namespace VemboAPI.Infrastructure.Data
             modelBuilder.Entity<Achievement>();
             modelBuilder.Entity<UserStatistic>();
             modelBuilder.Entity<UserLeaderBoardEntry>();
+            modelBuilder.Entity<Medal>();
+            modelBuilder.Entity<UserMedal>();
             modelBuilder.Entity<Quest>();
             modelBuilder.Entity<DailyQuest>();
             modelBuilder.Entity<UserQuest>();
