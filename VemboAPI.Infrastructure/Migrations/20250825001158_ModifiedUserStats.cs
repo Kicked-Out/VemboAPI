@@ -5,25 +5,24 @@
 namespace VemboAPI.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class AddRoleToUser : Migration
+    public partial class ModifiedUserStats : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                name: "Role",
-                table: "Users",
-                type: "nvarchar(max)",
-                nullable: false,
-                defaultValue: "");
+            migrationBuilder.RenameColumn(
+                name: "Emeralds",
+                table: "UserStatistics",
+                newName: "VBucks");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "Role",
-                table: "Users");
+            migrationBuilder.RenameColumn(
+                name: "VBucks",
+                table: "UserStatistics",
+                newName: "Emeralds");
         }
     }
 }

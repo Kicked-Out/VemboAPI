@@ -1,5 +1,4 @@
-﻿using System;
-using FluentValidation;
+﻿using FluentValidation;
 using VemboAPI.Domain.DTOs;
 
 namespace VemboAPI.Domain.Validators

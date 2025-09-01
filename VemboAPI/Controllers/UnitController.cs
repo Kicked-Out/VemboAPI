@@ -17,16 +17,25 @@ namespace VemboAPI.API.Controllers
         {
             _unitService = unitService;
         }
-        [Authorize]
 
+        [Authorize]
         [HttpGet]
         public IActionResult Get()
         {
             var units = _unitService.GetAllUnits();
             return Ok(units);
         }
-        [Authorize]
 
+        [Authorize]
+        [HttpGet("Topic/{topicId}")]
+        public IActionResult GetAllByTopicId(int topicId)
+        {
+            var units = _unitService.GetAllUnitsByTopicId(topicId);
+
+            return Ok(units);
+        }
+
+        [Authorize]
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
@@ -40,7 +49,7 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         [HttpPost]
         public IActionResult Post([FromBody] CreateUnitDto dto)
         {

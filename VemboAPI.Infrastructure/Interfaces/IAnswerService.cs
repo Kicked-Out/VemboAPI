@@ -7,6 +7,7 @@ namespace VemboAPI.Infrastructure.Interfaces
 	{
         List<AnswerDto> GetAllAnswers();
         AnswerDto GetAnswerById(int id);
+        List<AnswerDto> GetAllAnswersByQuestionId(int questionId);
         AnswerDto CreateAnswer(CreateAnswerDto dto);
         void UpdateAnswer(int id, UpdateAnswerDto dto);
 

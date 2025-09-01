@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.DTOs;
 using Microsoft.AspNetCore.Authorization;
@@ -21,7 +21,9 @@ namespace VemboAPI.API.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            var result = _service.GetAllUserPeriodProgress();
+            string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
+
+            var result = _service.GetAllUserPeriodProgress(userId);
             return Ok(result);
         }
 
@@ -34,7 +36,27 @@ namespace VemboAPI.API.Controllers
             return Ok(ensured);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize]
+        [HttpGet("Period/{periodId}")]
+        public IActionResult GetByPeriodId(int periodId)
+        {
+            string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
+
+            var progress = _service.GetUserPeriodProgressByPeriodId(userId, periodId);
+
+            return Ok(progress);
+        }
+
+        [Authorize]
+        [HttpGet("WithMostXP/User/{userId}")]
+        public IActionResult GetWithMostXPByUserId(string userId)
+        {
+            var progress = _service.GetUserPeriodProgressWithMostXPByUserId(userId);
+
+            return Ok(progress);
+        }
+
+        [Authorize]
         [HttpPost]
         public IActionResult Post([FromBody] CreateUserPeriodProgressDto dto)
         {

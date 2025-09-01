@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using VemboAPI.Infrastructure.Interfaces;
 
 using VemboAPI.Domain.DTOs;
@@ -23,7 +23,9 @@ namespace VemboAPI.API.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            var result = _service.GetAllUserLevelProgress();
+            string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
+
+            var result = _service.GetAllUserLevelProgress(userId);
             return Ok(result);
         }
 
@@ -37,8 +39,24 @@ namespace VemboAPI.API.Controllers
             return Ok(ensured);
         }
 
+        [Authorize]
+        [HttpGet("Level/{levelId}")]
+        public IActionResult GetByLevelId(int levelId)
+        {
+            try
+            {
+                string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
 
-        [Authorize(Roles = "Admin")]
+                var progress = _service.GetUserLevelProgressByLevelId(userId, levelId);
+
+                return Ok(progress);
+            } catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
+        [Authorize]
         [HttpPost]
         public IActionResult Post([FromBody] CreateUserLevelProgressDto dto)
         {

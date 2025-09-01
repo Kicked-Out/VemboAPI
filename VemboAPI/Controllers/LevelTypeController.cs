@@ -40,7 +40,7 @@ namespace VemboAPI.API.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         [HttpPost]
         public IActionResult Post([FromBody] CreateLevelTypeDto dto)
         {
