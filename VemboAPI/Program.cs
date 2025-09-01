@@ -126,6 +126,8 @@ public class Program
         builder.Services.AddScoped<IUserAchievementService, UserAchievementService>();
         builder.Services.AddScoped<IBadgeService, BadgeService>();
         builder.Services.AddScoped<IUserBadgeService, UserBadgeService>();
+        builder.Services.AddScoped<IUserStreakService, UserStreakService>();
+        builder.Services.AddScoped<IUserStreakDayService, UserStreakDayService>();
         builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 
         var app = builder.Build();

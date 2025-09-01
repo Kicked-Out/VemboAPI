@@ -30,6 +30,8 @@ namespace VemboAPI.Infrastructure.Data
         public DbSet<UserLeaderBoardEntry> UserLeaderBoardEntries { get; set; }
         public DbSet<Badge> Badges { get; set; }
         public DbSet<UserBadge> UserBadges { get; set; }
+        public DbSet<UserStreak> UserStreaks { get; set; }
+        public DbSet<UserStreakDay> UserStreakDays { get; set; }
 
         public VemboDbContext(DbContextOptions<VemboDbContext> options) : base(options)
         {
@@ -67,6 +69,8 @@ namespace VemboAPI.Infrastructure.Data
             modelBuilder.Entity<UserLeaderBoardEntry>();
             modelBuilder.Entity<Badge>();
             modelBuilder.Entity<UserBadge>();
+            modelBuilder.Entity<UserStreak>();
+            modelBuilder.Entity<UserStreakDay>();
         }
     }
 }

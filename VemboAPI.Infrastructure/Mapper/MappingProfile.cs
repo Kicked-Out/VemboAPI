@@ -118,6 +118,13 @@ namespace VemboAPI.Infrastructure
             CreateMap<CreateUserBadgeDto, UserBadge>();
             CreateMap<UpdateUserBadgeDto, UserBadge>();
 
+            CreateMap<UserStreak, UserStreakDto>().ReverseMap();
+            CreateMap<UserStreak, CreateUserStreakDto>().ReverseMap();
+            CreateMap<UserStreak, UpdateUserStreakDto>().ReverseMap();
+            CreateMap<UserStreakDay, UserStreakDayDto>().ReverseMap();
+            CreateMap<UserStreakDay, CreateUserStreakDayDto>().ReverseMap();
+            CreateMap<UserStreakDay, UpdateUserStreakDayDto>().ReverseMap();
+
 
         }
     }
