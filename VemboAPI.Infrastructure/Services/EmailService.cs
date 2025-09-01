@@ -1,6 +1,8 @@
+using System.Threading.Tasks;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Options;
 using MimeKit;
+
 using VemboAPI.Infrastructure.Interfaces;
 
 namespace VemboAPI.Infrastructure.Services

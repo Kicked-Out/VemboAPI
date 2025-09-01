@@ -188,7 +188,8 @@ public class Program
         builder.Services.AddScoped<IUserLeaderBoardService, UserLeaderBoardService>();
         builder.Services.AddScoped<IUserAchievementService, UserAchievementService>();
         builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
-        builder.Services.AddScoped<IEmailService, EmailService>();
+        builder.Services.AddScoped<IEmailSender, EmailService>();
+        builder.Services.AddScoped<IUserManager, UserManager>();
         builder.Services.AddSingleton<ICacheService, RedisCacheService>();
         builder.Services.AddSingleton<IContentVersionService, ContentVersionService>();
 
