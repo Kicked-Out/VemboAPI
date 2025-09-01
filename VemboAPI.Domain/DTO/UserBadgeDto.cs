@@ -1,17 +1,12 @@
 using System;
 
-namespace VemboAPI.Domain.Entities
+namespace VemboAPI.Domain.DTOs
 {
-    public class UserBadge
+    public class UserBadgeDto
     {
         public int Id { get; set; }
-
         public int UserId { get; set; }
-        public User User { get; set; }
-
         public int BadgeId { get; set; }
-        public Badge Badge { get; set; }
-
         public DateTime EarnedAt { get; set; }
     }
 }

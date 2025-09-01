@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using VemboAPI.Domain.DTOs;
 using VemboAPI.Domain.Entities;
 using VemboAPI.Infrastructure.Data;

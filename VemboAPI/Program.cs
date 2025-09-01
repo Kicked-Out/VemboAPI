@@ -188,6 +188,10 @@ public class Program
         builder.Services.AddScoped<IUserStatisticService, UserStatisticService>();
         builder.Services.AddScoped<IUserLeaderBoardService, UserLeaderBoardService>();
         builder.Services.AddScoped<IUserAchievementService, UserAchievementService>();
+        builder.Services.AddScoped<IBadgeService, BadgeService>();
+        builder.Services.AddScoped<IUserBadgeService, UserBadgeService>();
+        builder.Services.AddScoped<IUserStreakService, UserStreakService>();
+        builder.Services.AddScoped<IUserStreakDayService, UserStreakDayService>();
         builder.Services.AddScoped<IMedalService, MedalService>();
         builder.Services.AddScoped<IUserMedalService, UserMedalService>();
         builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();

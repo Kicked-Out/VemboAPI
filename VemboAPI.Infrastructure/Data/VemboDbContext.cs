@@ -32,6 +32,8 @@ namespace VemboAPI.Infrastructure.Data
         public DbSet<UserLeaderBoardEntry> UserLeaderBoardEntries { get; set; }
         public DbSet<Badge> Badges { get; set; }
         public DbSet<UserBadge> UserBadges { get; set; }
+        public DbSet<UserStreak> UserStreaks { get; set; }
+        public DbSet<UserStreakDay> UserStreakDays { get; set; }
         public DbSet<Medal> Medals { get; set; }
         public DbSet<UserMedal> UserMedals { get; set; }
         public DbSet<Quest> Quests { get; set; }
@@ -75,6 +77,8 @@ namespace VemboAPI.Infrastructure.Data
             modelBuilder.Entity<UserLeaderBoardEntry>();
             modelBuilder.Entity<Badge>();
             modelBuilder.Entity<UserBadge>();
+            modelBuilder.Entity<UserStreak>();
+            modelBuilder.Entity<UserStreakDay>();
             modelBuilder.Entity<Medal>();
             modelBuilder.Entity<UserMedal>();
             modelBuilder.Entity<Quest>();
