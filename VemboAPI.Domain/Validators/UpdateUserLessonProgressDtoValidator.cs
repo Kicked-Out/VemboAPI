@@ -5,7 +5,7 @@ public class UpdateUserLessonProgressDtoValidator : AbstractValidator<UpdateUser
 {
     public UpdateUserLessonProgressDtoValidator()
     {
-        RuleFor(x => x.UserId).GreaterThan(0);
+        RuleFor(x => x.UserId).NotNull();
         RuleFor(x => x.LessonId).GreaterThan(0);
     }
 }

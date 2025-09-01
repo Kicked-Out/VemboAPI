@@ -9,8 +9,9 @@ namespace VemboAPI.Domain.Validators
         public UpdateUserStatisticDtoValidator()
         {
             RuleFor(x => x.CurrentPeriodId).GreaterThan(0);
+            RuleFor(x => x.CurrentLevelId).GreaterThan(0);
             RuleFor(x => x.Streak).GreaterThanOrEqualTo(0);
-            RuleFor(x => x.Emeralds).GreaterThanOrEqualTo(0);
+            RuleFor(x => x.VBucks).GreaterThanOrEqualTo(0);
             RuleFor(x => x.Hearts).InclusiveBetween(0, 5);
         }
     }

@@ -11,8 +11,8 @@ namespace VemboAPI.Infrastructure
         {
             // Користувач
             CreateMap<User, UserDto>().ReverseMap();
-            CreateMap<CreateUserDto, User>();
-            CreateMap<UpdateUserDto, User>();
+            CreateMap<CreateUserDto, User>().ReverseMap();
+            CreateMap<UpdateUserDto, User>().ReverseMap();
 
 
             // Прогрес користувача
@@ -33,7 +33,12 @@ namespace VemboAPI.Infrastructure
             CreateMap<UserLevelProgress, UpdateUserLevelProgressDto>().ReverseMap();
 
             CreateMap<UserLessonProgress, UserLessonProgressDto>().ReverseMap();
+            CreateMap<UserLessonProgress, CreateUserLessonProgressDto>().ReverseMap();
+            CreateMap<UserLessonProgress, UpdateUserLessonProgressDto>().ReverseMap();
+
             CreateMap<UserExerciseMistake, UserExerciseMistakeDto>().ReverseMap();
+            CreateMap<UserExerciseMistake, CreateUserExerciseMistakeDto>().ReverseMap();
+            CreateMap<UserExerciseMistake, UpdateUserExerciseMistakeDto>().ReverseMap();
 
             // Topic
             CreateMap<Topic, TopicDto>().ReverseMap();
@@ -90,32 +95,50 @@ namespace VemboAPI.Infrastructure
             CreateMap<GuideBook, CreateGuideBookDto>().ReverseMap();
             CreateMap<GuideBook, UpdateGuideBookDto>().ReverseMap();
 
-            CreateMap<Achievement, AchievementDto>();
-            CreateMap<CreateAchievementDto, Achievement>();
-            CreateMap<UpdateAchievementDto, Achievement>();
+            CreateMap<Achievement, AchievementDto>().ReverseMap();
+            CreateMap<CreateAchievementDto, Achievement>().ReverseMap();
+            CreateMap<UpdateAchievementDto, Achievement>().ReverseMap();
 
             CreateMap<AchievementLevel, AchievementLevelDto>().ReverseMap();
-            CreateMap<CreateAchievementLevelDto, AchievementLevel>();
-            CreateMap<UpdateAchievementLevelDto, AchievementLevel>();
+            CreateMap<CreateAchievementLevelDto, AchievementLevel>().ReverseMap();
+            CreateMap<UpdateAchievementLevelDto, AchievementLevel>().ReverseMap();
 
-            CreateMap<UserAchievement, UserAchievementDto>();
-            CreateMap<CreateUserAchievementDto, UserAchievement>();
-            CreateMap<UpdateUserAchievementDto, UserAchievement>();
+            CreateMap<UserAchievement, UserAchievementDto>().ReverseMap();
+            CreateMap<CreateUserAchievementDto, UserAchievement>().ReverseMap();
+            CreateMap<UpdateUserAchievementDto, UserAchievement>().ReverseMap();
 
-            CreateMap<UserStatistic, UserStatisticDto>();
-            CreateMap<CreateUserStatisticDto, UserStatistic>();
-            CreateMap<UpdateUserStatisticDto, UserStatistic>();
+            CreateMap<Quest, QuestDto>().ReverseMap();
+            CreateMap<CreateQuestDto, Quest>();
+            CreateMap<UpdateQuestDto, Quest>();
 
-            CreateMap<UserLeaderBoardEntry, UserLeaderBoardEntryDto>();
-            CreateMap<CreateUserLeaderBoardEntryDto, UserLeaderBoardEntry>();
-            CreateMap<UpdateUserLeaderBoardEntryDto, UserLeaderBoardEntry>();
+            CreateMap<DailyQuest, DailyQuestDto>().ReverseMap();
+            CreateMap<CreateDailyQuestDto, DailyQuest>();
+            CreateMap<UpdateDailyQuestDto, DailyQuest>();
+
+            CreateMap<UserQuest, UserQuestDto>().ReverseMap();
+            CreateMap<CreateUserQuestDto, UserQuest>();
+            CreateMap<UpdateUserQuestDto, UserQuest>();
+
+            CreateMap<Medal, MedalDto>();
+            CreateMap<CreateMedalDto, Medal>();
+            CreateMap<UpdateMedalDto, Medal>();
+
+            CreateMap<UserMedal, UserMedalDto>();
+            CreateMap<CreateUserMedalDto, UserMedal>();
+            CreateMap<UpdateUserMedalDto, UserMedal>();
 
             // Badge
             CreateMap<Badge, BadgeDto>().ReverseMap();
             CreateMap<CreateBadgeDto, Badge>();
             CreateMap<UpdateBadgeDto, Badge>();
 
+            CreateMap<UserStatistic, UserStatisticDto>().ReverseMap();
+            CreateMap<CreateUserStatisticDto, UserStatistic>().ReverseMap();
+            CreateMap<UpdateUserStatisticDto, UserStatistic>().ReverseMap();
 
+            CreateMap<UserLeaderBoardEntry, UserLeaderBoardEntryDto>().ReverseMap();
+            CreateMap<CreateUserLeaderBoardEntryDto, UserLeaderBoardEntry>().ReverseMap();
+            CreateMap<UpdateUserLeaderBoardEntryDto, UserLeaderBoardEntry>().ReverseMap();
         }
     }
 }

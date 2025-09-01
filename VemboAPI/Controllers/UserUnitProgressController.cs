@@ -23,11 +23,59 @@ namespace VemboAPI.API.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            var result = _service.GetAllUserUnitProgress();
+            string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
+
+            var result = _service.GetAllUserUnitProgress(userId);
             return Ok(result);
         }
-       
-        [Authorize(Roles = "Admin")]
+
+        [Authorize]
+        [HttpGet("Topic/{topicId}")]
+        public IActionResult GetAllByTopicId(int topicId)
+        {
+            string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
+
+            var result = _service.GetAllUserUnitProgressByTopicId(userId, topicId);
+
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpGet("Unit/{unitId}")]
+        public IActionResult GetByUnitId(int unitId)
+        {
+            string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
+
+            var result = _service.GetUserUnitProgressByUnitId(userId, unitId);
+
+            return Ok(result);
+        }
+        [Authorize]
+        [HttpGet("Current/Topic/{topicId}")]
+        public IActionResult GetCurrent(int topicId)
+        {
+            string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
+
+            var result = _service.GetCurrentUserUnitProgress(userId, topicId);
+
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpGet("{id}")]
+        public IActionResult Get(int id)
+        {
+            try
+            {
+                var progress = _service.GetUserUnitProgressById(id);
+                return Ok(progress);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+        [Authorize]
         [HttpPost]
         public IActionResult Post([FromBody] CreateUserUnitProgressDto dto)
         {
