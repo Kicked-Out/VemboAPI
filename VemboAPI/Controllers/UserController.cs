@@ -16,6 +16,14 @@ public class UserController : Controller
         _userService = userService;
     }
 
+    private int? GetUserIdFromClaims()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                          ?? User.FindFirst("sub")?.Value;
+
+        return int.TryParse(userIdClaim, out var userId) ? userId : (int?)null;
+    }
+
     [Authorize]
     [HttpGet]
     public IActionResult GetAll()
@@ -65,7 +73,10 @@ public class UserController : Controller
     [HttpPost]
     public IActionResult Post([FromBody] CreateUserDto dto)
     {
-        if (dto == null || string.IsNullOrEmpty(dto.NickName) || string.IsNullOrEmpty(dto.Password) || string.IsNullOrEmpty(dto.Email))
+        if (dto == null ||
+            string.IsNullOrWhiteSpace(dto.NickName) ||
+            string.IsNullOrWhiteSpace(dto.Password) ||
+            string.IsNullOrWhiteSpace(dto.Email))
             return BadRequest("Invalid user data.");
 
         _userService.CreateUser(dto);
@@ -76,17 +87,14 @@ public class UserController : Controller
     [HttpPut("me")]
     public IActionResult UpdateSelf([FromBody] UpdateUserDto dto)
     {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                          ?? User.FindFirst("sub")?.Value;
+        var userId = GetUserIdFromClaims();
 
-        if (userIdClaim == null)
+        if (userId == null)
             return Unauthorized();
-
-        int userId = int.Parse(userIdClaim);
 
         try
         {
-            _userService.UpdateUser(userId, dto);
+            _userService.UpdateUser(userId.Value, dto);
             return Ok("User updated successfully.");
         }
         catch (KeyNotFoundException ex)
@@ -114,15 +122,12 @@ public class UserController : Controller
     [HttpPut("me/role")]
     public async Task<IActionResult> UpdateMyRole([FromBody] string newRole)
     {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                          ?? User.FindFirst("sub")?.Value;
+        var userId = GetUserIdFromClaims();
 
-        if (userIdClaim == null)
+        if (userId == null)
             return Unauthorized();
 
-        int userId = int.Parse(userIdClaim);
-
-        await _userService.UpdateRoleAsync(userId, newRole);
+        await _userService.UpdateRoleAsync(userId.Value, newRole);
         return Ok($"Role updated to {newRole}.");
     }
 
