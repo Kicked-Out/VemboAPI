@@ -184,6 +184,7 @@ public class Program
         builder.Services.AddScoped<IGuideBookService, GuideBookService>();
         builder.Services.AddScoped<IAchievementLevelService, AchievementLevelService>();
         builder.Services.AddScoped<IAchievementService, AchievementService>();
+        builder.Services.AddScoped<IBadgeService, BadgeService>();
         builder.Services.AddScoped<IUserStatisticService, UserStatisticService>();
         builder.Services.AddScoped<IUserLeaderBoardService, UserLeaderBoardService>();
         builder.Services.AddScoped<IUserAchievementService, UserAchievementService>();

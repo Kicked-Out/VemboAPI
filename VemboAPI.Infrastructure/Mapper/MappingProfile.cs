@@ -127,6 +127,11 @@ namespace VemboAPI.Infrastructure
             CreateMap<CreateUserMedalDto, UserMedal>();
             CreateMap<UpdateUserMedalDto, UserMedal>();
 
+            // Badge
+            CreateMap<Badge, BadgeDto>().ReverseMap();
+            CreateMap<CreateBadgeDto, Badge>();
+            CreateMap<UpdateBadgeDto, Badge>();
+
             CreateMap<UserStatistic, UserStatisticDto>().ReverseMap();
             CreateMap<CreateUserStatisticDto, UserStatistic>().ReverseMap();
             CreateMap<UpdateUserStatisticDto, UserStatistic>().ReverseMap();
