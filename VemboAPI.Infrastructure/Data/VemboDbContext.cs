@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using VemboAPI.Domain.Entities;
 
 namespace VemboAPI.Infrastructure.Data 
 {
-    public class VemboDbContext : DbContext
+    public class VemboDbContext : IdentityDbContext<User>
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Topic> Topics { get; set; }
@@ -30,11 +31,16 @@ namespace VemboAPI.Infrastructure.Data
         public DbSet<UserLeaderBoardEntry> UserLeaderBoardEntries { get; set; }
         public DbSet<Badge> Badges { get; set; }
         public DbSet<UserBadge> UserBadges { get; set; }
+        public DbSet<Medal> Medals { get; set; }
+        public DbSet<UserMedal> UserMedals { get; set; }
+        public DbSet<Quest> Quests { get; set; }
+        public DbSet<DailyQuest> DailyQuests { get; set; }
+        public DbSet<UserQuest> UserQuests { get; set; }
 
         public VemboDbContext(DbContextOptions<VemboDbContext> options) : base(options)
         {
             // За бажанням: можна видалити EnsureCreated — міграції краще
-            // Database.EnsureCreated(); 
+             //Database.EnsureCreated();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -67,6 +73,11 @@ namespace VemboAPI.Infrastructure.Data
             modelBuilder.Entity<UserLeaderBoardEntry>();
             modelBuilder.Entity<Badge>();
             modelBuilder.Entity<UserBadge>();
+            modelBuilder.Entity<Medal>();
+            modelBuilder.Entity<UserMedal>();
+            modelBuilder.Entity<Quest>();
+            modelBuilder.Entity<DailyQuest>();
+            modelBuilder.Entity<UserQuest>();
         }
     }
 }

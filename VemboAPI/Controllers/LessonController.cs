@@ -22,6 +22,15 @@ namespace VemboAPI.API.Controllers
             return Ok(lessons);
         }
 
+        [HttpGet("Level/{levelId}")]
+        public IActionResult GetByLevelId(int levelId)
+        {
+            var lessons = _lessonService.GetAllLessonsByLevelId(levelId);
+
+            return Ok(lessons);
+        }
+
+
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {

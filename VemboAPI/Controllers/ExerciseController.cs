@@ -16,6 +16,7 @@ namespace VemboAPI.API.Controllers
         {
             _exerciseService = exerciseService;
         }
+
         [Authorize]
         [HttpGet]
         public IActionResult Get()
@@ -23,6 +24,16 @@ namespace VemboAPI.API.Controllers
             var exercises = _exerciseService.GetAllExercise();
             return Ok(exercises);
         }
+
+        [Authorize]
+        [HttpGet("Lesson/{lessonId}")]
+        public IActionResult GetByLessonId(int lessonId)
+        {
+            var exercises = _exerciseService.GetAllExerciseByLessonId(lessonId);
+
+            return Ok(exercises);
+        }
+        
         [Authorize]
         [HttpGet("{id}")]
         public IActionResult Get(int id)
@@ -37,7 +48,7 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         [HttpPost]
         public IActionResult Post([FromBody] CreateExerciseDto dto)
         {

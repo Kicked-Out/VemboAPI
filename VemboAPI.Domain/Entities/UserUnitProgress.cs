@@ -5,10 +5,9 @@ namespace VemboAPI.Domain.Entities
 	{
 		public int Id { get; set; }
 		public int UnitId { get; set; }
-		public int UserId { get; set; }
-		public bool isCompleted { get; set; }
+		public string UserId { get; set; }
+		public int CompletedCount { get; set; }
 		public User? User { get; set; }
 		public Unit? Unit { get; set; }
 	}
 }
-
