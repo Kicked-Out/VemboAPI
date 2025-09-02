@@ -1,0 +1,111 @@
+@font-face {
+    font-family: "Atma";
+    src: url("../assets/fonts/Atma-Regular.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Rubik";
+    src: url("../assets/fonts/Rubik-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Rubik";
+    src: url("../assets/fonts/Rubik-Medium.ttf") format("truetype");
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Rubik";
+    src: url("../assets/fonts/Rubik-SemiBold.ttf") format("truetype");
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Rubik";
+    src: url("../assets/fonts/Rubik-Bold.ttf") format("truetype");
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Rubik";
+    src: url("../assets/fonts/Rubik-ExraBold.ttf") format("truetype");
+    font-weight: 800;
+    font-style: normal;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #0D374F;
+    font-family: "Rubik", sans-serif;
+}
+
+.container {
+    width: 80%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 64px 0;
+}
+
+h1 {
+    color: #FFF;
+    font-family: Rubik;
+    font-size: 40px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    letter-spacing: -0.4px;
+    margin: 0;
+}
+
+.line {
+    width: 100%;
+    height: 3px;
+    margin-top: 24px;
+    margin-bottom: 48px;
+    background-color: #71B4D4;
+}
+
+.content-grid {
+    display: flex;
+    gap: 160px;
+}
+
+.column {
+    display: flex;
+    width: 487px;
+    flex-direction: column;
+    gap: 48px;
+}
+
+.row {
+    width: 100%;
+}
+
+.subtitle {
+    font-family: "Rubik", sans-serif;
+    font-size: 32px;
+    font-weight: 600;
+    line-height: normal;
+    letter-spacing: -0.32px;
+    color: #71B4D4;
+    margin: 0 0 16px 0;
+}
+
+.description {
+    color: #FFF;
+    font-family: "Rubik";
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    letter-spacing: -0.32px;
+    margin: 0;
+}
