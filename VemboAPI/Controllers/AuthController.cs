@@ -80,7 +80,7 @@ namespace VemboAPI.Controllers
             {
                 UserId = newUser.Id,
                 Streak = 0,
-                Emeralds = 0,
+                VBucks = 0,
                 Hearts = 5,
                 CurrentPeriodId = null // або null, якщо ще не прив'язано до курсу
             };

@@ -113,14 +113,5 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
-        [Authorize]
-        [HttpGet("{id}")]
-        public IActionResult Get(int id)
-        {
-            int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-            var ensured = _service.EnsureProgressExists(userId, id);
-            return Ok(ensured);
-        }
-
     }
 }

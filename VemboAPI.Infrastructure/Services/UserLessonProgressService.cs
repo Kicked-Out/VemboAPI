@@ -52,7 +52,7 @@ namespace VemboAPI.Infrastructure.Services
             _mapper.Map(dto, progress);
             _dbContext.SaveChanges();
         }
-        public UserLessonProgressDto EnsureProgressExists(int userId, int lessonId)
+        public UserLessonProgressDto EnsureProgressExists(string userId, int lessonId)
         {
             var existing = _dbContext.UserLessonProgresses
                 .FirstOrDefault(p => p.UserId == userId && p.LessonId == lessonId);
@@ -64,7 +64,7 @@ namespace VemboAPI.Infrastructure.Services
             {
                 UserId = userId,
                 LessonId = lessonId,
-                isCompleted = false
+                CompletedCount = 0
             };
 
             _dbContext.UserLessonProgresses.Add(progress);
