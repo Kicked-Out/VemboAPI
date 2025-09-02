@@ -11,6 +11,6 @@ namespace VemboAPI.Infrastructure.Interfaces
         UserPeriodProgressDto CreateUserPeriodProgress(CreateUserPeriodProgressDto dto);
         void UpdateUserPeriodProgress(int id, UpdateUserPeriodProgressDto dto);
         void DeleteUserPeriodProgress(int id);
-        UserPeriodProgressDto EnsureProgressExists(int userId, int periodId);
+        UserPeriodProgressDto EnsureProgressExists(string userId, int periodId);
     }
 }

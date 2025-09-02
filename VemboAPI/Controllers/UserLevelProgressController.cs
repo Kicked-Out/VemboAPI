@@ -34,7 +34,7 @@ namespace VemboAPI.API.Controllers
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            string userId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
             var ensured = _service.EnsureProgressExists(userId, id);
             return Ok(ensured);
         }

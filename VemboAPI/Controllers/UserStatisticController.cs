@@ -52,12 +52,10 @@ namespace VemboAPI.API.Controllers
         public async Task<IActionResult> GetByUser()
         {
             var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userIdStr == null || !int.TryParse(userIdStr, out int userId))
-                return Unauthorized("User ID is invalid or missing.");
 
             try
             {
-                var result = await _service.GetByUserIdAsync(userId);
+                var result = await _service.GetByUserIdAsync(userIdStr);
                 return Ok(result);
             }
             catch (KeyNotFoundException ex)

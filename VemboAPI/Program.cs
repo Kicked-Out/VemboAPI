@@ -5,16 +5,13 @@ using VemboAPI.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using VemboAPI.Domain;
 using VemboAPI.Infrastructure;
 using FluentValidation.AspNetCore;
-using VemboAPI.Domain.Validators;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Identity;
 using VemboAPI.Domain.Entities;
 using System.Security.Claims;
-using Microsoft.Extensions.Caching.StackExchangeRedis;
 using System.Text.Json;
 using Hangfire;
 using Hangfire.SqlServer;
@@ -82,57 +79,30 @@ public class Program
                         {
                             Type = ReferenceType.SecurityScheme,
                             Id = "Bearer"
-                        }
+                        },
+                        Scheme = "oauth2",
+                        Name = "Bearer",
+                        In = ParameterLocation.Header,
                     },
-                    new string[]{}
+                    new List<string>()
                 }
             });
-        builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
-        // Redis (IDistributedCache)
+        });
+
         builder.Services.AddStackExchangeRedisCache(options =>
         {
             options.Configuration = builder.Configuration["Redis:Configuration"];
             options.InstanceName = builder.Configuration["Redis:InstanceName"];
         });
 
+        builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
+        // Redis (IDistributedCache)
+
         // JSON options для серіалізації в кеші
         builder.Services.Configure<JsonSerializerOptions>(opts =>
         {
             opts.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             opts.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
-        });
-
-        builder.Services.AddSwaggerGen(c =>
-        {
-            c.SwaggerDoc("v1", new() { Title = "VemboAPI", Version = "v1" });
-
-            c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-            {
-                Name = "Authorization",
-                Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
-                Scheme = "Bearer",
-                BearerFormat = "JWT",
-                In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-                Description = "Enter 'Bearer' [space] and then your token.\n\nExample: Bearer eyJhbGciOiJIUzI1NiIs..."
-            });
-
-            c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
-            {
-                {
-                    new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-                    {
-                        Reference = new Microsoft.OpenApi.Models.OpenApiReference
-                        {
-                            Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                            Id = "Bearer"
-                        },
-                        Scheme = "oauth2",
-                        Name = "Bearer",
-                        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-                    },
-                    new List<string>()
-                }
-            });
         });
 
         var jwtSettings = builder.Configuration.GetSection("Jwt");

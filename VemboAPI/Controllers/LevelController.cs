@@ -67,7 +67,7 @@ namespace VemboAPI.API.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         [HttpPut("{id}")]
         public IActionResult Put(int id, [FromBody] UpdateLevelDto dto)
         {

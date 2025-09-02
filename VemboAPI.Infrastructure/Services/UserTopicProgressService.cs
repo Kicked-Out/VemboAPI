@@ -35,7 +35,7 @@ namespace VemboAPI.Infrastructure.Services
             return _mapper.Map<UserTopicProgressDto>(progress);
         }
 
-        public UserTopicProgressDto EnsureProgressExists(int userId, int topicId)
+        public UserTopicProgressDto EnsureProgressExists(string userId, int topicId)
         {
             var existing = _dbContext.UserTopicProgresses
                 .FirstOrDefault(p => p.UserId == userId && p.TopicId == topicId);
@@ -47,7 +47,7 @@ namespace VemboAPI.Infrastructure.Services
             {
                 UserId = userId,
                 TopicId = topicId,
-                isCompleted = false
+                CompletedCount = 0
             };
 
             _dbContext.UserTopicProgresses.Add(progress);
