@@ -19,16 +19,16 @@ namespace VemboAPI.Controllers
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly IConfiguration _configuration;
         private readonly IUserManager _userManager;
-        private readonly IEmailSender _emailSender;
+        private readonly IEmailService _emailService;
 
-        public AuthController(VemboDbContext context, IJwtTokenGenerator jwtTokenGenerator, IPasswordHasher<User> passwordHasher, IConfiguration configuration, IUserManager userManager, IEmailSender emailSender)
+        public AuthController(VemboDbContext context, IJwtTokenGenerator jwtTokenGenerator, IPasswordHasher<User> passwordHasher, IConfiguration configuration, IUserManager userManager, IEmailService emailService)
         {
             _context = context;
             _jwtTokenGenerator = jwtTokenGenerator;
             _passwordHasher = passwordHasher;
             _configuration = configuration;
             _userManager = userManager;
-            _emailSender = emailSender;
+            _emailService = emailService;
         }
 
         [HttpPost("login")]
@@ -122,7 +122,7 @@ namespace VemboAPI.Controllers
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var callback = $"https://example.com/reset-password?token={token}&email={user.Email}";
-            await _emailSender.SendEmailAsync(user.Email, "Vembo Password reset token", callback);
+            await _emailService.SendEmailAsync(user.Email, "Vembo Password reset token", callback);
 
             return Ok();
         }
