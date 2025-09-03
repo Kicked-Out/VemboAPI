@@ -4,7 +4,7 @@ namespace VemboAPI.Domain.DTOs
 {
     public class CreateUserStreakDto
     {
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         public int CurrentStreak { get; set; } = 0;
         public int LongestStreak { get; set; } = 0;
         public DateTime? LastActiveDate { get; set; }

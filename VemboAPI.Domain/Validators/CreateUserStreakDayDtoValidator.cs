@@ -7,7 +7,7 @@ namespace VemboAPI.Domain.Validators
     {
         public CreateUserStreakDayDtoValidator()
         {
-            RuleFor(x => x.UserId).GreaterThan(0);
+            RuleFor(x => x.UserId).NotNull();
             RuleFor(x => x.Status).NotEmpty();
         }
     }

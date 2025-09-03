@@ -16,18 +16,18 @@ namespace VemboAPI.Infrastructure.Services
             _settings = options.Value;
         }
 
-        public async Task SendEmailAsync(string to, string subject, string body)
+        public async Task SendEmailAsync(string email, string subject, string message)
         {
-            var message = new MimeMessage();
-            message.From.Add(MailboxAddress.Parse(_settings.From));
-            message.To.Add(MailboxAddress.Parse(to));
-            message.Subject = subject;
-            message.Body = new TextPart(MimeKit.Text.TextFormat.Html) { Text = body };
+            var mailMessage = new MimeMessage();
+            mailMessage.From.Add(MailboxAddress.Parse(_settings.From));
+            mailMessage.To.Add(MailboxAddress.Parse(email));
+            mailMessage.Subject = subject;
+            mailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html) { Text = message };
 
             using var client = new SmtpClient();
             await client.ConnectAsync(_settings.Host, _settings.Port, _settings.UseSsl);
             await client.AuthenticateAsync(_settings.Username, _settings.Password);
-            await client.SendAsync(message);
+            await client.SendAsync(mailMessage);
             await client.DisconnectAsync(true);
         }
     }
