@@ -16,6 +16,7 @@ using System.Text.Json;
 using Hangfire;
 using Hangfire.SqlServer;
 using VemboAPI.Jobs;
+using Microsoft.Extensions.Caching.Distributed;
 
 public class Program
 {
@@ -192,7 +193,21 @@ public class Program
         builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
         var app = builder.Build();
-
+        var scopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
+        using (var scope = scopeFactory.CreateScope())
+        {
+            var cache = scope.ServiceProvider.GetRequiredService<IDistributedCache>();
+            try
+            {
+                cache.SetString("health:redis", DateTime.UtcNow.ToString("O"));
+                var v = cache.GetString("health:redis");
+                app.Logger.LogInformation("✅ Redis OK. Cached value: {val}", v);
+            }
+            catch (Exception ex)
+            {
+                app.Logger.LogError(ex, "❌ Redis connection failed.");
+            }
+}
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
