@@ -168,10 +168,10 @@ public class Program
         builder.Services.AddScoped<IQuestService, QuestService>();
         builder.Services.AddScoped<IDailyQuestService, DailyQuestService>();
         builder.Services.AddScoped<IUserQuestService, UserQuestService>();
-        builder.Services.AddScoped<IEmailSender, EmailService>();
         builder.Services.AddScoped<IUserManager, UserManager>();
         builder.Services.AddSingleton<ICacheService, RedisCacheService>();
         builder.Services.AddSingleton<IContentVersionService, ContentVersionService>();
+        builder.Services.AddScoped<IEmailService, EmailService>();
 
         builder.Services.AddTransient<CacheWarmupJob>(); 
 

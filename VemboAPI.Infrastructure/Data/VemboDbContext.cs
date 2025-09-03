@@ -28,15 +28,14 @@ namespace VemboAPI.Infrastructure.Data
         public DbSet<AchievementLevel> AchievementLevels { get; set; }
         public DbSet<Achievement> Achievements { get; set; }
         public DbSet<Badge> Badges { get; set; }
+        public DbSet<Medal> Medals { get; set; }
+        public DbSet<Quest> Quests { get; set; }
         public DbSet<UserStatistic> UserStatistics { get; set; }
         public DbSet<UserLeaderBoardEntry> UserLeaderBoardEntries { get; set; }
-        public DbSet<Badge> Badges { get; set; }
         public DbSet<UserBadge> UserBadges { get; set; }
         public DbSet<UserStreak> UserStreaks { get; set; }
         public DbSet<UserStreakDay> UserStreakDays { get; set; }
-        public DbSet<Medal> Medals { get; set; }
         public DbSet<UserMedal> UserMedals { get; set; }
-        public DbSet<Quest> Quests { get; set; }
         public DbSet<DailyQuest> DailyQuests { get; set; }
         public DbSet<UserQuest> UserQuests { get; set; }
 
@@ -75,7 +74,6 @@ namespace VemboAPI.Infrastructure.Data
             modelBuilder.Entity<Badge>();
             modelBuilder.Entity<UserStatistic>();
             modelBuilder.Entity<UserLeaderBoardEntry>();
-            modelBuilder.Entity<Badge>();
             modelBuilder.Entity<UserBadge>();
             modelBuilder.Entity<UserStreak>();
             modelBuilder.Entity<UserStreakDay>();

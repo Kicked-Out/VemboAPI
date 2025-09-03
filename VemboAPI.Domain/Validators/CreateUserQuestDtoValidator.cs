@@ -5,7 +5,7 @@ public class CreateUserQuestDtoValidator : AbstractValidator<CreateUserQuestDto>
 {
     public CreateUserQuestDtoValidator()
     {
-        RuleFor(x => x.UserId).GreaterThan(0);
+        RuleFor(x => x.UserId).NotNull();
         RuleFor(x => x.QuestId).GreaterThan(0);
     }
 }
