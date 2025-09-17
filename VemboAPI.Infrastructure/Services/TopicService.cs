@@ -26,12 +26,12 @@ namespace VemboAPI.Infrastructure.Services
             _ver = ver;
         }
 
-        public List<TopicDto> GetAllTopics()
+        public async Task<List<TopicDto>> GetAllTopics()
         {
-            var v = _ver.GetVersionAsync().GetAwaiter().GetResult();
+            var v = await _ver.GetVersionAsync();
             var key = $"content:topics:all:v{v}";
 
-            var result = _cache.GetOrSetAsync(key, async () =>
+            var result = await _cache.GetOrSetAsync(key, async () =>
             {
                 var topics = await _dbContext.Topics
                     .Include(t => t.Units)
@@ -43,17 +43,17 @@ namespace VemboAPI.Infrastructure.Services
                     mapped[i].UnitsCount = topics[i].Units.Count;
                 }
                 return mapped;
-            }, ttl: null).GetAwaiter().GetResult();
+            }, ttl: null);
 
             return result;
         }
 
-        public TopicDto GetTopicById(int id)
+        public async Task<TopicDto> GetTopicById(int id)
         {
-            var v = _ver.GetVersionAsync().GetAwaiter().GetResult();
+            var v = await _ver.GetVersionAsync();
             var key = $"content:topic:{id}:v{v}";
 
-            var dto = _cache.GetOrSetAsync(key, async () =>
+            var dto = await _cache.GetOrSetAsync(key, async () =>
             {
                 var topic = await _dbContext.Topics
                     .Include(t => t.Units)
@@ -65,50 +65,55 @@ namespace VemboAPI.Infrastructure.Services
                 var mapped = _mapper.Map<TopicDto>(topic);
                 mapped.UnitsCount = topic.Units.Count;
                 return mapped;
-            }, ttl: null).GetAwaiter().GetResult();
+            }, ttl: null);
 
             return dto!;
         }
 
-        public TopicDto CreateTopic(TopicCreateDto dto)
+        public async Task<TopicDto> CreateTopic(TopicCreateDto dto)
         {
-            if (!_dbContext.Periods.Any(p => p.Id == dto.PeriodId))
+            if (!await _dbContext.Periods.AnyAsync(p => p.Id == dto.PeriodId))
                 throw new KeyNotFoundException($"Period with ID {dto.PeriodId} not found.");
 
             var topic = _mapper.Map<Topic>(dto);
 
-            _dbContext.Topics.Add(topic);
-            _dbContext.SaveChanges();
-            _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідує через нову версію
+            await _dbContext.Topics.AddAsync(topic);
+            await _dbContext.SaveChangesAsync();
+
+            await _ver.BumpAsync(); // інвалідує через нову версію
 
             var result = _mapper.Map<TopicDto>(topic);
             result.UnitsCount = 0;
+
             return result;
         }
 
-        public void UpdateTopic(int id, TopicUpdateDto dto)
+        public async Task UpdateTopic(int id, TopicUpdateDto dto)
         {
-            var topic = _dbContext.Topics.Find(id);
+            var topic = await _dbContext.Topics.FindAsync(id);
+
             if (topic == null)
                 throw new KeyNotFoundException($"Topic with ID {id} not found.");
 
-            if (!_dbContext.Periods.Any(p => p.Id == dto.PeriodId))
+            if (!await _dbContext.Periods.AnyAsync(p => p.Id == dto.PeriodId))
                 throw new KeyNotFoundException($"Period with ID {dto.PeriodId} not found.");
 
             _mapper.Map(dto, topic);
-            _dbContext.SaveChanges();
-            _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідація кешу
+
+            await _dbContext.SaveChangesAsync();
+            await _ver.BumpAsync(); // інвалідація кешу
         }
 
-        public void DeleteTopic(int id)
+        public async Task DeleteTopic(int id)
         {
-            var topic = _dbContext.Topics.Find(id);
+            var topic = await _dbContext.Topics.FindAsync(id);
+
             if (topic == null)
                 throw new KeyNotFoundException($"Topic with ID {id} not found.");
 
             _dbContext.Topics.Remove(topic);
-            _dbContext.SaveChanges();
-            _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідація кешу
+            await _dbContext.SaveChangesAsync();
+            await _ver.BumpAsync(); // інвалідація кешу
         }
     }
 }

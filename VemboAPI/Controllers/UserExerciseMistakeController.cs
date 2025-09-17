@@ -15,22 +15,24 @@ namespace VemboAPI.API.Controllers
         {
             _service = service;
         }
-        [Authorize]
 
+        [Authorize]
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            var result = _service.GetAllMistakes();
+            var result = await _service.GetAllMistakes();
+            
             return Ok(result);
         }
-        [Authorize]
 
+        [Authorize]
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
             try
             {
-                var mistake = _service.GetMistakeById(id);
+                var mistake = await _service.GetMistakeById(id);
+
                 return Ok(mistake);
             }
             catch (KeyNotFoundException ex)
@@ -38,21 +40,24 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
+
         [Authorize]
         [HttpPost]
-        public IActionResult Post([FromBody] CreateUserExerciseMistakeDto dto)
+        public async Task<IActionResult> Post([FromBody] CreateUserExerciseMistakeDto dto)
         {
-            var created = _service.CreateMistake(dto);
+            var created = await _service.CreateMistake(dto);
+            
             return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] UpdateUserExerciseMistakeDto dto)
+        public async Task<IActionResult> Put(int id, [FromBody] UpdateUserExerciseMistakeDto dto)
         {
             try
             {
-                _service.UpdateMistake(id, dto);
+                await _service.UpdateMistake(id, dto);
+                
                 return Ok();
             }
             catch (KeyNotFoundException ex)
@@ -62,13 +67,13 @@ namespace VemboAPI.API.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                _service.DeleteMistake(id);
+                await _service.DeleteMistake(id);
+                
                 return Ok();
             }
             catch (KeyNotFoundException ex)

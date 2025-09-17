@@ -3,6 +3,7 @@ using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.Entities;
 using VemboAPI.Domain.DTOs;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace VemboAPI.Infrastructure.Services
 {
@@ -17,27 +18,28 @@ namespace VemboAPI.Infrastructure.Services
             _mapper = mapper;
         }
 
-        public List<UserUnitProgressDto> GetAllUserUnitProgress(string userId)
+        public async Task<List<UserUnitProgressDto>> GetAllUserUnitProgress(string userId)
         {
-            var unitProgressList = _dbContext.UserUnitProgresses
-                .ToList()
-                .FindAll(unitProgress => unitProgress.UserId == userId);
+            var unitProgressList = await _dbContext.UserUnitProgresses
+                .Where(unitProgress => unitProgress.UserId == userId)
+                .ToListAsync();
 
             return _mapper.Map<List<UserUnitProgressDto>>(unitProgressList);
         }
 
-        public UserUnitProgressDto GetUserUnitProgressById(int id)
+        public async Task<UserUnitProgressDto> GetUserUnitProgressById(int id)
         {
-            var progress = _dbContext.UserUnitProgresses.Find(id);
+            var progress = await _dbContext.UserUnitProgresses.FindAsync(id);
+
             if (progress == null)
                 throw new KeyNotFoundException($"UserUnitProgress with ID {id} not found.");
 
             return _mapper.Map<UserUnitProgressDto>(progress);
         }
-        public UserUnitProgressDto EnsureProgressExists(string userId, int unitId)
+        public async Task<UserUnitProgressDto> EnsureProgressExists(string userId, int unitId)
         {
-            var existing = _dbContext.UserUnitProgresses
-                .FirstOrDefault(p => p.UserId == userId && p.UnitId == unitId);
+            var existing = await _dbContext.UserUnitProgresses
+                .FirstOrDefaultAsync(p => p.UserId == userId && p.UnitId == unitId);
 
             if (existing != null)
                 return _mapper.Map<UserUnitProgressDto>(existing);
@@ -49,70 +51,72 @@ namespace VemboAPI.Infrastructure.Services
                 CompletedCount = 0
             };
 
-            _dbContext.UserUnitProgresses.Add(progress);
-            _dbContext.SaveChanges();
+            await _dbContext.UserUnitProgresses.AddAsync(progress);
+            await _dbContext.SaveChangesAsync();
 
             return _mapper.Map<UserUnitProgressDto>(progress);
         }
 
 
-        public UserUnitProgressDto CreateUserUnitProgress(CreateUserUnitProgressDto dto)
+        public async Task<UserUnitProgressDto> CreateUserUnitProgress(CreateUserUnitProgressDto dto)
         {
             var progress = _mapper.Map<UserUnitProgress>(dto);
 
-            _dbContext.UserUnitProgresses.Add(progress);
-            _dbContext.SaveChanges();
+            await _dbContext.UserUnitProgresses.AddAsync(progress);
+            await _dbContext.SaveChangesAsync();
 
             return _mapper.Map<UserUnitProgressDto>(progress);
         }
 
-        public void UpdateUserUnitProgress(int id, UpdateUserUnitProgressDto dto)
+        public async Task UpdateUserUnitProgress(int id, UpdateUserUnitProgressDto dto)
         {
-            var progress = _dbContext.UserUnitProgresses.Find(id);
+            var progress = await _dbContext.UserUnitProgresses.FindAsync(id);
+
             if (progress == null)
                 throw new KeyNotFoundException($"UserUnitProgress with ID {id} not found.");
 
             _mapper.Map(dto, progress);
-            _dbContext.SaveChanges();
+            
+            await _dbContext.SaveChangesAsync();
         }
 
-        public void DeleteUserUnitProgress(int id)
+        public async Task DeleteUserUnitProgress(int id)
         {
-            var progress = _dbContext.UserUnitProgresses.Find(id);
+            var progress = await _dbContext.UserUnitProgresses.FindAsync(id);
+
             if (progress == null)
                 throw new KeyNotFoundException($"UserUnitProgress with ID {id} not found.");
 
             _dbContext.UserUnitProgresses.Remove(progress);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        public List<UserUnitProgressDto> GetAllUserUnitProgressByTopicId(string userId, int topicId)
+        public async Task<List<UserUnitProgressDto>> GetAllUserUnitProgressByTopicId(string userId, int topicId)
         {
-            var progresses = _dbContext.UserUnitProgresses
-                .ToList()
-                .FindAll(unitProgress => unitProgress.UserId == userId)
-                .FindAll(unitProgress => unitProgress.Unit.TopicId == topicId);
+            var progresses = await _dbContext.UserUnitProgresses
+                .Where(unitProgress => unitProgress.UserId == userId)
+                .Where(unitProgress => unitProgress.Unit.TopicId == topicId)
+                .ToListAsync();
 
             return _mapper.Map<List<UserUnitProgressDto>>(progresses);
         }
 
-        public UserUnitProgressDto GetUserUnitProgressByUnitId(string userId, int unitId)
+        public async Task<UserUnitProgressDto> GetUserUnitProgressByUnitId(string userId, int unitId)
         {
-            var progress = _dbContext.UserUnitProgresses
-                .ToList()
-                .FindAll(unitProgress => unitProgress.UserId == userId)
-                .Find(unitProgress => unitProgress.UnitId == unitId);
+            var progress = await _dbContext.UserUnitProgresses
+                .Where(unitProgress => unitProgress.UserId == userId)
+                .Where(unitProgress => unitProgress.UnitId == unitId)
+                .FirstOrDefaultAsync();
 
             return _mapper.Map<UserUnitProgressDto>(progress);
         }
 
-        public UserUnitProgressDto GetCurrentUserUnitProgress(string userId, int topicId)
+        public async Task<UserUnitProgressDto> GetCurrentUserUnitProgress(string userId, int topicId)
         {
-            var progress = _dbContext.UserUnitProgresses
-                .ToList()
-                .FindAll(unitProgress => unitProgress.UserId == userId)
-                .FindAll(unitProgress => unitProgress.Unit.TopicId == topicId)
-                .LastOrDefault();
+            var progress = await _dbContext.UserUnitProgresses
+                .Where(unitProgress => unitProgress.UserId == userId)
+                .Where(unitProgress => unitProgress.Unit.TopicId == topicId)
+                .LastOrDefaultAsync();
 
             return _mapper.Map<UserUnitProgressDto>(progress);
         }

@@ -3,6 +3,7 @@ using VemboAPI.Infrastructure.Interfaces; // ICacheService, IContentVersionServi
 using VemboAPI.Domain.Entities;
 using VemboAPI.Domain.DTOs;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace VemboAPI.Infrastructure.Services
 {
@@ -25,60 +26,64 @@ namespace VemboAPI.Infrastructure.Services
             _ver = ver;
         }
 
-        public List<LevelDto> GetAllLevels()
+        public async Task<List<LevelDto>> GetAllLevels()
         {
-            var v = _ver.GetVersionAsync().GetAwaiter().GetResult();
+            var v = await _ver.GetVersionAsync();
             var key = $"content:levels:all:v{v}";
 
-            var result = _cache.GetOrSetAsync(key, () =>
+            var result = await _cache.GetOrSetAsync(key, async () =>
             {
-                var levels = _dbContext.Levels.ToList(); // синхронно ок
+                var levels = await _dbContext.Levels.ToListAsync(); // синхронно ок
                 var mapped = _mapper.Map<List<LevelDto>>(levels);
-                return Task.FromResult(mapped);
-            }, ttl: null).GetAwaiter().GetResult();
+                
+                return mapped;
+            }, ttl: null);
 
             return result;
         }
 
-        public LevelDto GetLevelById(int id)
+        public async Task<LevelDto> GetLevelById(int id)
         {
-            var v = _ver.GetVersionAsync().GetAwaiter().GetResult();
+            var v = await _ver.GetVersionAsync();
             var key = $"content:level:{id}:v{v}";
 
-            var dto = _cache.GetOrSetAsync(key, () =>
+            var dto = await _cache.GetOrSetAsync(key, async () =>
             {
-                var level = _dbContext.Levels.Find(id);
+                var level = await  _dbContext.Levels.FindAsync(id);
+                
                 if (level == null)
                     throw new KeyNotFoundException($"Level with ID {id} not found.");
 
                 var mapped = _mapper.Map<LevelDto>(level);
-                return Task.FromResult(mapped);
-            }, ttl: null).GetAwaiter().GetResult();
+                
+                return mapped;
+            }, ttl: null);
 
             return dto!;
         }
 
-        public LevelDto CreateLevel(CreateLevelDto dto)
+        public async Task<LevelDto> CreateLevel(CreateLevelDto dto)
         {
-            if (!_dbContext.Units.Any(u => u.Id == dto.UnitId))
+            if (!await _dbContext.Units.AnyAsync(u => u.Id == dto.UnitId))
                 throw new KeyNotFoundException($"Unit with ID {dto.UnitId} not found.");
 
-            if (!_dbContext.LevelTypes.Any(lt => lt.Id == dto.LevelTypeId))
+            if (!await _dbContext.LevelTypes.AnyAsync(lt => lt.Id == dto.LevelTypeId))
                 throw new KeyNotFoundException($"LevelType with ID {dto.LevelTypeId} not found.");
 
             var level = _mapper.Map<Level>(dto);
             level.LevelTypeId = dto.LevelTypeId;
 
-            _dbContext.Levels.Add(level);
-            _dbContext.SaveChanges();
-            _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідація кешу
+            await _dbContext.Levels.AddAsync(level);
+            await _dbContext.SaveChangesAsync();
+            await _ver.BumpAsync(); // інвалідація кешу
 
             return _mapper.Map<LevelDto>(level);
         }
 
-        public void UpdateLevel(int id, UpdateLevelDto dto)
+        public async Task UpdateLevel(int id, UpdateLevelDto dto)
         {
-            var level = _dbContext.Levels.Find(id);
+            var level = await _dbContext.Levels.FindAsync(id);
+            
             if (level == null)
                 throw new KeyNotFoundException($"Level with ID {id} not found.");
 
@@ -91,26 +96,27 @@ namespace VemboAPI.Infrastructure.Services
             _mapper.Map(dto, level);
             level.LevelTypeId = dto.LevelTypeId;
 
-            _dbContext.SaveChanges();
-            _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідація кешу
+            await _dbContext.SaveChangesAsync();
+            await _ver.BumpAsync(); // інвалідація кешу
         }
 
-        public void DeleteLevel(int id)
+        public async Task DeleteLevel(int id)
         {
-            var level = _dbContext.Levels.Find(id);
+            var level = await _dbContext.Levels.FindAsync(id);
+            
             if (level == null)
                 throw new KeyNotFoundException($"Level with ID {id} not found.");
 
             _dbContext.Levels.Remove(level);
-            _dbContext.SaveChanges();
-            _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідація кешу
+            await _dbContext.SaveChangesAsync();
+            await _ver.BumpAsync(); // інвалідація кешу
         }
 
-        public List<LevelDto> GetAllLevelsByUnitId(int unitId)
+        public async Task<List<LevelDto>> GetAllLevelsByUnitId(int unitId)
         {
-            var levels = _dbContext.Levels
+            var levels = await _dbContext.Levels
                 .Where(level => level.UnitId == unitId)
-                .ToList();
+                .ToListAsync();
 
             return _mapper.Map<List<LevelDto>>(levels);
         }

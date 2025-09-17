@@ -4,6 +4,7 @@ namespace VemboAPI.Domain.Entities
 {
     public class User: IdentityUser
     {
+        public string? AvatarUrl { get; set; }
         public string NickName { get; set; }
         public string PasswordHash { get; set; }
         public string Email { get; set; }

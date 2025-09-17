@@ -3,6 +3,7 @@ using VemboAPI.Infrastructure.Interfaces; // ICacheService, IContentVersionServi
 using VemboAPI.Domain.DTOs;
 using VemboAPI.Domain.Entities;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace VemboAPI.Infrastructure.Services
 {
@@ -25,72 +26,78 @@ namespace VemboAPI.Infrastructure.Services
             _ver = ver;
         }
 
-        public List<LevelTypeDto> GetAll()
+        public async Task<List<LevelTypeDto>> GetAll()
         {
-            var v = _ver.GetVersionAsync().GetAwaiter().GetResult();
+            var v = await _ver.GetVersionAsync();
             var key = $"content:leveltypes:all:v{v}";
 
-            var list = _cache.GetOrSetAsync(key, () =>
+            var list = await _cache.GetOrSetAsync(key, async () =>
             {
-                var items = _dbContext.LevelTypes.ToList(); // синхронно ок
+                var items = await _dbContext.LevelTypes.ToListAsync(); // синхронно ок
+                
                 var mapped = _mapper.Map<List<LevelTypeDto>>(items);
-                return Task.FromResult(mapped);
-            }, ttl: null).GetAwaiter().GetResult();
+                
+                return mapped;
+            }, ttl: null);
 
             return list;
         }
 
-        public LevelTypeDto GetById(int id)
+        public async Task<LevelTypeDto> GetById(int id)
         {
-            var v = _ver.GetVersionAsync().GetAwaiter().GetResult();
+            var v = await _ver.GetVersionAsync();
             var key = $"content:leveltype:{id}:v{v}";
 
-            var dto = _cache.GetOrSetAsync(key, () =>
+            var dto = await _cache.GetOrSetAsync(key, async () =>
             {
-                var entity = _dbContext.LevelTypes.Find(id);
+                var entity = await _dbContext.LevelTypes.FindAsync(id);
+
                 if (entity == null)
                     throw new KeyNotFoundException($"LevelType with ID {id} not found.");
 
                 var mapped = _mapper.Map<LevelTypeDto>(entity);
-                return Task.FromResult(mapped);
-            }, ttl: null).GetAwaiter().GetResult();
+                
+                return mapped;
+            }, ttl: null);
 
             return dto!;
         }
 
-        public LevelTypeDto Create(CreateLevelTypeDto dto)
+        public async Task<LevelTypeDto> Create(CreateLevelTypeDto dto)
         {
             var entity = _mapper.Map<LevelType>(dto);
-            _dbContext.LevelTypes.Add(entity);
-            _dbContext.SaveChanges();
+            await _dbContext.LevelTypes.AddAsync(entity);
+            await _dbContext.SaveChangesAsync();
 
-            _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідація кешу
+            await _ver.BumpAsync(); // інвалідація кешу
 
             return _mapper.Map<LevelTypeDto>(entity);
         }
 
-        public void Update(int id, UpdateLevelTypeDto dto)
+        public async Task Update(int id, UpdateLevelTypeDto dto)
         {
-            var entity = _dbContext.LevelTypes.Find(id);
+            var entity = await _dbContext.LevelTypes.FindAsync(id);
+            
             if (entity == null)
                 throw new KeyNotFoundException($"LevelType with ID {id} not found.");
 
             _mapper.Map(dto, entity);
-            _dbContext.SaveChanges();
 
-            _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідація кешу
+            await _dbContext.SaveChangesAsync();
+            await _ver.BumpAsync(); // інвалідація кешу
         }
 
-        public void Delete(int id)
+        public async Task Delete(int id)
         {
-            var entity = _dbContext.LevelTypes.Find(id);
+            var entity = await _dbContext.LevelTypes.FindAsync(id);
+
             if (entity == null)
                 throw new KeyNotFoundException($"LevelType with ID {id} not found.");
 
             _dbContext.LevelTypes.Remove(entity);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
-            _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідація кешу
+            await _ver.BumpAsync(); // інвалідація кешу
         }
     }
 }

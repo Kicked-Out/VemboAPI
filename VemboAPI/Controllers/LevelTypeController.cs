@@ -2,7 +2,6 @@
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.DTOs;
 using Microsoft.AspNetCore.Authorization;
-using System.Collections.Generic;
 
 namespace VemboAPI.API.Controllers
 {
@@ -19,19 +18,21 @@ namespace VemboAPI.API.Controllers
 
         [Authorize]
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            var items = _service.GetAll();
+            var items = await _service.GetAll();
+            
             return Ok(items);
         }
 
         [Authorize]
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
             try
             {
-                var item = _service.GetById(id);
+                var item = await _service.GetById(id);
+
                 return Ok(item);
             }
             catch (KeyNotFoundException ex)
@@ -42,25 +43,27 @@ namespace VemboAPI.API.Controllers
 
         [Authorize]
         [HttpPost]
-        public IActionResult Post([FromBody] CreateLevelTypeDto dto)
+        public async Task<IActionResult> Post([FromBody] CreateLevelTypeDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var created = _service.Create(dto);
+            var created = await _service.Create(dto);
+            
             return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] UpdateLevelTypeDto dto)
+        public async Task<IActionResult> Put(int id, [FromBody] UpdateLevelTypeDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             try
             {
-                _service.Update(id, dto);
+                await _service.Update(id, dto);
+                
                 return Ok();
             }
             catch (KeyNotFoundException ex)
@@ -71,11 +74,12 @@ namespace VemboAPI.API.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                _service.Delete(id);
+                await _service.Delete(id);
+
                 return Ok();
             }
             catch (KeyNotFoundException ex)

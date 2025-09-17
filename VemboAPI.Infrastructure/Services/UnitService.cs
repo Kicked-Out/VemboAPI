@@ -3,6 +3,7 @@ using VemboAPI.Infrastructure.Interfaces; // ICacheService, IContentVersionServi
 using VemboAPI.Domain.Entities;
 using VemboAPI.Domain.DTOs;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace VemboAPI.Infrastructure.Services
 {
@@ -25,90 +26,97 @@ namespace VemboAPI.Infrastructure.Services
             _ver = ver;
         }
 
-        public List<UnitDto> GetAllUnits()
+        public async Task<List<UnitDto>> GetAllUnits()
         {
-            var v = _ver.GetVersionAsync().GetAwaiter().GetResult();
+            var v = await _ver.GetVersionAsync();
             var key = $"content:units:all:v{v}";
 
-            var result = _cache.GetOrSetAsync(key, async () =>
+            var result = await _cache.GetOrSetAsync(key, async () =>
             {
-                var units = _dbContext.Units.ToList();
+                var units = await _dbContext.Units.ToListAsync();
+                
                 return _mapper.Map<List<UnitDto>>(units);
-            }, ttl: null).GetAwaiter().GetResult();
+            }, ttl: null);
 
             return result;
         }
 
-        public UnitDto GetUnitById(int id)
+        public async Task<UnitDto> GetUnitById(int id)
         {
-            var v = _ver.GetVersionAsync().GetAwaiter().GetResult();
+            var v = await _ver.GetVersionAsync();
             var key = $"content:unit:{id}:v{v}";
 
-            var dto = _cache.GetOrSetAsync(key, async () =>
+            var dto = await _cache.GetOrSetAsync(key, async () =>
             {
-                var unit = _dbContext.Units.Find(id);
+                var unit = await _dbContext.Units.FindAsync(id);
+                
                 if (unit == null)
                     throw new KeyNotFoundException($"Unit with ID {id} not found.");
 
                 return _mapper.Map<UnitDto>(unit);
-            }, ttl: null).GetAwaiter().GetResult();
+            }, ttl: null);
 
             return dto!;
         }
 
-        public UnitDto CreateUnit(CreateUnitDto dto)
+        public async Task<UnitDto> CreateUnit(CreateUnitDto dto)
         {
-            if (!_dbContext.Topics.Any(t => t.Id == dto.TopicId))
+            if (!await _dbContext.Topics.AnyAsync(t => t.Id == dto.TopicId))
                 throw new KeyNotFoundException($"Topic with ID {dto.TopicId} not found.");
 
-            if (!_dbContext.GuideBooks.Any(g => g.Id == dto.GuideBookId))
+            if (!await _dbContext.GuideBooks.AnyAsync(g => g.Id == dto.GuideBookId))
                 throw new KeyNotFoundException($"GuideBook with ID {dto.GuideBookId} not found.");
 
             var unit = _mapper.Map<Unit>(dto);
             unit.GuideBookId = dto.GuideBookId; // на випадок, якщо AutoMapper не встановить
 
-            _dbContext.Units.Add(unit);
-            _dbContext.SaveChanges();
-            _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідація кешу через нову версію
+            await _dbContext.Units.AddAsync(unit);
+            await _dbContext.SaveChangesAsync();
+
+            await _ver.BumpAsync(); // інвалідація кешу через нову версію
 
             return _mapper.Map<UnitDto>(unit);
         }
 
-        public void UpdateUnit(int id, UpdateUnitDto dto)
+        public async Task UpdateUnit(int id, UpdateUnitDto dto)
         {
-            var unit = _dbContext.Units.Find(id);
+            var unit = await _dbContext.Units.FindAsync(id);
+
             if (unit == null)
                 throw new KeyNotFoundException($"Unit with ID {id} not found.");
 
-            if (!_dbContext.Topics.Any(t => t.Id == dto.TopicId))
+            if (!await _dbContext.Topics.AnyAsync(t => t.Id == dto.TopicId))
                 throw new KeyNotFoundException($"Topic with ID {dto.TopicId} not found.");
 
-            if (!_dbContext.GuideBooks.Any(g => g.Id == dto.GuideBookId))
+            if (!await _dbContext.GuideBooks.AnyAsync(g => g.Id == dto.GuideBookId))
                 throw new KeyNotFoundException($"GuideBook with ID {dto.GuideBookId} not found.");
 
             _mapper.Map(dto, unit);
             unit.GuideBookId = dto.GuideBookId;
 
-            _dbContext.SaveChanges();
-            _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідація кешу
+            await _dbContext.SaveChangesAsync();
+            
+            await _ver.BumpAsync(); // інвалідація кешу
         }
 
-        public void DeleteUnit(int id)
+        public async Task DeleteUnit(int id)
         {
-            var unit = _dbContext.Units.Find(id);
+            var unit = await _dbContext.Units.FindAsync(id);
+            
             if (unit == null)
                 throw new KeyNotFoundException($"Unit with ID {id} not found.");
 
             _dbContext.Units.Remove(unit);
-            _dbContext.SaveChanges();
-            _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідація кешу
+            await _dbContext.SaveChangesAsync();
+
+            await _ver.BumpAsync(); // інвалідація кешу
         }
 
-        public List<UnitDto> GetAllUnitsByTopicId(int topicId)
+        public async Task<List<UnitDto>> GetAllUnitsByTopicId(int topicId)
         {
-            var units = _dbContext.Units
+            var units = await _dbContext.Units
                 .Where(unit => unit.TopicId == topicId)
-                .ToList();
+                .ToListAsync();
 
             return _mapper.Map<List<UnitDto>>(units);
         }

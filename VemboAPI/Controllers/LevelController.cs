@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VemboAPI.Infrastructure.Interfaces;
-using VemboAPI.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
-using System.Data;
 using VemboAPI.Domain.DTOs;
 
 namespace VemboAPI.API.Controllers
@@ -20,28 +18,30 @@ namespace VemboAPI.API.Controllers
 
         [Authorize]
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            var levels = _levelService.GetAllLevels();
+            var levels = await _levelService.GetAllLevels();
+
             return Ok(levels);
         }
 
         [Authorize]
         [HttpGet("Unit/{unitId}")]
-        public IActionResult GetAllByUnitId(int unitId)
+        public async Task<IActionResult> GetAllByUnitId(int unitId)
         {
-            var levels = _levelService.GetAllLevelsByUnitId(unitId);
+            var levels = await _levelService.GetAllLevelsByUnitId(unitId);
 
             return Ok(levels);
         }
 
         [Authorize]
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
             try
             {
-                var level = _levelService.GetLevelById(id);
+                var level = await _levelService.GetLevelById(id);
+                
                 return Ok(level);
             }
             catch (KeyNotFoundException ex)
@@ -51,14 +51,15 @@ namespace VemboAPI.API.Controllers
         }
         [Authorize]
         [HttpPost]
-        public IActionResult Post([FromBody] CreateLevelDto dto)
+        public async Task<IActionResult> Post([FromBody] CreateLevelDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             try
             {
-                var created = _levelService.CreateLevel(dto);
+                var created = await _levelService.CreateLevel(dto);
+                
                 return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
             }
             catch (KeyNotFoundException ex)
@@ -69,14 +70,15 @@ namespace VemboAPI.API.Controllers
 
         [Authorize]
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] UpdateLevelDto dto)
+        public async Task<IActionResult> Put(int id, [FromBody] UpdateLevelDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             try
             {
-                _levelService.UpdateLevel(id, dto);
+                await _levelService.UpdateLevel(id, dto);
+                
                 return Ok();
             }
             catch (KeyNotFoundException ex)
@@ -88,11 +90,12 @@ namespace VemboAPI.API.Controllers
         [Authorize(Roles = "Admin")]
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                _levelService.DeleteLevel(id);
+                await _levelService.DeleteLevel(id);
+                
                 return Ok();
             }
             catch (KeyNotFoundException ex)

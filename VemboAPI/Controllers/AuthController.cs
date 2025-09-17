@@ -86,10 +86,86 @@ namespace VemboAPI.Controllers
                 Streak = 0,
                 VBucks = 0,
                 Hearts = 5,
-                CurrentPeriodId = null // або null, якщо ще не прив'язано до курсу
+                CurrentPeriodId = 1, // або null, якщо ще не прив'язано до курсу
             };
 
             _context.UserStatistics.Add(stat);
+            _context.SaveChanges();
+
+            var userPeriodProgress = new UserPeriodProgress
+            {
+                UserId = newUser.Id,
+                PeriodId = 1,
+                XP = 0,
+                CompletedCount = 0
+            };
+
+            _context.UserPeriodProgresses.Add(userPeriodProgress);
+            _context.SaveChanges();
+
+            var userTopicProgress = new UserTopicProgress
+            {
+                UserId = newUser.Id,
+                TopicId = 1,
+                CompletedCount = 0
+            };
+
+            _context.UserTopicProgresses.Add(userTopicProgress);
+            _context.SaveChanges();
+
+            var userUnitProgress = new UserUnitProgress
+            {
+                UserId = newUser.Id,
+                UnitId = 1,
+                CompletedCount = 0
+            };
+
+            _context.UserUnitProgresses.Add(userUnitProgress);
+            _context.SaveChanges();
+
+            var userLevelProgress = new UserLevelProgress
+            {
+                UserId = newUser.Id,
+                LevelId = 1,
+                CompletedCount = 0
+
+            };
+
+            _context.UserLevelProgresses.Add(userLevelProgress);
+            _context.SaveChanges();
+
+            var userLessonProgress1 = new UserLessonProgress
+            {
+                UserId = newUser.Id,
+                LessonId = 1,
+                CompletedCount = 0
+            };
+
+            var userLessonProgress2 = new UserLessonProgress
+            {
+                UserId = newUser.Id,
+                LessonId = 2,
+                CompletedCount = 0
+            };
+
+            var userLessonProgress3 = new UserLessonProgress
+            {
+                UserId = newUser.Id,
+                LessonId = 3,
+                CompletedCount = 0
+            };
+
+            var userLessonProgress4 = new UserLessonProgress
+            {
+                UserId = newUser.Id,
+                LessonId = 4,
+                CompletedCount = 0
+            };
+
+            _context.UserLessonProgresses.Add(userLessonProgress1);
+            _context.UserLessonProgresses.Add(userLessonProgress2);
+            _context.UserLessonProgresses.Add(userLessonProgress3);
+            _context.UserLessonProgresses.Add(userLessonProgress4);
             _context.SaveChanges();
 
             var token = _jwtTokenGenerator.GenerateToken(newUser);

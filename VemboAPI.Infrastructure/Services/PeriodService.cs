@@ -26,33 +26,34 @@ namespace VemboAPI.Infrastructure.Services
             _ver = ver;
         }
 
-        public List<PeriodDto> GetAllPeriods()
+        public async Task<List<PeriodDto>> GetAllPeriods()
         {
-            var v = _ver.GetVersionAsync().GetAwaiter().GetResult();
+            var v = await _ver.GetVersionAsync();
             var key = $"content:periods:v{v}";
 
-            var result = _cache.GetOrSetAsync(key, async () =>
+            var result = await _cache.GetOrSetAsync(key, async () =>
             {
                 var periods = await _dbContext.Periods
                     .Include(p => p.Topics)
                     .ToListAsync();
 
                 var mapped = _mapper.Map<List<PeriodDto>>(periods);
+                
                 for (int i = 0; i < mapped.Count; i++)
                     mapped[i].TopicsCount = periods[i].Topics.Count;
 
                 return mapped;
-            }, ttl: null).GetAwaiter().GetResult();
+            }, ttl: null);
 
             return result;
         }
 
-        public PeriodDto GetPeriodById(int id)
+        public async Task<PeriodDto> GetPeriodById(int id)
         {
-            var v = _ver.GetVersionAsync().GetAwaiter().GetResult();
+            var v = await _ver.GetVersionAsync();
             var key = $"content:period:{id}:v{v}";
 
-            var dto = _cache.GetOrSetAsync(key, async () =>
+            var dto = await _cache.GetOrSetAsync(key, async () =>
             {
                 var period = await _dbContext.Periods
                     .Include(p => p.Topics)
@@ -64,47 +65,51 @@ namespace VemboAPI.Infrastructure.Services
                 var mapped = _mapper.Map<PeriodDto>(period);
                 mapped.TopicsCount = period.Topics.Count;
                 return mapped;
-            }, ttl: null).GetAwaiter().GetResult();
+            }, ttl: null);
 
             return dto!;
         }
 
-        public PeriodDto CreatePeriod(CreatePeriodDto dto)
+        public async Task<PeriodDto> CreatePeriod(CreatePeriodDto dto)
         {
             var period = _mapper.Map<Period>(dto);
-            _dbContext.Periods.Add(period);
-            _dbContext.SaveChanges();
+            
+            await _dbContext.Periods.AddAsync(period);
+            await _dbContext.SaveChangesAsync();
 
             // bump content version, щоб інвалідувати ключі (через v{ver})
-            _ver.BumpAsync().GetAwaiter().GetResult();
+            await _ver.BumpAsync();
 
             return _mapper.Map<PeriodDto>(period);
         }
 
-        public void UpdatePeriod(int id, UpdatePeriodDto dto)
+        public async Task UpdatePeriod(int id, UpdatePeriodDto dto)
         {
-            var period = _dbContext.Periods.Find(id);
+            var period = await _dbContext.Periods.FindAsync(id);
+
             if (period == null)
                 throw new KeyNotFoundException($"Period with ID {id} not found.");
 
             _mapper.Map(dto, period);
-            _dbContext.SaveChanges();
+            
+            await _dbContext.SaveChangesAsync();
 
             // інвалідуємо через bump версії
-            _ver.BumpAsync().GetAwaiter().GetResult();
+            await _ver.BumpAsync();
         }
 
-        public void DeletePeriod(int id)
+        public async Task DeletePeriod(int id)
         {
-            var period = _dbContext.Periods.Find(id);
+            var period = await _dbContext.Periods.FindAsync(id);
+
             if (period == null)
                 throw new KeyNotFoundException($"Period with ID {id} not found.");
 
             _dbContext.Periods.Remove(period);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
             // інвалідуємо через bump версії
-            _ver.BumpAsync().GetAwaiter().GetResult();
+            await _ver.BumpAsync();
         }
     }
 }

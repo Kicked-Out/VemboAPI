@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 namespace VemboAPI.Domain.DTOs
 {
     public class UpdateAchievementDto

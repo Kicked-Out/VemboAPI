@@ -26,87 +26,92 @@ namespace VemboAPI.Infrastructure.Services
             _ver = ver;
         }
 
-        public List<AnswerDto> GetAllAnswers()
+        public async Task<List<AnswerDto>> GetAllAnswers()
         {
-            var v = _ver.GetVersionAsync().GetAwaiter().GetResult();
+            var v = await _ver.GetVersionAsync();
             var key = $"content:answers:all:v{v}";
 
-            var list = _cache.GetOrSetAsync(key, () =>
+            var list = await _cache.GetOrSetAsync(key, async () =>
             {
-                var answers = _dbContext.Answers.ToList(); // синхронно ок
+                var answers = await _dbContext.Answers.ToListAsync(); // синхронно ок
                 var mapped = _mapper.Map<List<AnswerDto>>(answers);
-                return Task.FromResult(mapped);
-            }, ttl: null).GetAwaiter().GetResult();
+                return mapped;
+            }, ttl: null);
 
             return list;
         }
 
-        public AnswerDto GetAnswerById(int id)
+        public async Task<AnswerDto> GetAnswerById(int id)
         {
-            var v = _ver.GetVersionAsync().GetAwaiter().GetResult();
+            var v = await _ver.GetVersionAsync();
             var key = $"content:answer:{id}:v{v}";
 
-            var dto = _cache.GetOrSetAsync(key, () =>
+            var dto = await _cache.GetOrSetAsync(key, async () =>
             {
-                var answer = _dbContext.Answers.Find(id);
+                var answer = await _dbContext.Answers.FindAsync(id);
                 if (answer == null)
                     throw new KeyNotFoundException($"Answer with ID {id} not found.");
 
                 var mapped = _mapper.Map<AnswerDto>(answer);
-                return Task.FromResult(mapped);
-            }, ttl: null).GetAwaiter().GetResult();
+                return mapped;
+            }, ttl: null);
 
             return dto!;
         }
 
-        public AnswerDto CreateAnswer(CreateAnswerDto dto)
+        public async Task<AnswerDto> CreateAnswer(CreateAnswerDto dto)
         {
-            var question = _dbContext.Questions.Find(dto.QuestionId);
+            var question = await _dbContext.Questions.FindAsync(dto.QuestionId);
+
             if (question == null)
                 throw new KeyNotFoundException($"Question with ID {dto.QuestionId} not found.");
 
             var answer = _mapper.Map<Answer>(dto);
-            _dbContext.Answers.Add(answer);
-            _dbContext.SaveChanges();
+            
+            await _dbContext.Answers.AddAsync(answer);
+            await _dbContext.SaveChangesAsync();
 
-            _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідація кешу через нову версію
+            await _ver.BumpAsync(); // інвалідація кешу через нову версію
 
             return _mapper.Map<AnswerDto>(answer);
         }
 
-        public void UpdateAnswer(int id, UpdateAnswerDto dto)
+        public async Task UpdateAnswer(int id, UpdateAnswerDto dto)
         {
-            var answer = _dbContext.Answers.Find(id);
+            var answer = await _dbContext.Answers.FindAsync(id);
+
             if (answer == null)
                 throw new KeyNotFoundException($"Answer with ID {id} not found.");
 
-            var question = _dbContext.Questions.Find(dto.QuestionId);
+            var question = await _dbContext.Questions.FindAsync(dto.QuestionId);
+            
             if (question == null)
                 throw new KeyNotFoundException($"Question with ID {dto.QuestionId} not found.");
 
             _mapper.Map(dto, answer);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
-            _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідація кешу
+            await _ver.BumpAsync(); // інвалідація кешу
         }
 
-        public void DeleteAnswer(int id)
+        public async Task DeleteAnswer(int id)
         {
-            var answer = _dbContext.Answers.Find(id);
+            var answer = await _dbContext.Answers.FindAsync(id);
+
             if (answer == null)
                 throw new KeyNotFoundException($"Answer with ID {id} not found.");
 
             _dbContext.Answers.Remove(answer);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
-            _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідація кешу
+            await _ver.BumpAsync(); // інвалідація кешу
         }
 
-        public List<AnswerDto> GetAllAnswersByQuestionId(int questionId)
+        public async Task<List<AnswerDto>> GetAllAnswersByQuestionId(int questionId)
         {
-            var answers = _dbContext.Answers
+            var answers = await _dbContext.Answers
                 .Where(answer => answer.QuestionId == questionId)
-                .ToList();
+                .ToListAsync();
 
             return _mapper.Map<List<AnswerDto>>(answers);
         }

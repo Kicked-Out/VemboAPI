@@ -3,6 +3,7 @@ using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.DTOs;
 using VemboAPI.Domain.Entities;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace VemboAPI.Infrastructure.Services
 {
@@ -17,52 +18,57 @@ namespace VemboAPI.Infrastructure.Services
             _mapper = mapper;
         }
 
-        public List<UserExerciseMistakeDto> GetAllMistakes()
+        public async Task<List<UserExerciseMistakeDto>> GetAllMistakes()
         {
-            var mistakes = _dbContext.UserExerciseMistakes.ToList();
+            var mistakes = await _dbContext.UserExerciseMistakes.ToListAsync();
+
             return _mapper.Map<List<UserExerciseMistakeDto>>(mistakes);
         }
 
-        public UserExerciseMistakeDto GetMistakeById(int id)
+        public async Task<UserExerciseMistakeDto> GetMistakeById(int id)
         {
-            var mistake = _dbContext.UserExerciseMistakes.Find(id);
+            var mistake = await _dbContext.UserExerciseMistakes.FindAsync(id);
+
             if (mistake == null)
                 throw new KeyNotFoundException($"Mistake with ID {id} not found.");
 
             return _mapper.Map<UserExerciseMistakeDto>(mistake);
         }
 
-        public UserExerciseMistakeDto CreateMistake(CreateUserExerciseMistakeDto dto)
+        public async Task<UserExerciseMistakeDto> CreateMistake(CreateUserExerciseMistakeDto dto)
         {
             var mistake = _mapper.Map<UserExerciseMistake>(dto);
 
-            _dbContext.UserExerciseMistakes.Add(mistake);
-            _dbContext.SaveChanges();
+            await _dbContext.UserExerciseMistakes.AddAsync(mistake);
+            await _dbContext.SaveChangesAsync();
 
             return _mapper.Map<UserExerciseMistakeDto>(mistake);
         }
 
 
-        public void UpdateMistake(int id, UpdateUserExerciseMistakeDto dto)
+        public async Task UpdateMistake(int id, UpdateUserExerciseMistakeDto dto)
         {
-            var mistake = _dbContext.UserExerciseMistakes.Find(id);
+            var mistake = await _dbContext.UserExerciseMistakes.FindAsync(id);
+
             if (mistake == null)
                 throw new KeyNotFoundException($"Mistake with ID {id} not found.");
 
             _mapper.Map(dto, mistake);
-            _dbContext.SaveChanges();
+            
+            await _dbContext.SaveChangesAsync();
         }
 
 
 
-        public void DeleteMistake(int id)
+        public async Task DeleteMistake(int id)
         {
-            var mistake = _dbContext.UserExerciseMistakes.Find(id);
+            var mistake = await _dbContext.UserExerciseMistakes.FindAsync(id);
+
             if (mistake == null)
                 throw new KeyNotFoundException($"Mistake with ID {id} not found.");
 
             _dbContext.UserExerciseMistakes.Remove(mistake);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

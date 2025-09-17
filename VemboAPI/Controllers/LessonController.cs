@@ -16,27 +16,29 @@ namespace VemboAPI.API.Controllers
         }
 
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            var lessons = _lessonService.GetAllLessons();
+            var lessons = await _lessonService.GetAllLessons();
+            
             return Ok(lessons);
         }
 
         [HttpGet("Level/{levelId}")]
-        public IActionResult GetByLevelId(int levelId)
+        public async Task<IActionResult> GetByLevelId(int levelId)
         {
-            var lessons = _lessonService.GetAllLessonsByLevelId(levelId);
+            var lessons = await _lessonService.GetAllLessonsByLevelId(levelId);
 
             return Ok(lessons);
         }
 
 
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
             try
             {
-                var lesson = _lessonService.GetLessonById(id);
+                var lesson = await _lessonService.GetLessonById(id);
+                
                 return Ok(lesson);
             }
             catch (KeyNotFoundException ex)
@@ -45,11 +47,12 @@ namespace VemboAPI.API.Controllers
             }
         }
         [HttpPost]
-        public IActionResult Post([FromBody] CreateLessonDto dto)
+        public async Task<IActionResult> Post([FromBody] CreateLessonDto dto)
         {
             try
             {
-                var created = _lessonService.CreateLesson(dto);
+                var created = await _lessonService.CreateLesson(dto);
+                
                 return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
             }
             catch (KeyNotFoundException ex)
@@ -59,11 +62,12 @@ namespace VemboAPI.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] UpdateLessonDto dto)
+        public async Task<IActionResult> Put(int id, [FromBody] UpdateLessonDto dto)
         {
             try
             {
-                _lessonService.UpdateLesson(id, dto);
+                await _lessonService.UpdateLesson(id, dto);
+                
                 return Ok();
             }
             catch (KeyNotFoundException ex)
@@ -74,11 +78,12 @@ namespace VemboAPI.API.Controllers
 
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                _lessonService.DeleteLesson(id);
+                await _lessonService.DeleteLesson(id);
+
                 return Ok();
             }
             catch (KeyNotFoundException ex)

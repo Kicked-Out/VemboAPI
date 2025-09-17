@@ -5,12 +5,12 @@ namespace VemboAPI.Infrastructure.Interfaces
 {
     public interface IExerciseTypeService
     {
-        List<ExerciseTypeDto> GetAllExerciseTypes();
-        ExerciseTypeDto GetExerciseTypeById(int id);
-        ExerciseTypeDto CreateExerciseType(CreateExerciseTypeDto dto);
-        void UpdateExerciseType(int id, UpdateExerciseTypeDto dto);
+        Task<List<ExerciseTypeDto>> GetAllExerciseTypes();
+        Task<ExerciseTypeDto> GetExerciseTypeById(int id);
+        Task<ExerciseTypeDto> CreateExerciseType(CreateExerciseTypeDto dto);
+        Task UpdateExerciseType(int id, UpdateExerciseTypeDto dto);
 
-        void DeleteExerciseType(int id);
+        Task DeleteExerciseType(int id);
     }
 
 }

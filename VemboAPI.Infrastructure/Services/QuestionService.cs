@@ -3,6 +3,7 @@ using VemboAPI.Infrastructure.Interfaces; // ICacheService, IContentVersionServi
 using VemboAPI.Domain.Entities;
 using VemboAPI.Domain.DTOs;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace VemboAPI.Infrastructure.Services
 {
@@ -25,86 +26,88 @@ namespace VemboAPI.Infrastructure.Services
             _ver = ver;
         }
 
-        public List<QuestionDto> GetAllQuestions()
+        public async Task<List<QuestionDto>> GetAllQuestions()
         {
-            var v = _ver.GetVersionAsync().GetAwaiter().GetResult();
+            var v = await _ver.GetVersionAsync();
             var key = $"content:questions:all:v{v}";
 
-            var list = _cache.GetOrSetAsync(key, () =>
+            var list = await _cache.GetOrSetAsync(key, async () =>
             {
-                var questions = _dbContext.Questions.ToList(); // синхронно ок
+                var questions = await _dbContext.Questions.ToListAsync(); // синхронно ок
                 var mapped = _mapper.Map<List<QuestionDto>>(questions);
-                return Task.FromResult(mapped);
-            }, ttl: null).GetAwaiter().GetResult();
+                return mapped;
+            }, ttl: null);
 
             return list;
         }
 
-        public QuestionDto GetQuestionById(int id)
+        public async Task<QuestionDto> GetQuestionById(int id)
         {
-            var v = _ver.GetVersionAsync().GetAwaiter().GetResult();
+            var v = await _ver.GetVersionAsync();
             var key = $"content:question:{id}:v{v}";
 
-            var dto = _cache.GetOrSetAsync(key, () =>
+            var dto = await _cache.GetOrSetAsync(key, async () =>
             {
-                var question = _dbContext.Questions.Find(id);
+                var question = await _dbContext.Questions.FindAsync(id);
                 if (question == null)
                     throw new KeyNotFoundException($"Question with ID {id} not found.");
 
                 var mapped = _mapper.Map<QuestionDto>(question);
-                return Task.FromResult(mapped);
-            }, ttl: null).GetAwaiter().GetResult();
+                return mapped;
+            }, ttl: null);
 
             return dto!;
         }
 
-        public QuestionDto CreateQuestion(CreateQuestionDto dto)
+        public async Task<QuestionDto> CreateQuestion(CreateQuestionDto dto)
         {
-            if (!_dbContext.Exercises.Any(e => e.Id == dto.ExerciseId))
+            if (!await _dbContext.Exercises.AnyAsync(e => e.Id == dto.ExerciseId))
                 throw new KeyNotFoundException($"Exercise with ID {dto.ExerciseId} not found.");
 
             var question = _mapper.Map<Question>(dto);
 
-            _dbContext.Questions.Add(question);
-            _dbContext.SaveChanges();
+            await _dbContext.Questions.AddAsync(question);
+            await _dbContext.SaveChangesAsync();
 
-            _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідація кешу
+            await _ver.BumpAsync(); // інвалідація кешу
 
             return _mapper.Map<QuestionDto>(question);
         }
 
-        public void UpdateQuestion(int id, UpdateQuestionDto dto)
+        public async Task UpdateQuestion(int id, UpdateQuestionDto dto)
         {
-            var question = _dbContext.Questions.Find(id);
+            var question = await _dbContext.Questions.FindAsync(id);
+
             if (question == null)
                 throw new KeyNotFoundException($"Question with ID {id} not found.");
 
-            if (!_dbContext.Exercises.Any(e => e.Id == dto.ExerciseId))
+            if (!await _dbContext.Exercises.AnyAsync(e => e.Id == dto.ExerciseId))
                 throw new KeyNotFoundException($"Exercise with ID {dto.ExerciseId} not found.");
 
             _mapper.Map(dto, question);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
-            _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідація кешу
+            await _ver.BumpAsync(); // інвалідація кешу
         }
 
-        public void DeleteQuestion(int id)
+        public async Task DeleteQuestion(int id)
         {
-            var question = _dbContext.Questions.Find(id);
+            var question = await _dbContext.Questions.FindAsync(id);
+
             if (question == null)
                 throw new KeyNotFoundException($"Question with ID {id} not found.");
 
             _dbContext.Questions.Remove(question);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
-            _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідація кешу
+            await _ver.BumpAsync(); // інвалідація кешу
         }
 
-        public List<QuestionDto> GetAllQuestionsByExcerciseId(int excerciseId)
+        public async Task<List<QuestionDto>> GetAllQuestionsByExcerciseId(int exerciseId)
         {
-            var questions = _dbContext.Questions
-                .ToList()
-                .FindAll(question => question.ExerciseId == excerciseId);
+            var questions = await _dbContext.Questions
+                .Where(question => question.ExerciseId == exerciseId)
+                .ToListAsync();
 
             return _mapper.Map<List<QuestionDto>>(questions);
         }

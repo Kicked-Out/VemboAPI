@@ -13,17 +13,20 @@ namespace VemboAPI.Infrastructure.Services
         private readonly IMapper _mapper;
         private readonly ICacheService _cache;
         private readonly IContentVersionService _ver;
+        private readonly IUploadService _uploadService;
 
         public AchievementService(
             VemboDbContext context,
             IMapper mapper,
             ICacheService cache,
-            IContentVersionService ver)
+            IContentVersionService ver,
+            IUploadService uploadService)
         {
             _context = context;
             _mapper = mapper;
             _cache = cache;
             _ver = ver;
+            _uploadService = uploadService;
         }
 
         public async Task<List<AchievementDto>> GetAllAsync()
@@ -68,8 +71,8 @@ namespace VemboAPI.Infrastructure.Services
             if (entity == null) throw new Exception("Not found");
 
             _mapper.Map(dto, entity);
-            await _context.SaveChangesAsync();
 
+            await _context.SaveChangesAsync();
             await _ver.BumpAsync(); // інвалідація кешу
 
             return _mapper.Map<AchievementDto>(entity);

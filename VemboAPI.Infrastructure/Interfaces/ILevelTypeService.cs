@@ -1,14 +1,13 @@
 ﻿using VemboAPI.Domain.DTOs;
-using System.Collections.Generic;
 
 namespace VemboAPI.Infrastructure.Interfaces
 {
     public interface ILevelTypeService
     {
-        List<LevelTypeDto> GetAll();
-        LevelTypeDto GetById(int id);
-        LevelTypeDto Create(CreateLevelTypeDto dto);
-        void Update(int id, UpdateLevelTypeDto dto);
-        void Delete(int id);
+        Task<List<LevelTypeDto>> GetAll();
+        Task<LevelTypeDto> GetById(int id);
+        Task<LevelTypeDto> Create(CreateLevelTypeDto dto);
+        Task Update(int id, UpdateLevelTypeDto dto);
+        Task Delete(int id);
     }
 }

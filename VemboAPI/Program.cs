@@ -17,6 +17,7 @@ using Hangfire;
 using Hangfire.SqlServer;
 using VemboAPI.Jobs;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.FileProviders;
 
 public class Program
 {
@@ -173,6 +174,7 @@ public class Program
         builder.Services.AddSingleton<ICacheService, RedisCacheService>();
         builder.Services.AddSingleton<IContentVersionService, ContentVersionService>();
         builder.Services.AddScoped<IEmailService, EmailService>();
+        builder.Services.AddScoped<IUploadService, UploadService>();
 
         builder.Services.AddTransient<CacheWarmupJob>(); 
 
@@ -207,7 +209,15 @@ public class Program
             {
                 app.Logger.LogError(ex, "❌ Redis connection failed.");
             }
-}
+        }
+
+        app.UseStaticFiles(new StaticFileOptions
+        {
+            FileProvider = new PhysicalFileProvider(
+                Path.Combine(builder.Environment.ContentRootPath, "Assets")),
+            RequestPath = "/assets"
+        });
+
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();

@@ -6,10 +6,10 @@ namespace VemboAPI.Infrastructure.Interfaces
 {
     public interface IPeriodService
     {
-        List<PeriodDto> GetAllPeriods();
-        PeriodDto GetPeriodById(int id);
-        PeriodDto CreatePeriod(CreatePeriodDto dto);
-        void UpdatePeriod(int id, UpdatePeriodDto dto);
-        void DeletePeriod(int id);
+        Task<List<PeriodDto>> GetAllPeriods();
+        Task<PeriodDto> GetPeriodById(int id);
+        Task<PeriodDto> CreatePeriod(CreatePeriodDto dto);
+        Task UpdatePeriod(int id, UpdatePeriodDto dto);
+        Task DeletePeriod(int id);
     }
 }
