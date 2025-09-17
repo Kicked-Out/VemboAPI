@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VemboAPI.Infrastructure.Interfaces;
-
 using VemboAPI.Domain.DTOs;
 using Microsoft.AspNetCore.Authorization;
-using System.Data;
-using System.Security.Claims;
 
 namespace VemboAPI.API.Controllers
 {
@@ -21,53 +18,55 @@ namespace VemboAPI.API.Controllers
         [Authorize]
 
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
             string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
 
-            var result = _service.GetAllUserUnitProgress(userId);
+            var result = await _service.GetAllUserUnitProgress(userId);
+            
             return Ok(result);
         }
 
         [Authorize]
         [HttpGet("Topic/{topicId}")]
-        public IActionResult GetAllByTopicId(int topicId)
+        public async Task<IActionResult> GetAllByTopicId(int topicId)
         {
             string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
 
-            var result = _service.GetAllUserUnitProgressByTopicId(userId, topicId);
+            var result = await _service.GetAllUserUnitProgressByTopicId(userId, topicId);
 
             return Ok(result);
         }
 
         [Authorize]
         [HttpGet("Unit/{unitId}")]
-        public IActionResult GetByUnitId(int unitId)
+        public async Task<IActionResult> GetByUnitId(int unitId)
         {
             string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
 
-            var result = _service.GetUserUnitProgressByUnitId(userId, unitId);
+            var result = await _service.GetUserUnitProgressByUnitId(userId, unitId);
 
             return Ok(result);
         }
         [Authorize]
         [HttpGet("Current/Topic/{topicId}")]
-        public IActionResult GetCurrent(int topicId)
+        public async Task<IActionResult> GetCurrent(int topicId)
         {
             string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
 
-            var result = _service.GetCurrentUserUnitProgress(userId, topicId);
+            var result = await _service.GetCurrentUserUnitProgress(userId, topicId);
 
             return Ok(result);
         }
 
         [Authorize]
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
             try
             {
-                var progress = _service.GetUserUnitProgressById(id);
+                var progress = await _service.GetUserUnitProgressById(id);
+                
                 return Ok(progress);
             }
             catch (KeyNotFoundException ex)
@@ -77,19 +76,21 @@ namespace VemboAPI.API.Controllers
         }
         [Authorize]
         [HttpPost]
-        public IActionResult Post([FromBody] CreateUserUnitProgressDto dto)
+        public async Task<IActionResult> Post([FromBody] CreateUserUnitProgressDto dto)
         {
-            var created = _service.CreateUserUnitProgress(dto);
+            var created = await _service.CreateUserUnitProgress(dto);
+            
             return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] UpdateUserUnitProgressDto dto)
+        public async Task<IActionResult> Put(int id, [FromBody] UpdateUserUnitProgressDto dto)
         {
             try
             {
-                _service.UpdateUserUnitProgress(id, dto);
+                await _service.UpdateUserUnitProgress(id, dto);
+                
                 return Ok();
             }
             catch (KeyNotFoundException ex)
@@ -101,11 +102,12 @@ namespace VemboAPI.API.Controllers
         [Authorize(Roles = "Admin")]
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                _service.DeleteUserUnitProgress(id);
+                await _service.DeleteUserUnitProgress(id);
+                
                 return Ok();
             }
             catch (KeyNotFoundException ex)

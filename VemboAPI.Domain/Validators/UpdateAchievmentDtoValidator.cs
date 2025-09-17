@@ -10,7 +10,7 @@ namespace VemboAPI.Domain.Validators
         {
             RuleFor(x => x.Title).NotEmpty().MaximumLength(30);
             RuleFor(x => x.Description).NotEmpty().MaximumLength(250);
-            RuleFor(x => x.IconUrl).NotEmpty().MaximumLength(300);
+            //RuleFor(x => x.IconUrl).NotEmpty().MaximumLength(300);
         }
     }
 

@@ -2,7 +2,6 @@
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.DTOs;
 using Microsoft.AspNetCore.Authorization;
-using System.Data;
 using System.Security.Claims;
 
 namespace VemboAPI.API.Controllers
@@ -19,59 +18,63 @@ namespace VemboAPI.API.Controllers
         }
         [Authorize]
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
             string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
 
-            var result = _service.GetAllLessonProgress(userId);
+            var result = await _service.GetAllLessonProgress(userId);
+            
             return Ok(result);
         }
 
         [Authorize]
         [HttpGet("Level/{levelId}")]
-        public IActionResult GetAll(int levelId)
+        public async Task<IActionResult> GetAll(int levelId)
         {
             string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
 
-            var result = _service.GetAllLessonProgressByLevelId(userId, levelId);
+            var result = await _service.GetAllLessonProgressByLevelId(userId, levelId);
 
             return Ok(result);
         }
 
         [Authorize]
         [HttpGet("Current/{levelId}")]
-        public IActionResult GetCurrent(int levelId)
+        public async Task<IActionResult> GetCurrent(int levelId)
         {
             string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
 
-            var result = _service.GetCurrentLessonProgressByLevelId(userId, levelId);
+            var result = await _service.GetCurrentLessonProgressByLevelId(userId, levelId);
 
             return Ok(result);
         }
 
         [Authorize]
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
             string userId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
-            var ensured = _service.EnsureProgressExists(userId, id);
+            var ensured = await _service.EnsureProgressExists(userId, id);
+            
             return Ok(ensured);
         }
         [Authorize]
         [HttpPost]
-        public IActionResult Post([FromBody] CreateUserLessonProgressDto dto)
+        public async Task<IActionResult> Post([FromBody] CreateUserLessonProgressDto dto)
         {
-            var created = _service.CreateLessonProgress(dto);
+            var created = await _service.CreateLessonProgress(dto);
+            
             return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] UpdateUserLessonProgressDto dto)
+        public async Task<IActionResult> Put(int id, [FromBody] UpdateUserLessonProgressDto dto)
         {
             try
             {
-                _service.UpdateLessonProgress(id, dto);
+                await _service.UpdateLessonProgress(id, dto);
+                
                 return Ok();
             }
             catch (KeyNotFoundException ex)
@@ -81,13 +84,13 @@ namespace VemboAPI.API.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                _service.DeleteLessonProgress(id);
+                await _service.DeleteLessonProgress(id);
+                
                 return Ok();
             }
             catch (KeyNotFoundException ex)

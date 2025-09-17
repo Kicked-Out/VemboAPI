@@ -3,6 +3,7 @@ using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.Entities;
 using VemboAPI.Domain.DTOs;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace VemboAPI.Infrastructure.Services
 {
@@ -17,24 +18,26 @@ namespace VemboAPI.Infrastructure.Services
             _mapper = mapper;
         }
 
-        public List<UserLevelProgressDto> GetAllUserLevelProgress(string userId)
+        public async Task<List<UserLevelProgressDto>> GetAllUserLevelProgress(string userId)
         {
-            var progresses = _dbContext.UserLevelProgresses.ToList().FindAll(levelProgress => levelProgress.UserId == userId);
+            var progresses = await _dbContext.UserLevelProgresses.Where(levelProgress => levelProgress.UserId == userId).ToListAsync();
+
             return _mapper.Map<List<UserLevelProgressDto>>(progresses);
         }
 
-        public UserLevelProgressDto GetUserLevelProgressById(int id)
+        public async Task<UserLevelProgressDto> GetUserLevelProgressById(int id)
         {
-            var progress = _dbContext.UserLevelProgresses.Find(id);
+            var progress = await _dbContext.UserLevelProgresses.FindAsync(id);
+            
             if (progress == null)
                 throw new KeyNotFoundException($"UserLevelProgress with ID {id} not found.");
 
             return _mapper.Map<UserLevelProgressDto>(progress);
         }
-        public UserLevelProgressDto EnsureProgressExists(string userId, int levelId)
+        public async Task<UserLevelProgressDto> EnsureProgressExists(string userId, int levelId)
         {
-            var existing = _dbContext.UserLevelProgresses
-                .FirstOrDefault(p => p.UserId == userId && p.LevelId == levelId);
+            var existing = await _dbContext.UserLevelProgresses
+                .FirstOrDefaultAsync(p => p.UserId == userId && p.LevelId == levelId);
 
             if (existing != null)
                 return _mapper.Map<UserLevelProgressDto>(existing);
@@ -46,18 +49,18 @@ namespace VemboAPI.Infrastructure.Services
                 CompletedCount = 0
             };
 
-            _dbContext.UserLevelProgresses.Add(progress);
-            _dbContext.SaveChanges();
+            await _dbContext.UserLevelProgresses.AddAsync(progress);
+            await _dbContext.SaveChangesAsync();
 
             return _mapper.Map<UserLevelProgressDto>(progress);
         }
 
-        public UserLevelProgressDto GetUserLevelProgressByLevelId(string userId, int levelId)
+        public async Task<UserLevelProgressDto> GetUserLevelProgressByLevelId(string userId, int levelId)
         {
-            var progress = _dbContext.UserLevelProgresses
-                .ToList()
-                .FindAll(levelProgress => levelProgress.UserId == userId)
-                .Find(levelProgress => levelProgress.LevelId == levelId);
+            var progress = await _dbContext.UserLevelProgresses
+                .Where(levelProgress => levelProgress.UserId == userId)
+                .Where(levelProgress => levelProgress.LevelId == levelId)
+                .FirstOrDefaultAsync();
 
             if (progress == null)
             {
@@ -67,37 +70,40 @@ namespace VemboAPI.Infrastructure.Services
             return _mapper.Map<UserLevelProgressDto>(progress);
         }
 
-        public UserLevelProgressDto CreateUserLevelProgress(CreateUserLevelProgressDto dto)
+        public async Task<UserLevelProgressDto> CreateUserLevelProgress(CreateUserLevelProgressDto dto)
         {
             var progress = _mapper.Map<UserLevelProgress>(dto);
 
-            _dbContext.UserLevelProgresses.Add(progress);
-            _dbContext.SaveChanges();
+            await _dbContext.UserLevelProgresses.AddAsync(progress);
+            await _dbContext.SaveChangesAsync();
 
             return _mapper.Map<UserLevelProgressDto>(progress);
         }
 
 
-        public void UpdateUserLevelProgress(int id, UpdateUserLevelProgressDto dto)
+        public async Task UpdateUserLevelProgress(int id, UpdateUserLevelProgressDto dto)
         {
-            var progress = _dbContext.UserLevelProgresses.Find(id);
+            var progress = await _dbContext.UserLevelProgresses.FindAsync(id);
+
             if (progress == null)
                 throw new KeyNotFoundException($"UserLevelProgress with ID {id} not found.");
 
             _mapper.Map(dto, progress);
-            _dbContext.SaveChanges();
+            
+            await _dbContext.SaveChangesAsync();
         }
 
 
 
-        public void DeleteUserLevelProgress(int id)
+        public async Task DeleteUserLevelProgress(int id)
         {
-            var progress = _dbContext.UserLevelProgresses.Find(id);
+            var progress = await _dbContext.UserLevelProgresses.FindAsync(id);
+
             if (progress == null)
                 throw new KeyNotFoundException($"UserLevelProgress with ID {id} not found.");
 
             _dbContext.UserLevelProgresses.Remove(progress);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

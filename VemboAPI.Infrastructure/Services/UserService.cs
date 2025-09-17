@@ -4,6 +4,7 @@ using VemboAPI.Domain.Entities;
 using VemboAPI.Domain.DTOs;
 using AutoMapper;
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace VemboAPI.Infrastructure.Services
@@ -12,16 +13,19 @@ namespace VemboAPI.Infrastructure.Services
     {
         private readonly VemboDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly IUploadService _uploadService;
 
-        public UserService(VemboDbContext dbContext, IMapper mapper)
+        public UserService(VemboDbContext dbContext, IMapper mapper, IUploadService uploadService)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _uploadService = uploadService;
         }
 
-        public void CreateUser(CreateUserDto dto)
+        public async Task CreateUser(CreateUserDto dto)
         {
             var user = _mapper.Map<User>(dto);
+            
             user.NickNameSlug = dto.NickName.ToLower().Replace(" ", "-");
             user.Level = 1;
             user.Rating = 0;
@@ -30,24 +34,25 @@ namespace VemboAPI.Infrastructure.Services
             user.CreatedAt = DateTime.UtcNow;
             user.UpdatedAt = DateTime.UtcNow;
 
-            _dbContext.Users.Add(user);
-            _dbContext.SaveChanges();
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.SaveChangesAsync();
         }
 
 
-        public void DeleteUser(int id)
+        public async Task DeleteUser(int id)
         {
-            var user = _dbContext.Users.Find(id);
+            var user = await _dbContext.Users.FindAsync(id);
+
             if (user == null)
                 throw new KeyNotFoundException($"User with ID {id} not found.");
 
             _dbContext.Users.Remove(user);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        public List<UserDto> GetAllUsers()
+        public async Task<List<UserDto>> GetAllUsers()
         {
-            var users = _dbContext.Users.ToList();
+            var users = await _dbContext.Users.ToListAsync();
 
             // якщо ти хочеш залишити NickName в UpperCase:
             foreach (var u in users)
@@ -56,37 +61,47 @@ namespace VemboAPI.Infrastructure.Services
             return _mapper.Map<List<UserDto>>(users);
         }
 
-        public UserDto GetUserById(string id)
+        public async Task<UserDto> GetUserById(string id)
         {
-            var user = _dbContext.Users.Find(id);
+            var user = await _dbContext.Users.FindAsync(id);
+
             if (user == null)
                 throw new KeyNotFoundException($"User with ID {id} not found.");
 
             return _mapper.Map<UserDto>(user);
         }
 
-        public UserDto GetUserByNickNameSlug(string nickNameSlug)
+        public async Task<UserDto> GetUserByNickNameSlug(string nickNameSlug)
         {
-            var user = _dbContext.Users
-                .ToList()
-                .Find(user => user.NickNameSlug == nickNameSlug);
+            var user = await _dbContext.Users
+                .Where(user => user.NickNameSlug == nickNameSlug)
+                .ToListAsync();
 
             return _mapper.Map<UserDto>(user);
         }
 
-        public void UpdateUser(int id, UpdateUserDto dto)
+        public async Task UpdateUser(string id, UpdateUserDto dto)
         {
-            var user = _dbContext.Users.Find(id);
+            var user = await _dbContext.Users.FindAsync(id);
+
             if (user == null)
                 throw new KeyNotFoundException($"User with ID {id} not found.");
 
             _mapper.Map(dto, user);
+            user.NickNameSlug = dto.NickName.ToLower().Replace(" ", "-");
             user.UpdatedAt = DateTime.UtcNow;
 
+            if (dto.Avatar != null)
+            {
+                string path = _uploadService.UploadFile("Profiles", id, dto.Avatar);
+
+                user.AvatarUrl = path;
+            }
+
             _dbContext.Users.Update(user);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
-        public async Task UpdateRoleAsync(int userId, string newRole)
+        public async Task UpdateRoleAsync(string userId, string newRole)
         {
             var user = await _dbContext.Users.FindAsync(userId);
             if (user == null)

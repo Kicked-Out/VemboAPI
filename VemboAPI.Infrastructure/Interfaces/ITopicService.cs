@@ -5,10 +5,10 @@ namespace VemboAPI.Infrastructure.Interfaces
 {
     public interface ITopicService
     {
-        List<TopicDto> GetAllTopics();
-        TopicDto GetTopicById(int id);
-        TopicDto CreateTopic(TopicCreateDto dto);
-        void UpdateTopic(int id, TopicUpdateDto dto);
-        void DeleteTopic(int id);
+        Task<List<TopicDto>> GetAllTopics();
+        Task<TopicDto> GetTopicById(int id);
+        Task<TopicDto> CreateTopic(TopicCreateDto dto);
+        Task UpdateTopic(int id, TopicUpdateDto dto);
+        Task DeleteTopic(int id);
     }
 }

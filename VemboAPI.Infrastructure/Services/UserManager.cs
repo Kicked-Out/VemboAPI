@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using VemboAPI.Domain.Entities;
 using VemboAPI.Infrastructure.Data;
 using VemboAPI.Infrastructure.Interfaces;

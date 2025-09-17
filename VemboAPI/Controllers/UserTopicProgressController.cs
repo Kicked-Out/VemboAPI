@@ -19,60 +19,64 @@ namespace VemboAPI.API.Controllers
 
         [Authorize]
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
             string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
             
-            var result = _service.GetAllUserTopicProgress(userId);
+            var result = await _service.GetAllUserTopicProgress(userId);
+            
             return Ok(result);
         }
 
         [Authorize]
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
             string userId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
-            var ensured = _service.EnsureProgressExists(userId, id);
+            var ensured = await _service.EnsureProgressExists(userId, id);
+            
             return Ok(ensured);
         }
 
         [Authorize]
         [HttpGet("Period/{periodId}")]
-        public IActionResult GetAllByPeriodId(int periodId)
+        public async Task<IActionResult> GetAllByPeriodId(int periodId)
         {
             string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
 
-            var result = _service.GetAllUserTopicProgressByPeriodId(userId, periodId);
+            var result = await _service.GetAllUserTopicProgressByPeriodId(userId, periodId);
 
             return Ok(result);
         }
 
         [Authorize]
         [HttpGet("Current/Period/{periodId}")]
-        public IActionResult GetCurrentByPeriodId(int periodId)
+        public async Task<IActionResult> GetCurrentByPeriodId(int periodId)
         {
             string userId = User.FindFirst("\"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
 
-            var result = _service.GetCurrentUserTopicProgress(userId, periodId);
+            var result = await _service.GetCurrentUserTopicProgress(userId, periodId);
 
             return Ok(result);
         }
 
         [Authorize]
         [HttpPost]
-        public IActionResult Post([FromBody] CreateUserTopicProgressDto dto)
+        public async Task<IActionResult> Post([FromBody] CreateUserTopicProgressDto dto)
         {
-            var created = _service.CreateUserTopicProgress(dto);
+            var created = await _service.CreateUserTopicProgress(dto);
+            
             return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] UpdateUserTopicProgressDto dto)
+        public async Task<IActionResult> Put(int id, [FromBody] UpdateUserTopicProgressDto dto)
         {
             try
             {
-                _service.UpdateUserTopicProgress(id, dto);
+                await _service.UpdateUserTopicProgress(id, dto);
+                
                 return Ok();
             }
             catch (KeyNotFoundException ex)
@@ -83,11 +87,12 @@ namespace VemboAPI.API.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                _service.DeleteUserTopicProgress(id);
+                await _service.DeleteUserTopicProgress(id);
+                
                 return Ok();
             }
             catch (KeyNotFoundException ex)

@@ -2,7 +2,6 @@
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.DTOs;
 using Microsoft.AspNetCore.Authorization;
-using System.Data;
 
 namespace VemboAPI.API.Controllers
 {
@@ -19,19 +18,21 @@ namespace VemboAPI.API.Controllers
         [Authorize]
 
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            var types = _exerciseTypeService.GetAllExerciseTypes();
+            var types = await _exerciseTypeService.GetAllExerciseTypes();
+            
             return Ok(types);
         }
         [Authorize]
 
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
             try
             {
-                var type = _exerciseTypeService.GetExerciseTypeById(id);
+                var type = await _exerciseTypeService.GetExerciseTypeById(id);
+                
                 return Ok(type);
             }
             catch (KeyNotFoundException ex)
@@ -41,19 +42,21 @@ namespace VemboAPI.API.Controllers
         }
         [Authorize]
         [HttpPost]
-        public IActionResult Post([FromBody] CreateExerciseTypeDto dto)
+        public async Task<IActionResult> Post([FromBody] CreateExerciseTypeDto dto)
         {
-            var created = _exerciseTypeService.CreateExerciseType(dto);
+            var created = await _exerciseTypeService.CreateExerciseType(dto);
+
             return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] UpdateExerciseTypeDto dto)
+        public async Task<IActionResult> Put(int id, [FromBody] UpdateExerciseTypeDto dto)
         {
             try
             {
-                _exerciseTypeService.UpdateExerciseType(id, dto);
+                await _exerciseTypeService.UpdateExerciseType(id, dto);
+                
                 return Ok();
             }
             catch (KeyNotFoundException ex)
@@ -65,11 +68,12 @@ namespace VemboAPI.API.Controllers
         [Authorize(Roles = "Admin")]
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                _exerciseTypeService.DeleteExerciseType(id);
+                await _exerciseTypeService.DeleteExerciseType(id);
+
                 return Ok();
             }
             catch (KeyNotFoundException ex)

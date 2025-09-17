@@ -16,50 +16,54 @@ public class UserController : Controller
         _userService = userService;
     }
 
-    private int? GetUserIdFromClaims()
+    private string? GetUserIdFromClaims()
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
                           ?? User.FindFirst("sub")?.Value;
 
-        return int.TryParse(userIdClaim, out var userId) ? userId : (int?)null;
+        return userIdClaim;
     }
 
     [Authorize]
     [HttpGet]
-    public IActionResult GetAll()
+    public async Task<IActionResult> GetAll()
     {
-        var users = _userService.GetAllUsers();
+        var users = await _userService.GetAllUsers();
+
         if (users == null || users.Count == 0)
             return NotFound("No users found.");
+        
         return Ok(users);
     }
 
     [Authorize]
     [HttpGet("Current")]
-    public IActionResult Get()
+    public async Task<IActionResult> Get()
     {
         string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
 
-        UserDto user = _userService.GetUserById(userId);
+        UserDto user = await _userService.GetUserById(userId);
 
         return Ok(user);
     }
 
     [Authorize]
     [HttpGet("{id}")]
-    public IActionResult Get(string id)
+    public async Task<IActionResult> Get(string id)
     {
-        var user = _userService.GetUserById(id);
+        var user = await _userService.GetUserById(id);
+
         if (user == null)
             return NotFound($"User with ID {id} not found.");
+        
         return Ok(user);
     }
 
     [Authorize]
     [HttpGet("NickNameSlug/{nickNameSlug}")]
-    public IActionResult GetByNickNameSlug(string nickNameSlug)
+    public async Task<IActionResult> GetByNickNameSlug(string nickNameSlug)
     {
-        var user = _userService.GetUserByNickNameSlug(nickNameSlug);
+        var user = await _userService.GetUserByNickNameSlug(nickNameSlug);
 
         if (user == null)
         {
@@ -71,7 +75,7 @@ public class UserController : Controller
 
     [Authorize]
     [HttpPost]
-    public IActionResult Post([FromBody] CreateUserDto dto)
+    public async Task<IActionResult> Post([FromBody] CreateUserDto dto)
     {
         if (dto == null ||
             string.IsNullOrWhiteSpace(dto.NickName) ||
@@ -79,13 +83,14 @@ public class UserController : Controller
             string.IsNullOrWhiteSpace(dto.Email))
             return BadRequest("Invalid user data.");
 
-        _userService.CreateUser(dto);
+        await _userService.CreateUser(dto);
+
         return Ok("User created successfully.");
     }
 
     [Authorize]
     [HttpPut("me")]
-    public IActionResult UpdateSelf([FromBody] UpdateUserDto dto)
+    public async Task<IActionResult> UpdateSelf([FromForm] UpdateUserDto dto)
     {
         var userId = GetUserIdFromClaims();
 
@@ -94,7 +99,8 @@ public class UserController : Controller
 
         try
         {
-            _userService.UpdateUser(userId.Value, dto);
+            await _userService.UpdateUser(userId, dto);
+            
             return Ok("User updated successfully.");
         }
         catch (KeyNotFoundException ex)
@@ -106,11 +112,12 @@ public class UserController : Controller
 
     [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
-    public IActionResult Delete(int id)
+    public async Task<IActionResult> Delete(int id)
     {
         try
         {
-            _userService.DeleteUser(id);
+            await _userService.DeleteUser(id);
+            
             return Ok("User deleted successfully.");
         }
         catch (KeyNotFoundException ex)
@@ -127,7 +134,7 @@ public class UserController : Controller
         if (userId == null)
             return Unauthorized();
 
-        await _userService.UpdateRoleAsync(userId.Value, newRole);
+        await _userService.UpdateRoleAsync(userId, newRole);
         return Ok($"Role updated to {newRole}.");
     }
 

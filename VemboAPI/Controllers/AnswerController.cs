@@ -18,28 +18,28 @@ namespace VemboAPI.API.Controllers
         
         [Authorize]
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            var answers = _answerService.GetAllAnswers();
+            var answers = await _answerService.GetAllAnswers();
             return Ok(answers);
         }
 
         [Authorize]
         [HttpGet("Question/{questionId}")]
-        public IActionResult GetByQuestionId(int questionId)
+        public async Task<IActionResult> GetByQuestionId(int questionId)
         {
-            var answers = _answerService.GetAllAnswersByQuestionId(questionId);
+            var answers = await _answerService.GetAllAnswersByQuestionId(questionId);
 
             return Ok(answers);
         }
 
         [Authorize]
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
             try
             {
-                var answer = _answerService.GetAnswerById(id);
+                var answer = await _answerService.GetAnswerById(id);
                 return Ok(answer);
             }
             catch (KeyNotFoundException ex)
@@ -49,11 +49,11 @@ namespace VemboAPI.API.Controllers
         }
         [Authorize]
         [HttpPost]
-        public IActionResult Post([FromBody] CreateAnswerDto dto)
+        public async Task<IActionResult> Post([FromBody] CreateAnswerDto dto)
         {
             try
             {
-                var created = _answerService.CreateAnswer(dto);
+                var created = await _answerService.CreateAnswer(dto);
                 return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
             }
             catch (KeyNotFoundException ex)
@@ -64,11 +64,11 @@ namespace VemboAPI.API.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] UpdateAnswerDto dto)
+        public async Task<IActionResult> Put(int id, [FromBody] UpdateAnswerDto dto)
         {
             try
             {
-                _answerService.UpdateAnswer(id, dto);
+                await _answerService.UpdateAnswer(id, dto);
                 return Ok();
             }
             catch (KeyNotFoundException ex)
@@ -79,11 +79,11 @@ namespace VemboAPI.API.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                _answerService.DeleteAnswer(id);
+                await _answerService.DeleteAnswer(id);
                 return Ok();
             }
             catch (KeyNotFoundException ex)

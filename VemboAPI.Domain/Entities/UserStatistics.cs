@@ -13,6 +13,7 @@ namespace VemboAPI.Domain.Entities
         public int Hearts { get; set; } = 5;
 
         public int? CurrentPeriodId { get; set; }
+
         public Period CurrentPeriod { get; set; }
     }
 

@@ -3,6 +3,7 @@ using VemboAPI.Infrastructure.Interfaces; // ICacheService, IContentVersionServi
 using VemboAPI.Domain.Entities;
 using VemboAPI.Domain.DTOs;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace VemboAPI.Infrastructure.Services
 {
@@ -25,73 +26,79 @@ namespace VemboAPI.Infrastructure.Services
             _ver = ver;
         }
 
-        public List<ExerciseTypeDto> GetAllExerciseTypes()
+        public async Task<List<ExerciseTypeDto>> GetAllExerciseTypes()
         {
-            var v = _ver.GetVersionAsync().GetAwaiter().GetResult();
+            var v = await _ver.GetVersionAsync();
             var key = $"content:exercise-types:all:v{v}";
 
-            var list = _cache.GetOrSetAsync(key, () =>
+            var list = await _cache.GetOrSetAsync(key, async () =>
             {
-                var items = _dbContext.ExerciseTypes.ToList(); // синхронно ок
+                var items = await _dbContext.ExerciseTypes.ToListAsync(); // синхронно ок
                 var mapped = _mapper.Map<List<ExerciseTypeDto>>(items);
-                return Task.FromResult(mapped);
-            }, ttl: null).GetAwaiter().GetResult();
+                
+                return mapped;
+            }, ttl: null);
 
             return list;
         }
 
-        public ExerciseTypeDto GetExerciseTypeById(int id)
+        public async Task<ExerciseTypeDto> GetExerciseTypeById(int id)
         {
-            var v = _ver.GetVersionAsync().GetAwaiter().GetResult();
+            var v = await _ver.GetVersionAsync();
             var key = $"content:exercise-type:{id}:v{v}";
 
-            var dto = _cache.GetOrSetAsync(key, () =>
+            var dto = await _cache.GetOrSetAsync(key, async () =>
             {
-                var entity = _dbContext.ExerciseTypes.Find(id);
+                var entity = await _dbContext.ExerciseTypes.FindAsync(id);
+                
                 if (entity == null)
                     throw new KeyNotFoundException($"ExerciseType with ID {id} not found.");
 
                 var mapped = _mapper.Map<ExerciseTypeDto>(entity);
-                return Task.FromResult(mapped);
-            }, ttl: null).GetAwaiter().GetResult();
+                
+                return mapped;
+            }, ttl: null);
 
             return dto!;
         }
 
-        public ExerciseTypeDto CreateExerciseType(CreateExerciseTypeDto dto)
+        public async Task<ExerciseTypeDto> CreateExerciseType(CreateExerciseTypeDto dto)
         {
             var entity = _mapper.Map<ExerciseType>(dto);
 
-            _dbContext.ExerciseTypes.Add(entity);
-            _dbContext.SaveChanges();
+            await _dbContext.ExerciseTypes.AddAsync(entity);
+            await _dbContext.SaveChangesAsync();
 
-            _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідація кешу
+            await _ver.BumpAsync(); // інвалідація кешу
 
             return _mapper.Map<ExerciseTypeDto>(entity);
         }
 
-        public void UpdateExerciseType(int id, UpdateExerciseTypeDto dto)
+        public async Task UpdateExerciseType(int id, UpdateExerciseTypeDto dto)
         {
-            var entity = _dbContext.ExerciseTypes.Find(id);
+            var entity = await _dbContext.ExerciseTypes.FindAsync(id);
+            
             if (entity == null)
                 throw new KeyNotFoundException($"ExerciseType with ID {id} not found.");
 
             _mapper.Map(dto, entity);
-            _dbContext.SaveChanges();
 
-            _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідація кешу
+            await _dbContext.SaveChangesAsync();
+
+            await _ver.BumpAsync(); // інвалідація кешу
         }
 
-        public void DeleteExerciseType(int id)
+        public async Task DeleteExerciseType(int id)
         {
-            var entity = _dbContext.ExerciseTypes.Find(id);
+            var entity = await _dbContext.ExerciseTypes.FindAsync(id);
+
             if (entity == null)
                 throw new KeyNotFoundException($"ExerciseType with ID {id} not found.");
 
             _dbContext.ExerciseTypes.Remove(entity);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
-            _ver.BumpAsync().GetAwaiter().GetResult(); // інвалідація кешу
+            await _ver.BumpAsync(); // інвалідація кешу
         }
     }
 }

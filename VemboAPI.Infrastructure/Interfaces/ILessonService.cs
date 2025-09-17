@@ -5,12 +5,12 @@ namespace VemboAPI.Infrastructure.Interfaces
 {
     public interface ILessonService
     {
-        List<LessonDto> GetAllLessons();
-        List<LessonDto> GetAllLessonsByLevelId(int levelId);
-        LessonDto GetLessonById(int id);
-        LessonDto CreateLesson(CreateLessonDto dto);
-        void UpdateLesson(int id, UpdateLessonDto dto);
+        Task<List<LessonDto>> GetAllLessons();
+        Task<List<LessonDto>> GetAllLessonsByLevelId(int levelId);
+        Task<LessonDto> GetLessonById(int id);
+        Task<LessonDto> CreateLesson(CreateLessonDto dto);
+        Task UpdateLesson(int id, UpdateLessonDto dto);
 
-        void DeleteLesson(int id);
+        Task DeleteLesson(int id);
     }
 }
