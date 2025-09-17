@@ -6,12 +6,13 @@ namespace VemboAPI.Infrastructure.Interfaces
 {
     public interface IExerciseService
     {
-        List<ExerciseDto> GetAllExercise();
-        ExerciseDto GetExerciseById(int id);
-        ExerciseDto CreateExercise(CreateExerciseDto dto);
-        void UpdateExercise(int id, UpdateExerciseDto dto);
+        Task<List<ExerciseDto>> GetAllExercise();
+        Task<List<ExerciseDto>> GetAllExerciseByLessonId(int lessonId);
+        Task<ExerciseDto> GetExerciseById(int id);
+        Task<ExerciseDto> CreateExercise(CreateExerciseDto dto);
+        Task UpdateExercise(int id, UpdateExerciseDto dto);
 
-        void DeleteExercise(int id);
+        Task DeleteExercise(int id);
     }
 
 }

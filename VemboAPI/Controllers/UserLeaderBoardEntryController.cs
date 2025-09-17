@@ -18,11 +18,11 @@ namespace VemboAPI.API.Controllers
             _service = service;
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAll() => Ok(await _service.GetAllAsync());
 
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
@@ -30,7 +30,7 @@ namespace VemboAPI.API.Controllers
             catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateUserLeaderBoardEntryDto dto)
         {

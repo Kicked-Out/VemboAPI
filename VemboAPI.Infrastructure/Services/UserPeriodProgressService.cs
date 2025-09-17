@@ -3,6 +3,7 @@ using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.Entities;
 using VemboAPI.Domain.DTOs;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace VemboAPI.Infrastructure.Services
 {
@@ -17,25 +18,29 @@ namespace VemboAPI.Infrastructure.Services
             _mapper = mapper;
         }
 
-        public List<UserPeriodProgressDto> GetAllUserPeriodProgress()
+        public async Task<List<UserPeriodProgressDto>> GetAllUserPeriodProgress(string userId)
         {
-            var progresses = _dbContext.UserPeriodProgresses.ToList();
+            var progresses = await _dbContext.UserPeriodProgresses
+                .Where(periodProgress => periodProgress.UserId == userId)
+                .ToListAsync();
+
             return _mapper.Map<List<UserPeriodProgressDto>>(progresses);
         }
 
-        public UserPeriodProgressDto GetUserPeriodProgressById(int id)
+        public async Task<UserPeriodProgressDto> GetUserPeriodProgressById(int id)
         {
-            var progress = _dbContext.UserPeriodProgresses.Find(id);
+            var progress = await _dbContext.UserPeriodProgresses.FindAsync(id);
+            
             if (progress == null)
                 throw new KeyNotFoundException($"UserPeriodProgress with ID {id} not found.");
 
             return _mapper.Map<UserPeriodProgressDto>(progress);
         }
 
-        public UserPeriodProgressDto EnsureProgressExists(int userId, int periodId)
+        public async Task<UserPeriodProgressDto> EnsureProgressExists(string userId, int periodId)
         {
-            var existing = _dbContext.UserPeriodProgresses
-                .FirstOrDefault(p => p.UserId == userId && p.PeriodId == periodId);
+            var existing = await _dbContext.UserPeriodProgresses
+                .FirstOrDefaultAsync(p => p.UserId == userId && p.PeriodId == periodId);
 
             if (existing != null)
                 return _mapper.Map<UserPeriodProgressDto>(existing);
@@ -44,43 +49,73 @@ namespace VemboAPI.Infrastructure.Services
             {
                 UserId = userId,
                 PeriodId = periodId,
-                isCompleted = false,
+                CompletedCount = 0
 
             };
 
-            _dbContext.UserPeriodProgresses.Add(progress);
-            _dbContext.SaveChanges();
+            await _dbContext.UserPeriodProgresses.AddAsync(progress);
+            await _dbContext.SaveChangesAsync();
 
             return _mapper.Map<UserPeriodProgressDto>(progress);
         }
 
-        public UserPeriodProgressDto CreateUserPeriodProgress(CreateUserPeriodProgressDto dto)
+        public async Task<UserPeriodProgressDto> CreateUserPeriodProgress(CreateUserPeriodProgressDto dto)
         {
             var progress = _mapper.Map<UserPeriodProgress>(dto);
-            _dbContext.UserPeriodProgresses.Add(progress);
-            _dbContext.SaveChanges();
+            
+            await _dbContext.UserPeriodProgresses.AddAsync(progress);
+            await _dbContext.SaveChangesAsync();
 
             return _mapper.Map<UserPeriodProgressDto>(progress);
         }
 
-        public void UpdateUserPeriodProgress(int id, UpdateUserPeriodProgressDto dto)
+        public async Task UpdateUserPeriodProgress(int id, UpdateUserPeriodProgressDto dto)
         {
-            var progress = _dbContext.UserPeriodProgresses.Find(id);
+            var progress = await _dbContext.UserPeriodProgresses.FindAsync(id);
+            
             if (progress == null)
                 throw new KeyNotFoundException($"UserPeriodProgress with ID {id} not found.");
 
             _mapper.Map(dto, progress);
-            _dbContext.SaveChanges();
+            
+            await _dbContext.SaveChangesAsync();
         }
 
-        public void DeleteUserPeriodProgress(int id)
+        public async Task DeleteUserPeriodProgress(int id)
         {
-            var progress = _dbContext.UserPeriodProgresses.Find(id);
+            var progress = await _dbContext.UserPeriodProgresses.FindAsync(id);
+            
             if (progress == null)
                 throw new KeyNotFoundException($"UserPeriodProgress with ID {id} not found.");
 
             _dbContext.UserPeriodProgresses.Remove(progress);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<UserPeriodProgressDto> GetUserPeriodProgressByPeriodId(string userId, int periodId)
+        {
+            var progress = await _dbContext.UserPeriodProgresses
+                .Where(periodProgress => periodProgress.UserId == userId)
+                .Where(periodProgress => periodProgress.PeriodId == periodId)
+                .FirstOrDefaultAsync();
+
+            if (progress == null)
+            {
+                throw new KeyNotFoundException($"$UserPeriodProgress with PeriodId {periodId} not found.");
+            }
+
+            return _mapper.Map<UserPeriodProgressDto>(progress);
+        }
+
+        public async Task<UserPeriodProgressDto> GetUserPeriodProgressWithMostXPByUserId(string userId)
+        {
+            var progresses = await _dbContext.UserPeriodProgresses
+                .Where(userPeriodProgress => userPeriodProgress.UserId == userId)
+                .ToListAsync();
+            
+            var progress = progresses.OrderByDescending(progress => progress.XP).FirstOrDefault();
+
+            return _mapper.Map<UserPeriodProgressDto>(progress);
         }
     }
 }

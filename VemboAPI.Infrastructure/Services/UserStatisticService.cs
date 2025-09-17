@@ -1,5 +1,4 @@
-﻿using System;
-using AutoMapper;
+﻿using AutoMapper;
 using VemboAPI.Domain.DTOs;
 using VemboAPI.Domain.Entities;
 using VemboAPI.Infrastructure.Data;
@@ -32,7 +31,7 @@ namespace VemboAPI.Infrastructure.Services
 
             return _mapper.Map<UserStatisticDto>(stat);
         }
-        public async Task<UserStatisticDto> GetByUserIdAsync(int userId)
+        public async Task<UserStatisticDto> GetByUserIdAsync(string userId)
         {
             var entity = await _dbContext.UserStatistics.FirstOrDefaultAsync(u => u.UserId == userId)
                 ?? throw new KeyNotFoundException("User statistic not found");
@@ -72,6 +71,13 @@ namespace VemboAPI.Infrastructure.Services
 
             _dbContext.UserStatistics.Remove(stat);
             await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<UserStatisticDto> GetByUserId(string userId)
+        {
+            var stat = _dbContext.UserStatistics.ToList().Find(userStats => userStats.UserId == userId);
+
+            return _mapper.Map<UserStatisticDto>(stat);
         }
     }
 

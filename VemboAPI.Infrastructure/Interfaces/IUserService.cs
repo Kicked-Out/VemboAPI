@@ -1,17 +1,17 @@
-﻿
 using VemboAPI.Domain.DTOs;
 
 namespace VemboAPI.Infrastructure.Interfaces
 {
     public interface IUserService
     {
-        void CreateUser(CreateUserDto dto);
-        void UpdateUser(int id, UpdateUserDto dto);
-        Task UpdateRoleAsync(int userId, string newRole);
+        Task CreateUser(CreateUserDto dto);
+        Task UpdateUser(string id, UpdateUserDto dto);
+        Task UpdateRoleAsync(string userId, string newRole);
 
-        void DeleteUser(int id);
+        Task DeleteUser(int id);
 
-        UserDto GetUserById(int id);
-        List<UserDto> GetAllUsers();
+        Task<UserDto> GetUserByNickNameSlug(string nickNameSlug);
+        Task<UserDto> GetUserById(string id);
+        Task<List<UserDto>> GetAllUsers();
     }
 }

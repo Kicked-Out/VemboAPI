@@ -1,16 +1,15 @@
-﻿using System.Collections.Generic;
-using VemboAPI.Domain.DTOs;
+﻿using VemboAPI.Domain.DTOs;
 
 namespace VemboAPI.Infrastructure.Interfaces
 {
     public interface IUserExerciseMistakeService
     {
-        List<UserExerciseMistakeDto> GetAllMistakes();
-        UserExerciseMistakeDto GetMistakeById(int id);
-        UserExerciseMistakeDto CreateMistake(CreateUserExerciseMistakeDto dto);
-        void UpdateMistake(int id, UpdateUserExerciseMistakeDto dto);
+        Task<List<UserExerciseMistakeDto>> GetAllMistakes();
+        Task<UserExerciseMistakeDto> GetMistakeById(int id);
+        Task<UserExerciseMistakeDto> CreateMistake(CreateUserExerciseMistakeDto dto);
+        Task UpdateMistake(int id, UpdateUserExerciseMistakeDto dto);
 
-        void DeleteMistake(int id);
+        Task DeleteMistake(int id);
     }
 
 }

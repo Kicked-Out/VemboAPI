@@ -9,51 +9,56 @@ namespace VemboAPI.Infrastructure.Services
 {
     public class BadgeService : IBadgeService
     {
-        private readonly VemboDbContext _context;
+        private readonly VemboDbContext _dbContext;
         private readonly IMapper _mapper;
 
-        public BadgeService(VemboDbContext context, IMapper mapper)
+        public BadgeService(VemboDbContext dbContext, IMapper mapper)
         {
-            _context = context;
+            _dbContext = dbContext;
             _mapper = mapper;
         }
 
-        public async Task<List<BadgeDto>> GetAllAsync()
+        public List<BadgeDto> GetAllBadges()
         {
-            var items = await _context.Badges.ToListAsync();
-            return _mapper.Map<List<BadgeDto>>(items);
+            var badges = _dbContext.Badges.ToList();
+            return _mapper.Map<List<BadgeDto>>(badges);
         }
 
-        public async Task<BadgeDto> GetByIdAsync(int id)
+        public BadgeDto GetBadgeById(int id)
         {
-            var entity = await _context.Badges.FindAsync(id);
-            if (entity == null) throw new KeyNotFoundException("Not found");
-            return _mapper.Map<BadgeDto>(entity);
+            var badge = _dbContext.Badges.Find(id);
+            if (badge == null)
+                throw new KeyNotFoundException($"Badge with ID {id} not found.");
+
+            return _mapper.Map<BadgeDto>(badge);
         }
 
-        public async Task<BadgeDto> CreateAsync(CreateBadgeDto dto)
+        public BadgeDto CreateBadge(CreateBadgeDto dto)
         {
-            var entity = _mapper.Map<Badge>(dto);
-            _context.Badges.Add(entity);
-            await _context.SaveChangesAsync();
-            return _mapper.Map<BadgeDto>(entity);
+            var badge = _mapper.Map<Badge>(dto);
+            _dbContext.Badges.Add(badge);
+            _dbContext.SaveChanges();
+            return _mapper.Map<BadgeDto>(badge);
         }
 
-        public async Task<BadgeDto> UpdateAsync(int id, UpdateBadgeDto dto)
+        public void UpdateBadge(int id, UpdateBadgeDto dto)
         {
-            var entity = await _context.Badges.FindAsync(id);
-            if (entity == null) throw new KeyNotFoundException("Not found");
-            _mapper.Map(dto, entity);
-            await _context.SaveChangesAsync();
-            return _mapper.Map<BadgeDto>(entity);
+            var badge = _dbContext.Badges.Find(id);
+            if (badge == null)
+                throw new KeyNotFoundException($"Badge with ID {id} not found.");
+
+            _mapper.Map(dto, badge);
+            _dbContext.SaveChanges();
         }
 
-        public async Task DeleteAsync(int id)
+        public void DeleteBadge(int id)
         {
-            var entity = await _context.Badges.FindAsync(id);
-            if (entity == null) throw new KeyNotFoundException("Not found");
-            _context.Badges.Remove(entity);
-            await _context.SaveChangesAsync();
+            var badge = _dbContext.Badges.Find(id);
+            if (badge == null)
+                throw new KeyNotFoundException($"Badge with ID {id} not found.");
+
+            _dbContext.Badges.Remove(badge);
+            _dbContext.SaveChanges();
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using VemboAPI.Infrastructure.Data;
-using VemboAPI.Infrastructure.Interfaces;
+using VemboAPI.Infrastructure.Interfaces; // ICacheService, IContentVersionService
 using VemboAPI.Domain.Entities;
 using VemboAPI.Domain.DTOs;
 using Microsoft.EntityFrameworkCore;
@@ -11,80 +11,109 @@ namespace VemboAPI.Infrastructure.Services
     {
         private readonly VemboDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly ICacheService _cache;
+        private readonly IContentVersionService _ver;
 
-        public TopicService(VemboDbContext dbContext, IMapper mapper)
+        public TopicService(
+            VemboDbContext dbContext,
+            IMapper mapper,
+            ICacheService cache,
+            IContentVersionService ver)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _cache = cache;
+            _ver = ver;
         }
 
-        public List<TopicDto> GetAllTopics()
+        public async Task<List<TopicDto>> GetAllTopics()
         {
-            var topics = _dbContext.Topics
-                .Include(t => t.Units)
-                .ToList();
+            var v = await _ver.GetVersionAsync();
+            var key = $"content:topics:all:v{v}";
 
-            var result = _mapper.Map<List<TopicDto>>(topics);
-            for (int i = 0; i < result.Count; i++)
+            var result = await _cache.GetOrSetAsync(key, async () =>
             {
-                result[i].UnitsCount = topics[i].Units.Count;
-            }
+                var topics = await _dbContext.Topics
+                    .Include(t => t.Units)
+                    .ToListAsync();
+
+                var mapped = _mapper.Map<List<TopicDto>>(topics);
+                for (int i = 0; i < mapped.Count; i++)
+                {
+                    mapped[i].UnitsCount = topics[i].Units.Count;
+                }
+                return mapped;
+            }, ttl: null);
 
             return result;
         }
 
-        public TopicDto GetTopicById(int id)
+        public async Task<TopicDto> GetTopicById(int id)
         {
-            var topic = _dbContext.Topics
-                .Include(t => t.Units)
-                .FirstOrDefault(t => t.Id == id);
+            var v = await _ver.GetVersionAsync();
+            var key = $"content:topic:{id}:v{v}";
 
-            if (topic == null)
-                throw new KeyNotFoundException($"Topic with ID {id} not found.");
+            var dto = await _cache.GetOrSetAsync(key, async () =>
+            {
+                var topic = await _dbContext.Topics
+                    .Include(t => t.Units)
+                    .FirstOrDefaultAsync(t => t.Id == id);
 
-            var dto = _mapper.Map<TopicDto>(topic);
-            dto.UnitsCount = topic.Units.Count;
-            return dto;
+                if (topic == null)
+                    throw new KeyNotFoundException($"Topic with ID {id} not found.");
+
+                var mapped = _mapper.Map<TopicDto>(topic);
+                mapped.UnitsCount = topic.Units.Count;
+                return mapped;
+            }, ttl: null);
+
+            return dto!;
         }
 
-        public TopicDto CreateTopic(TopicCreateDto dto)
+        public async Task<TopicDto> CreateTopic(TopicCreateDto dto)
         {
-            if (!_dbContext.Periods.Any(p => p.Id == dto.PeriodId))
+            if (!await _dbContext.Periods.AnyAsync(p => p.Id == dto.PeriodId))
                 throw new KeyNotFoundException($"Period with ID {dto.PeriodId} not found.");
 
             var topic = _mapper.Map<Topic>(dto);
 
-            _dbContext.Topics.Add(topic);
-            _dbContext.SaveChanges();
+            await _dbContext.Topics.AddAsync(topic);
+            await _dbContext.SaveChangesAsync();
+
+            await _ver.BumpAsync(); // інвалідує через нову версію
 
             var result = _mapper.Map<TopicDto>(topic);
             result.UnitsCount = 0;
+
             return result;
         }
 
-
-        public void UpdateTopic(int id, TopicUpdateDto dto)
+        public async Task UpdateTopic(int id, TopicUpdateDto dto)
         {
-            var topic = _dbContext.Topics.Find(id);
+            var topic = await _dbContext.Topics.FindAsync(id);
+
             if (topic == null)
                 throw new KeyNotFoundException($"Topic with ID {id} not found.");
 
-            if (!_dbContext.Periods.Any(p => p.Id == dto.PeriodId))
+            if (!await _dbContext.Periods.AnyAsync(p => p.Id == dto.PeriodId))
                 throw new KeyNotFoundException($"Period with ID {dto.PeriodId} not found.");
 
             _mapper.Map(dto, topic);
-            _dbContext.SaveChanges();
+
+            await _dbContext.SaveChangesAsync();
+            await _ver.BumpAsync(); // інвалідація кешу
         }
 
-
-        public void DeleteTopic(int id)
+        public async Task DeleteTopic(int id)
         {
-            var topic = _dbContext.Topics.Find(id);
+            var topic = await _dbContext.Topics.FindAsync(id);
+
             if (topic == null)
                 throw new KeyNotFoundException($"Topic with ID {id} not found.");
 
             _dbContext.Topics.Remove(topic);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
+            await _ver.BumpAsync(); // інвалідація кешу
         }
     }
 }

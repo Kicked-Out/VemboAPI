@@ -1,8 +1,9 @@
 ﻿using VemboAPI.Infrastructure.Data;
-using VemboAPI.Infrastructure.Interfaces;
+using VemboAPI.Infrastructure.Interfaces; // ICacheService, IContentVersionService
 using VemboAPI.Domain.Entities;
 using VemboAPI.Domain.DTOs;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace VemboAPI.Infrastructure.Services
 {
@@ -10,72 +11,125 @@ namespace VemboAPI.Infrastructure.Services
     {
         private readonly VemboDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly ICacheService _cache;
+        private readonly IContentVersionService _ver;
 
-        public ExerciseService(VemboDbContext dbContext, IMapper mapper)
+        public ExerciseService(
+            VemboDbContext dbContext,
+            IMapper mapper,
+            ICacheService cache,
+            IContentVersionService ver)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _cache = cache;
+            _ver = ver;
         }
 
-        public List<ExerciseDto> GetAllExercise()
+        public async Task<List<ExerciseDto>> GetAllExercise()
         {
-            var exercises = _dbContext.Exercises.ToList();
-            return _mapper.Map<List<ExerciseDto>>(exercises);
+            var v = await _ver.GetVersionAsync();
+            var key = $"content:exercises:all:v{v}";
+
+            var list = await _cache.GetOrSetAsync(key, async () =>
+            {
+                var exercises = await _dbContext.Exercises.ToListAsync(); // синхронно ок
+                
+                var mapped = _mapper.Map<List<ExerciseDto>>(exercises);
+                
+                return mapped;
+            }, ttl: null);
+
+            return list;
         }
 
-        public ExerciseDto GetExerciseById(int id)
+        public async Task<ExerciseDto> GetExerciseById(int id)
         {
-            var exercise = _dbContext.Exercises.Find(id);
-            if (exercise == null)
-                throw new KeyNotFoundException($"Exercise with ID {id} not found.");
+            var v = await _ver.GetVersionAsync();
+            var key = $"content:exercise:{id}:v{v}";
 
-            return _mapper.Map<ExerciseDto>(exercise);
+            var dto = await _cache.GetOrSetAsync(key, async () =>
+            {
+                var exercise = await _dbContext.Exercises.FindAsync(id);
+
+                if (exercise == null)
+                    throw new KeyNotFoundException($"Exercise with ID {id} not found.");
+
+                var mapped = _mapper.Map<ExerciseDto>(exercise);
+                
+                return mapped;
+            }, ttl: null);
+
+            return dto!;
         }
 
-        public ExerciseDto CreateExercise(CreateExerciseDto dto)
+        public async Task<ExerciseDto> CreateExercise(CreateExerciseDto dto)
         {
-            var lesson = _dbContext.Lessons.Find(dto.LessonId);
+            var lesson = await _dbContext.Lessons.FindAsync(dto.LessonId);
+
             if (lesson == null)
                 throw new KeyNotFoundException($"Lesson with ID {dto.LessonId} not found.");
 
-            var exerciseType = _dbContext.ExerciseTypes.Find(dto.ExerciseTypeId);
+            var exerciseType = await _dbContext.ExerciseTypes.FindAsync(dto.ExerciseTypeId);
+            
             if (exerciseType == null)
                 throw new KeyNotFoundException($"ExerciseType with ID {dto.ExerciseTypeId} not found.");
 
             var exercise = _mapper.Map<Exercise>(dto);
 
-            _dbContext.Exercises.Add(exercise);
-            _dbContext.SaveChanges();
+            await _dbContext.Exercises.AddAsync(exercise);
+            await _dbContext.SaveChangesAsync();
+
+            await _ver.BumpAsync(); // інвалідація кешу через нову версію
 
             return _mapper.Map<ExerciseDto>(exercise);
         }
 
-        public void UpdateExercise(int id, UpdateExerciseDto dto)
+        public async Task UpdateExercise(int id, UpdateExerciseDto dto)
         {
-            var exercise = _dbContext.Exercises.Find(id);
+            var exercise = await _dbContext.Exercises.FindAsync(id);
+            
             if (exercise == null)
                 throw new KeyNotFoundException($"Exercise with ID {id} not found.");
 
-            var lesson = _dbContext.Lessons.Find(dto.LessonId);
+            var lesson = await _dbContext.Lessons.FindAsync(dto.LessonId);
+            
             if (lesson == null)
                 throw new KeyNotFoundException($"Lesson with ID {dto.LessonId} not found.");
 
-            var exerciseType = _dbContext.ExerciseTypes.Find(dto.ExerciseTypeId);
+            var exerciseType = await _dbContext.ExerciseTypes.FindAsync(dto.ExerciseTypeId);
+            
             if (exerciseType == null)
                 throw new KeyNotFoundException($"ExerciseType with ID {dto.ExerciseTypeId} not found.");
 
             _mapper.Map(dto, exercise);
-            _dbContext.SaveChanges();
+            
+            await _dbContext.SaveChangesAsync();
+
+            await _ver.BumpAsync(); // інвалідація кешу
         }
 
-        public void DeleteExercise(int id)
+        public async Task DeleteExercise(int id)
         {
-            var exercise = _dbContext.Exercises.Find(id);
+            var exercise = await _dbContext.Exercises.FindAsync(id);
+
             if (exercise == null)
                 throw new KeyNotFoundException($"Exercise with ID {id} not found.");
 
             _dbContext.Exercises.Remove(exercise);
-            _dbContext.SaveChanges();
+            
+            await _dbContext.SaveChangesAsync();
+
+            await _ver.BumpAsync(); // інвалідація кешу
+        }
+
+        public async Task<List<ExerciseDto>> GetAllExerciseByLessonId(int lessonId)
+        {
+            var exercises = await _dbContext.Exercises
+                .Where(exercise => exercise.LessonId == lessonId)
+                .ToListAsync();
+
+            return _mapper.Map<List<ExerciseDto>>(exercises);
         }
     }
 }

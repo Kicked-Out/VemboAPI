@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
@@ -19,11 +19,27 @@ namespace VemboAPI.API.Controllers
             _service = service;
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAll() => Ok(await _service.GetAllAsync());
 
-        [Authorize(Roles = "Admin")]
+        [Authorize]
+        [HttpGet("User/{userId}")]
+        public async Task<IActionResult> GetByUserId(string userId)
+        {
+            try
+            {
+                var result = await _service.GetByUserId(userId);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
@@ -36,12 +52,10 @@ namespace VemboAPI.API.Controllers
         public async Task<IActionResult> GetByUser()
         {
             var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userIdStr == null || !int.TryParse(userIdStr, out int userId))
-                return Unauthorized("User ID is invalid or missing.");
 
             try
             {
-                var result = await _service.GetByUserIdAsync(userId);
+                var result = await _service.GetByUserIdAsync(userIdStr);
                 return Ok(result);
             }
             catch (KeyNotFoundException ex)
@@ -63,7 +77,7 @@ namespace VemboAPI.API.Controllers
             catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateUserStatisticDto dto)
         {

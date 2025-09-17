@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VemboAPI.Infrastructure.Interfaces;
-using VemboAPI.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
-using System.Data;
 using VemboAPI.Domain.DTOs;
 
 namespace VemboAPI.API.Controllers
@@ -20,19 +18,21 @@ namespace VemboAPI.API.Controllers
         [Authorize]
 
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            var periods = _periodService.GetAllPeriods();
+            var periods = await _periodService.GetAllPeriods();
+            
             return Ok(periods);
         }
         [Authorize]
 
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
             try
             {
-                var period = _periodService.GetPeriodById(id);
+                var period = await _periodService.GetPeriodById(id);
+                
                 return Ok(period);
             }
             catch (KeyNotFoundException ex)
@@ -40,23 +40,24 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
-        [Authorize(Roles = "Admin")]
+        [Authorize]
 
         [HttpPost]
-        public IActionResult Post([FromBody] CreatePeriodDto dto)
+        public async Task<IActionResult> Post([FromBody] CreatePeriodDto dto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var created = _periodService.CreatePeriod(dto);
+            var created = await _periodService.CreatePeriod(dto);
+            
             return Ok(created);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] UpdatePeriodDto dto)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdatePeriodDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -65,7 +66,8 @@ namespace VemboAPI.API.Controllers
 
             try
             {
-                _periodService.UpdatePeriod(id, dto);
+                await _periodService.UpdatePeriod(id, dto);
+                
                 return Ok();
             }
             catch (KeyNotFoundException ex)
@@ -75,13 +77,13 @@ namespace VemboAPI.API.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                _periodService.DeletePeriod(id);
+                await _periodService.DeletePeriod(id);
+                
                 return Ok();
             }
             catch (KeyNotFoundException ex)

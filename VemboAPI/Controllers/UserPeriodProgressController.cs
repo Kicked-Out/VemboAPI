@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.DTOs;
 using Microsoft.AspNetCore.Authorization;
@@ -19,36 +19,62 @@ namespace VemboAPI.API.Controllers
 
         [Authorize]
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            var result = _service.GetAllUserPeriodProgress();
+            string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
+
+            var result = await _service.GetAllUserPeriodProgress(userId);
+            
             return Ok(result);
         }
 
         [Authorize]
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-            var ensured = _service.EnsureProgressExists(userId, id);
+            string userId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+            var ensured = await _service.EnsureProgressExists(userId, id);
+            
             return Ok(ensured);
         }
 
-        [Authorize(Roles = "Admin")]
-        [HttpPost]
-        public IActionResult Post([FromBody] CreateUserPeriodProgressDto dto)
+        [Authorize]
+        [HttpGet("Period/{periodId}")]
+        public async Task<IActionResult> GetByPeriodId(int periodId)
         {
-            var created = _service.CreateUserPeriodProgress(dto);
+            string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
+
+            var progress = await _service.GetUserPeriodProgressByPeriodId(userId, periodId);
+
+            return Ok(progress);
+        }
+
+        [Authorize]
+        [HttpGet("WithMostXP/User/{userId}")]
+        public async Task<IActionResult> GetWithMostXPByUserId(string userId)
+        {
+            var progress = await _service.GetUserPeriodProgressWithMostXPByUserId(userId);
+
+            return Ok(progress);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] CreateUserPeriodProgressDto dto)
+        {
+            var created = await _service.CreateUserPeriodProgress(dto);
+            
             return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] UpdateUserPeriodProgressDto dto)
+        public async Task<IActionResult> Put(int id, [FromBody] UpdateUserPeriodProgressDto dto)
         {
             try
             {
-                _service.UpdateUserPeriodProgress(id, dto);
+                await _service.UpdateUserPeriodProgress(id, dto);
+                
                 return Ok();
             }
             catch (KeyNotFoundException ex)
@@ -59,11 +85,12 @@ namespace VemboAPI.API.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                _service.DeleteUserPeriodProgress(id);
+                await _service.DeleteUserPeriodProgress(id);
+                
                 return Ok();
             }
             catch (KeyNotFoundException ex)

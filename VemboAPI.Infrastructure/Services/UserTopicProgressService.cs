@@ -1,8 +1,9 @@
-﻿using VemboAPI.Infrastructure.Data;
+using VemboAPI.Infrastructure.Data;
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.Entities;
 using VemboAPI.Domain.DTOs;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace VemboAPI.Infrastructure.Services
 {
@@ -17,25 +18,29 @@ namespace VemboAPI.Infrastructure.Services
             _mapper = mapper;
         }
 
-        public List<UserTopicProgressDto> GetAllUserTopicProgress()
+        public async Task<List<UserTopicProgressDto>> GetAllUserTopicProgress(string userId)
         {
-            var progressList = _dbContext.UserTopicProgresses.ToList();
+            var progressList = await _dbContext.UserTopicProgresses
+                .Where(topicProgress => topicProgress.UserId == userId)
+                .ToListAsync();
+
             return _mapper.Map<List<UserTopicProgressDto>>(progressList);
         }
 
-        public UserTopicProgressDto GetUserTopicProgressById(int id)
+        public async Task<UserTopicProgressDto> GetUserTopicProgressById(int id)
         {
-            var progress = _dbContext.UserTopicProgresses.Find(id);
+            var progress = await _dbContext.UserTopicProgresses.FindAsync(id);
+
             if (progress == null)
                 throw new KeyNotFoundException($"UserTopicProgress with ID {id} not found.");
 
             return _mapper.Map<UserTopicProgressDto>(progress);
         }
 
-        public UserTopicProgressDto EnsureProgressExists(int userId, int topicId)
+        public async Task<UserTopicProgressDto> EnsureProgressExists(string userId, int topicId)
         {
-            var existing = _dbContext.UserTopicProgresses
-                .FirstOrDefault(p => p.UserId == userId && p.TopicId == topicId);
+            var existing = await _dbContext.UserTopicProgresses
+                .FirstOrDefaultAsync(p => p.UserId == userId && p.TopicId == topicId);
 
             if (existing != null)
                 return _mapper.Map<UserTopicProgressDto>(existing);
@@ -44,42 +49,65 @@ namespace VemboAPI.Infrastructure.Services
             {
                 UserId = userId,
                 TopicId = topicId,
-                isCompleted = false
+                CompletedCount = 0
             };
 
-            _dbContext.UserTopicProgresses.Add(progress);
-            _dbContext.SaveChanges();
+            await _dbContext.UserTopicProgresses.AddAsync(progress);
+            await _dbContext.SaveChangesAsync();
 
             return _mapper.Map<UserTopicProgressDto>(progress);
         }
 
-        public UserTopicProgressDto CreateUserTopicProgress(CreateUserTopicProgressDto dto)
+        public async Task<UserTopicProgressDto> CreateUserTopicProgress(CreateUserTopicProgressDto dto)
         {
             var progress = _mapper.Map<UserTopicProgress>(dto);
-            _dbContext.UserTopicProgresses.Add(progress);
-            _dbContext.SaveChanges();
+            
+            await _dbContext.UserTopicProgresses.AddAsync(progress);
+            await _dbContext.SaveChangesAsync();
 
             return _mapper.Map<UserTopicProgressDto>(progress);
         }
 
-        public void UpdateUserTopicProgress(int id, UpdateUserTopicProgressDto dto)
+        public async Task UpdateUserTopicProgress(int id, UpdateUserTopicProgressDto dto)
         {
-            var progress = _dbContext.UserTopicProgresses.Find(id);
+            var progress = await _dbContext.UserTopicProgresses.FindAsync(id);
+            
             if (progress == null)
                 throw new KeyNotFoundException($"UserTopicProgress with ID {id} not found.");
 
             _mapper.Map(dto, progress);
-            _dbContext.SaveChanges();
+
+            await _dbContext.SaveChangesAsync();
         }
 
-        public void DeleteUserTopicProgress(int id)
+        public async Task DeleteUserTopicProgress(int id)
         {
-            var progress = _dbContext.UserTopicProgresses.Find(id);
+            var progress = await _dbContext.UserTopicProgresses.FindAsync(id);
+
             if (progress == null)
                 throw new KeyNotFoundException($"UserTopicProgress with ID {id} not found.");
 
             _dbContext.UserTopicProgresses.Remove(progress);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<UserTopicProgressDto[]> GetAllUserTopicProgressByPeriodId(string userId, int periodId)
+        {
+            var progresses = await _dbContext.UserTopicProgresses
+                .Include(topicProgress => topicProgress.Topic)
+                .Where(topicProgress => topicProgress.Topic.PeriodId == periodId)
+                .ToListAsync();
+
+            return _mapper.Map<UserTopicProgressDto[]>(progresses);
+        }
+
+        public async Task<UserTopicProgressDto> GetCurrentUserTopicProgress(string userId, int periodId)
+        {
+            var progress = await _dbContext.UserTopicProgresses
+                .Where(topicProgress => topicProgress.UserId == userId && topicProgress.Topic.PeriodId == periodId)
+                .LastOrDefaultAsync();
+
+            return _mapper.Map<UserTopicProgressDto>(progress);
         }
     }
 }

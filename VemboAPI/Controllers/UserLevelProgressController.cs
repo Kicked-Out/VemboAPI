@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using VemboAPI.Infrastructure.Interfaces;
-
 using VemboAPI.Domain.DTOs;
 using Microsoft.AspNetCore.Authorization;
-using System.Data;
 using System.Security.Claims;
 
 namespace VemboAPI.API.Controllers
@@ -21,38 +19,60 @@ namespace VemboAPI.API.Controllers
         [Authorize]
 
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            var result = _service.GetAllUserLevelProgress();
+            string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
+
+            var result = await _service.GetAllUserLevelProgress(userId);
+            
             return Ok(result);
         }
 
 
         [Authorize]
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-            var ensured = _service.EnsureProgressExists(userId, id);
+            string userId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+            var ensured = await _service.EnsureProgressExists(userId, id);
+            
             return Ok(ensured);
         }
 
-
-        [Authorize(Roles = "Admin")]
-        [HttpPost]
-        public IActionResult Post([FromBody] CreateUserLevelProgressDto dto)
+        [Authorize]
+        [HttpGet("Level/{levelId}")]
+        public async Task<IActionResult> GetByLevelId(int levelId)
         {
-            var created = _service.CreateUserLevelProgress(dto);
+            try
+            {
+                string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
+
+                var progress = await _service.GetUserLevelProgressByLevelId(userId, levelId);
+
+                return Ok(progress);
+            } catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] CreateUserLevelProgressDto dto)
+        {
+            var created = await _service.CreateUserLevelProgress(dto);
+            
             return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] UpdateUserLevelProgressDto dto)
+        public async Task<IActionResult> Put(int id, [FromBody] UpdateUserLevelProgressDto dto)
         {
             try
             {
-                _service.UpdateUserLevelProgress(id, dto);
+                await _service.UpdateUserLevelProgress(id, dto);
+                
                 return Ok();
             }
             catch (KeyNotFoundException ex)
@@ -62,13 +82,13 @@ namespace VemboAPI.API.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                _service.DeleteUserLevelProgress(id);
+                await _service.DeleteUserLevelProgress(id);
+                
                 return Ok();
             }
             catch (KeyNotFoundException ex)

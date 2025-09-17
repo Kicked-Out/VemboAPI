@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VemboAPI.Infrastructure.Interfaces;
-using VemboAPI.Domain.Entities;
 using VemboAPI.Domain.DTOs;
 using Microsoft.AspNetCore.Authorization;
-using System.Data;
 
 namespace VemboAPI.API.Controllers
 {
@@ -20,19 +18,21 @@ namespace VemboAPI.API.Controllers
         [Authorize]
 
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            var topics = _topicService.GetAllTopics();
+            var topics = await _topicService.GetAllTopics();
+            
             return Ok(topics);
         }
         [Authorize]
 
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
             try
             {
-                var topic = _topicService.GetTopicById(id);
+                var topic = await _topicService.GetTopicById(id);
+                
                 return Ok(topic);
             }
             catch (KeyNotFoundException ex)
@@ -40,16 +40,17 @@ namespace VemboAPI.API.Controllers
                 return NotFound(ex.Message);
             }
         }
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         [HttpPost]
-        public IActionResult Post([FromBody] TopicCreateDto dto)
+        public async Task<IActionResult> Post([FromBody] TopicCreateDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             try
             {
-                var createdTopic = _topicService.CreateTopic(dto);
+                var createdTopic = await _topicService.CreateTopic(dto);
+                
                 return CreatedAtAction(nameof(Get), new { id = createdTopic.Id }, createdTopic);
             }
             catch (KeyNotFoundException ex)
@@ -60,14 +61,15 @@ namespace VemboAPI.API.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] TopicUpdateDto dto)
+        public async Task<IActionResult> Update(int id, [FromBody] TopicUpdateDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             try
             {
-                _topicService.UpdateTopic(id, dto);
+                await _topicService.UpdateTopic(id, dto);
+                
                 return Ok();
             }
             catch (KeyNotFoundException ex)
@@ -79,11 +81,12 @@ namespace VemboAPI.API.Controllers
 
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                _topicService.DeleteTopic(id);
+                await _topicService.DeleteTopic(id);
+
                 return Ok();
             }
             catch (KeyNotFoundException ex)

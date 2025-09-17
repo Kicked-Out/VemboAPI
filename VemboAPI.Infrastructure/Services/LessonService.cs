@@ -1,8 +1,9 @@
 ﻿using VemboAPI.Infrastructure.Data;
-using VemboAPI.Infrastructure.Interfaces;
+using VemboAPI.Infrastructure.Interfaces; // ICacheService, IContentVersionService
 using VemboAPI.Domain.Entities;
 using VemboAPI.Domain.DTOs;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace VemboAPI.Infrastructure.Services
 {
@@ -10,64 +11,109 @@ namespace VemboAPI.Infrastructure.Services
     {
         private readonly VemboDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly ICacheService _cache;
+        private readonly IContentVersionService _ver;
 
-        public LessonService(VemboDbContext dbContext, IMapper mapper)
+        public LessonService(
+            VemboDbContext dbContext,
+            IMapper mapper,
+            ICacheService cache,
+            IContentVersionService ver)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _cache = cache;
+            _ver = ver;
         }
 
-        public List<LessonDto> GetAllLessons()
+        public async Task<List<LessonDto>> GetAllLessons()
         {
-            var lessons = _dbContext.Lessons.ToList();
-            return _mapper.Map<List<LessonDto>>(lessons);
+            var v = await _ver.GetVersionAsync();
+            var key = $"content:lessons:all:v{v}";
+
+            var list = await _cache.GetOrSetAsync(key, async () =>
+            {
+                var lessons = await _dbContext.Lessons.ToListAsync(); // синхронно ок
+                var mapped = _mapper.Map<List<LessonDto>>(lessons);
+                
+                return mapped;
+            }, ttl: null);
+
+            return list;
         }
 
-        public LessonDto GetLessonById(int id)
+        public async Task<LessonDto> GetLessonById(int id)
         {
-            var lesson = _dbContext.Lessons.Find(id);
-            if (lesson == null)
-                throw new KeyNotFoundException($"Lesson with ID {id} not found.");
+            var v = await _ver.GetVersionAsync();
+            var key = $"content:lesson:{id}:v{v}";
 
-            return _mapper.Map<LessonDto>(lesson);
+            var dto = await _cache.GetOrSetAsync(key, async () =>
+            {
+                var lesson = await _dbContext.Lessons.FindAsync(id);
+
+                if (lesson == null)
+                    throw new KeyNotFoundException($"Lesson with ID {id} not found.");
+
+                var mapped = _mapper.Map<LessonDto>(lesson);
+                
+                return mapped;
+            }, ttl: null);
+
+            return dto!;
         }
 
-        public LessonDto CreateLesson(CreateLessonDto dto)
+        public async Task<LessonDto> CreateLesson(CreateLessonDto dto)
         {
-            if (!_dbContext.Levels.Any(l => l.Id == dto.LevelId))
+            if (!await _dbContext.Levels.AnyAsync(l => l.Id == dto.LevelId))
                 throw new KeyNotFoundException($"Level with ID {dto.LevelId} not found.");
 
             var lesson = _mapper.Map<Lesson>(dto);
-            _dbContext.Lessons.Add(lesson);
-            _dbContext.SaveChanges();
+            await _dbContext.Lessons.AddAsync(lesson);
+            
+            await _dbContext.SaveChangesAsync();
+
+            await _ver.BumpAsync(); // інвалідація кешу через нову версію
 
             return _mapper.Map<LessonDto>(lesson);
         }
 
-
-        public void UpdateLesson(int id, UpdateLessonDto dto)
+        public async Task UpdateLesson(int id, UpdateLessonDto dto)
         {
-            var lesson = _dbContext.Lessons.Find(id);
+            var lesson = await _dbContext.Lessons.FindAsync(id);
+            
             if (lesson == null)
                 throw new KeyNotFoundException($"Lesson with ID {id} not found.");
 
-            if (!_dbContext.Levels.Any(l => l.Id == dto.LevelId))
+            if (!await _dbContext.Levels.AnyAsync(l => l.Id == dto.LevelId))
                 throw new KeyNotFoundException($"Level with ID {dto.LevelId} not found.");
 
             _mapper.Map(dto, lesson);
-            _dbContext.SaveChanges();
+            
+            await _dbContext.SaveChangesAsync();
+
+            await _ver.BumpAsync(); // інвалідація кешу
         }
 
-
-
-        public void DeleteLesson(int id)
+        public async Task DeleteLesson(int id)
         {
-            var lesson = _dbContext.Lessons.Find(id);
+            var lesson = await _dbContext.Lessons.FindAsync(id);
+            
             if (lesson == null)
                 throw new KeyNotFoundException($"Lesson with ID {id} not found.");
 
             _dbContext.Lessons.Remove(lesson);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
+
+            await _ver.BumpAsync(); // інвалідація кешу
+        }
+
+        public async Task<List<LessonDto>> GetAllLessonsByLevelId(int levelId)
+        {
+            var lessons = await _dbContext.Lessons
+                .Where(lesson => lesson.LevelId == levelId)
+                .ToListAsync();
+
+            return _mapper.Map<List<LessonDto>>(lessons);
         }
     }
 }

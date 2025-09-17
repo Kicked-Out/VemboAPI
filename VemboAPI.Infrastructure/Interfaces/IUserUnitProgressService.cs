@@ -6,12 +6,15 @@ namespace VemboAPI.Infrastructure.Interfaces
 {
     public interface IUserUnitProgressService
     {
-        List<UserUnitProgressDto> GetAllUserUnitProgress();
-        UserUnitProgressDto GetUserUnitProgressById(int id);
-        UserUnitProgressDto CreateUserUnitProgress(CreateUserUnitProgressDto dto);
-        void UpdateUserUnitProgress(int id, UpdateUserUnitProgressDto dto);
-        UserUnitProgressDto EnsureProgressExists(int userId, int unitId);
+        Task<List<UserUnitProgressDto>> GetAllUserUnitProgress(string userId);
+        Task<UserUnitProgressDto> GetUserUnitProgressById(int id);
+        Task<List<UserUnitProgressDto>> GetAllUserUnitProgressByTopicId(string userId, int topicId);
+        Task<UserUnitProgressDto> GetUserUnitProgressByUnitId(string userId, int unitId);
+        Task<UserUnitProgressDto> GetCurrentUserUnitProgress(string userId, int topicId);
+        Task<UserUnitProgressDto> CreateUserUnitProgress(CreateUserUnitProgressDto dto);
+        Task UpdateUserUnitProgress(int id, UpdateUserUnitProgressDto dto);
+        Task<UserUnitProgressDto> EnsureProgressExists(string userId, int unitId);
 
-        void DeleteUserUnitProgress(int id);
+        Task DeleteUserUnitProgress(int id);
     }
 }

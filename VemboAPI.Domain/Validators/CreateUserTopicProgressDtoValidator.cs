@@ -5,7 +5,7 @@ public class CreateUserTopicProgressDtoValidator : AbstractValidator<CreateUserT
 {
     public CreateUserTopicProgressDtoValidator()
     {
-        RuleFor(x => x.UserId).GreaterThan(0);
+        RuleFor(x => x.UserId).NotNull();
         RuleFor(x => x.TopicId).GreaterThan(0);
     }
 }

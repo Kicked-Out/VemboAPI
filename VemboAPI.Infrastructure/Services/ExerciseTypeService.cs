@@ -1,8 +1,9 @@
 ﻿using VemboAPI.Infrastructure.Data;
-using VemboAPI.Infrastructure.Interfaces;
+using VemboAPI.Infrastructure.Interfaces; // ICacheService, IContentVersionService
 using VemboAPI.Domain.Entities;
 using VemboAPI.Domain.DTOs;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace VemboAPI.Infrastructure.Services
 {
@@ -10,57 +11,94 @@ namespace VemboAPI.Infrastructure.Services
     {
         private readonly VemboDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly ICacheService _cache;
+        private readonly IContentVersionService _ver;
 
-        public ExerciseTypeService(VemboDbContext dbContext, IMapper mapper)
+        public ExerciseTypeService(
+            VemboDbContext dbContext,
+            IMapper mapper,
+            ICacheService cache,
+            IContentVersionService ver)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _cache = cache;
+            _ver = ver;
         }
 
-        public List<ExerciseTypeDto> GetAllExerciseTypes()
+        public async Task<List<ExerciseTypeDto>> GetAllExerciseTypes()
         {
-            var exerciseTypes = _dbContext.ExerciseTypes.ToList();
-            return _mapper.Map<List<ExerciseTypeDto>>(exerciseTypes);
+            var v = await _ver.GetVersionAsync();
+            var key = $"content:exercise-types:all:v{v}";
+
+            var list = await _cache.GetOrSetAsync(key, async () =>
+            {
+                var items = await _dbContext.ExerciseTypes.ToListAsync(); // синхронно ок
+                var mapped = _mapper.Map<List<ExerciseTypeDto>>(items);
+                
+                return mapped;
+            }, ttl: null);
+
+            return list;
         }
 
-        public ExerciseTypeDto GetExerciseTypeById(int id)
+        public async Task<ExerciseTypeDto> GetExerciseTypeById(int id)
         {
-            var exerciseType = _dbContext.ExerciseTypes.Find(id);
-            if (exerciseType == null)
+            var v = await _ver.GetVersionAsync();
+            var key = $"content:exercise-type:{id}:v{v}";
+
+            var dto = await _cache.GetOrSetAsync(key, async () =>
+            {
+                var entity = await _dbContext.ExerciseTypes.FindAsync(id);
+                
+                if (entity == null)
+                    throw new KeyNotFoundException($"ExerciseType with ID {id} not found.");
+
+                var mapped = _mapper.Map<ExerciseTypeDto>(entity);
+                
+                return mapped;
+            }, ttl: null);
+
+            return dto!;
+        }
+
+        public async Task<ExerciseTypeDto> CreateExerciseType(CreateExerciseTypeDto dto)
+        {
+            var entity = _mapper.Map<ExerciseType>(dto);
+
+            await _dbContext.ExerciseTypes.AddAsync(entity);
+            await _dbContext.SaveChangesAsync();
+
+            await _ver.BumpAsync(); // інвалідація кешу
+
+            return _mapper.Map<ExerciseTypeDto>(entity);
+        }
+
+        public async Task UpdateExerciseType(int id, UpdateExerciseTypeDto dto)
+        {
+            var entity = await _dbContext.ExerciseTypes.FindAsync(id);
+            
+            if (entity == null)
                 throw new KeyNotFoundException($"ExerciseType with ID {id} not found.");
 
-            return _mapper.Map<ExerciseTypeDto>(exerciseType);
+            _mapper.Map(dto, entity);
+
+            await _dbContext.SaveChangesAsync();
+
+            await _ver.BumpAsync(); // інвалідація кешу
         }
 
-        public ExerciseTypeDto CreateExerciseType(CreateExerciseTypeDto dto)
+        public async Task DeleteExerciseType(int id)
         {
-            var exerciseType = _mapper.Map<ExerciseType>(dto);
+            var entity = await _dbContext.ExerciseTypes.FindAsync(id);
 
-            _dbContext.ExerciseTypes.Add(exerciseType);
-            _dbContext.SaveChanges();
-
-            return _mapper.Map<ExerciseTypeDto>(exerciseType);
-        }
-
-        public void UpdateExerciseType(int id, UpdateExerciseTypeDto dto)
-        {
-            var exerciseType = _dbContext.ExerciseTypes.Find(id);
-            if (exerciseType == null)
+            if (entity == null)
                 throw new KeyNotFoundException($"ExerciseType with ID {id} not found.");
 
-            _mapper.Map(dto, exerciseType);
+            _dbContext.ExerciseTypes.Remove(entity);
+            await _dbContext.SaveChangesAsync();
 
-            _dbContext.SaveChanges();
-        }
-
-        public void DeleteExerciseType(int id)
-        {
-            var exerciseType = _dbContext.ExerciseTypes.Find(id);
-            if (exerciseType == null)
-                throw new KeyNotFoundException($"ExerciseType with ID {id} not found.");
-
-            _dbContext.ExerciseTypes.Remove(exerciseType);
-            _dbContext.SaveChanges();
+            await _ver.BumpAsync(); // інвалідація кешу
         }
     }
 }

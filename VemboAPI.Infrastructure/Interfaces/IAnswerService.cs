@@ -5,12 +5,12 @@ namespace VemboAPI.Infrastructure.Interfaces
 {
 	public interface IAnswerService
 	{
-        List<AnswerDto> GetAllAnswers();
-        AnswerDto GetAnswerById(int id);
-        AnswerDto CreateAnswer(CreateAnswerDto dto);
-        void UpdateAnswer(int id, UpdateAnswerDto dto);
-
-        void DeleteAnswer(int id);
+        Task<List<AnswerDto>> GetAllAnswers();
+        Task<AnswerDto> GetAnswerById(int id);
+        Task<List<AnswerDto>> GetAllAnswersByQuestionId(int questionId);
+        Task<AnswerDto> CreateAnswer(CreateAnswerDto dto);
+        Task UpdateAnswer(int id, UpdateAnswerDto dto);
+        Task DeleteAnswer(int id);
     }
 }
 

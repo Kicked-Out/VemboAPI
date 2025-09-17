@@ -1,5 +1,4 @@
-﻿using System;
-namespace VemboAPI.Domain.DTOs
+﻿namespace VemboAPI.Domain.DTOs
 {
     public class CreateAchievementDto
     {

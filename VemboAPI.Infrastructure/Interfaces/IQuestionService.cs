@@ -1,16 +1,16 @@
-﻿using System;
-using VemboAPI.Domain.DTOs;
+﻿using VemboAPI.Domain.DTOs;
 
 namespace VemboAPI.Infrastructure.Interfaces
 {
 	public interface IQuestionService
 	{
-        List<QuestionDto> GetAllQuestions();
-        QuestionDto GetQuestionById(int id);
-        QuestionDto CreateQuestion(CreateQuestionDto dto);
-        void UpdateQuestion(int id, UpdateQuestionDto dto);
+        Task<List<QuestionDto>> GetAllQuestions();
+        Task<List<QuestionDto>> GetAllQuestionsByExcerciseId(int exerciseId);
+        Task<QuestionDto> GetQuestionById(int id);
+        Task<QuestionDto> CreateQuestion(CreateQuestionDto dto);
+        Task UpdateQuestion(int id, UpdateQuestionDto dto);
 
-        void DeleteQuestion(int id);
+        Task DeleteQuestion(int id);
     }
 }
 
