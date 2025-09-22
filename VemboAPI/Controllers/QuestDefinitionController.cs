@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VemboAPI.Domain.DTOs;
@@ -6,31 +7,31 @@ using VemboAPI.Infrastructure.Interfaces;
 namespace VemboAPI.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class DailyQuestController : ControllerBase
+    [Route("api/quest-definitions")]
+    public class QuestDefinitionController : ControllerBase
     {
-        private readonly IDailyQuestService _dailyQuestService;
+        private readonly IQuestDefinitionService _questDefinitionService;
 
-        public DailyQuestController(IDailyQuestService dailyQuestService)
+        public QuestDefinitionController(IQuestDefinitionService questDefinitionService)
         {
-            _dailyQuestService = dailyQuestService;
+            _questDefinitionService = questDefinitionService;
         }
 
         [Authorize]
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            var quests = _dailyQuestService.GetAll();
+            var quests = await _questDefinitionService.GetAllAsync();
             return Ok(quests);
         }
 
         [Authorize]
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
             try
             {
-                var quest = _dailyQuestService.GetById(id);
+                var quest = await _questDefinitionService.GetByIdAsync(id);
                 return Ok(quest);
             }
             catch (KeyNotFoundException ex)
@@ -41,32 +42,25 @@ namespace VemboAPI.API.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public IActionResult Post([FromBody] CreateDailyQuestDto dto)
+        public async Task<IActionResult> Post([FromBody] CreateQuestDefinitionDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            try
-            {
-                var created = _dailyQuestService.Create(dto);
-                return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            var created = await _questDefinitionService.CreateAsync(dto);
+            return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] UpdateDailyQuestDto dto)
+        public async Task<IActionResult> Put(int id, [FromBody] UpdateQuestDefinitionDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             try
             {
-                _dailyQuestService.Update(id, dto);
-                return Ok();
+                await _questDefinitionService.UpdateAsync(id, dto);
+                return NoContent();
             }
             catch (KeyNotFoundException ex)
             {
@@ -76,12 +70,12 @@ namespace VemboAPI.API.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                _dailyQuestService.Delete(id);
-                return Ok();
+                await _questDefinitionService.DeleteAsync(id);
+                return NoContent();
             }
             catch (KeyNotFoundException ex)
             {

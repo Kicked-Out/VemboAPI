@@ -1,24 +1,16 @@
-using System.Collections.Generic;
+using System;
 
 namespace VemboAPI.Domain.Entities
 {
-    public enum QuestType
-    {
-        Daily,
-        Monthly
-    }
-
     public class Quest
     {
         public int Id { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
+        public int QuestDefinitionId { get; set; }
+        public QuestDefinition QuestDefinition { get; set; }
+        public int QuestTypeId { get; set; }
         public QuestType QuestType { get; set; }
-        public int Requirement { get; set; }
-        public string RewardType { get; set; }
-        public int RewardAmount { get; set; }
-
-        public ICollection<DailyQuest> DailyQuests { get; set; } = new List<DailyQuest>();
-        public ICollection<UserQuest> UserQuests { get; set; } = new List<UserQuest>();
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public int? MedalId { get; set; }
     }
 }

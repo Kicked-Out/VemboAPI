@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using VemboAPI.Domain.DTOs;
@@ -20,13 +22,13 @@ namespace VemboAPI.Infrastructure.Services
 
         public List<UserQuestDto> GetAll()
         {
-            var userQuests = _dbContext.UserQuests.Include(uq => uq.Quest).ToList();
+            var userQuests = _dbContext.UserQuests.Include(uq => uq.QuestDefinition).ToList();
             return _mapper.Map<List<UserQuestDto>>(userQuests);
         }
 
         public UserQuestDto GetById(int id)
         {
-            var userQuest = _dbContext.UserQuests.Include(uq => uq.Quest).FirstOrDefault(uq => uq.Id == id);
+            var userQuest = _dbContext.UserQuests.Include(uq => uq.QuestDefinition).FirstOrDefault(uq => uq.Id == id);
             if (userQuest == null)
                 throw new KeyNotFoundException($"User quest with ID {id} not found.");
             return _mapper.Map<UserQuestDto>(userQuest);
@@ -36,8 +38,8 @@ namespace VemboAPI.Infrastructure.Services
         {
             if (!_dbContext.Users.Any(u => u.Id == dto.UserId))
                 throw new KeyNotFoundException($"User with ID {dto.UserId} not found.");
-            if (!_dbContext.Quests.Any(q => q.Id == dto.QuestId))
-                throw new KeyNotFoundException($"Quest with ID {dto.QuestId} not found.");
+            if (!_dbContext.QuestDefinitions.Any(q => q.Id == dto.QuestDefinitionId))
+                throw new KeyNotFoundException($"Quest definition with ID {dto.QuestDefinitionId} not found.");
             var userQuest = _mapper.Map<UserQuest>(dto);
             _dbContext.UserQuests.Add(userQuest);
             _dbContext.SaveChanges();

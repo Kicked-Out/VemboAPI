@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using VemboAPI.Domain.Entities;
 
-namespace VemboAPI.Infrastructure.Data 
+namespace VemboAPI.Infrastructure.Data
 {
     public class VemboDbContext : IdentityDbContext<User>
     {
@@ -29,6 +29,8 @@ namespace VemboAPI.Infrastructure.Data
         public DbSet<Achievement> Achievements { get; set; }
         public DbSet<Badge> Badges { get; set; }
         public DbSet<Medal> Medals { get; set; }
+        public DbSet<QuestDefinition> QuestDefinitions { get; set; }
+        public DbSet<QuestType> QuestTypes { get; set; }
         public DbSet<Quest> Quests { get; set; }
         public DbSet<UserStatistic> UserStatistics { get; set; }
         public DbSet<UserLeaderBoardEntry> UserLeaderBoardEntries { get; set; }
@@ -36,8 +38,8 @@ namespace VemboAPI.Infrastructure.Data
         public DbSet<UserStreak> UserStreaks { get; set; }
         public DbSet<UserStreakDay> UserStreakDays { get; set; }
         public DbSet<UserMedal> UserMedals { get; set; }
-        public DbSet<DailyQuest> DailyQuests { get; set; }
         public DbSet<UserQuest> UserQuests { get; set; }
+        public DbSet<UserQuestProgress> UserQuestProgresses { get; set; }
 
         public VemboDbContext(DbContextOptions<VemboDbContext> options) : base(options)
         {
@@ -79,9 +81,42 @@ namespace VemboAPI.Infrastructure.Data
             modelBuilder.Entity<UserStreakDay>();
             modelBuilder.Entity<Medal>();
             modelBuilder.Entity<UserMedal>();
-            modelBuilder.Entity<Quest>();
-            modelBuilder.Entity<DailyQuest>();
-            modelBuilder.Entity<UserQuest>();
+            modelBuilder.Entity<QuestDefinition>();
+            modelBuilder.Entity<QuestType>();
+
+            modelBuilder.Entity<Quest>(entity =>
+            {
+                entity.HasOne(q => q.QuestDefinition)
+                    .WithMany(qd => qd.Quests)
+                    .HasForeignKey(q => q.QuestDefinitionId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(q => q.QuestType)
+                    .WithMany(qt => qt.Quests)
+                    .HasForeignKey(q => q.QuestTypeId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<UserQuest>(entity =>
+            {
+                entity.HasOne(uq => uq.QuestDefinition)
+                    .WithMany(qd => qd.UserQuests)
+                    .HasForeignKey(uq => uq.QuestDefinitionId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<UserQuestProgress>(entity =>
+            {
+                entity.HasKey(e => new { e.UserId, e.QuestId });
+                entity.HasOne(e => e.User)
+                    .WithMany()
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(e => e.Quest)
+                    .WithMany()
+                    .HasForeignKey(e => e.QuestId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
         }
     }
 }

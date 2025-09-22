@@ -1,3 +1,4 @@
+using System;
 using AutoMapper;
 
 using VemboAPI.Domain.DTOs;
@@ -107,17 +108,30 @@ namespace VemboAPI.Infrastructure
             CreateMap<CreateUserAchievementDto, UserAchievement>().ReverseMap();
             CreateMap<UpdateUserAchievementDto, UserAchievement>().ReverseMap();
 
+            CreateMap<QuestDefinition, QuestDefinitionDto>()
+                .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category.ToString()));
+            CreateMap<CreateQuestDefinitionDto, QuestDefinition>()
+                .ForMember(dest => dest.Category,
+                    opt => opt.MapFrom(src => Enum.Parse<QuestDefinitionCategory>(src.Category, true)));
+            CreateMap<UpdateQuestDefinitionDto, QuestDefinition>()
+                .ForMember(dest => dest.Category,
+                    opt => opt.MapFrom(src => Enum.Parse<QuestDefinitionCategory>(src.Category, true)));
+
             CreateMap<Quest, QuestDto>().ReverseMap();
             CreateMap<CreateQuestDto, Quest>();
             CreateMap<UpdateQuestDto, Quest>();
 
-            CreateMap<DailyQuest, DailyQuestDto>().ReverseMap();
-            CreateMap<CreateDailyQuestDto, DailyQuest>();
-            CreateMap<UpdateDailyQuestDto, DailyQuest>();
+            CreateMap<QuestType, QuestTypeDto>().ReverseMap();
+            CreateMap<CreateQuestTypeDto, QuestType>();
+            CreateMap<UpdateQuestTypeDto, QuestType>();
 
             CreateMap<UserQuest, UserQuestDto>().ReverseMap();
             CreateMap<CreateUserQuestDto, UserQuest>();
             CreateMap<UpdateUserQuestDto, UserQuest>();
+
+            CreateMap<UserQuestProgress, UserQuestProgressDto>().ReverseMap();
+            CreateMap<CreateUserQuestProgressDto, UserQuestProgress>();
+            CreateMap<UpdateUserQuestProgressDto, UserQuestProgress>();
 
             CreateMap<Medal, MedalDto>();
             CreateMap<CreateMedalDto, Medal>();

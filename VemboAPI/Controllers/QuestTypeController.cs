@@ -7,22 +7,22 @@ using VemboAPI.Infrastructure.Interfaces;
 namespace VemboAPI.API.Controllers
 {
     [ApiController]
-    [Route("api/quests")]
-    public class QuestController : ControllerBase
+    [Route("api/quest-types")]
+    public class QuestTypeController : ControllerBase
     {
-        private readonly IQuestService _questService;
+        private readonly IQuestTypeService _questTypeService;
 
-        public QuestController(IQuestService questService)
+        public QuestTypeController(IQuestTypeService questTypeService)
         {
-            _questService = questService;
+            _questTypeService = questTypeService;
         }
 
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var quests = await _questService.GetAllAsync();
-            return Ok(quests);
+            var types = await _questTypeService.GetAllAsync();
+            return Ok(types);
         }
 
         [Authorize]
@@ -31,8 +31,8 @@ namespace VemboAPI.API.Controllers
         {
             try
             {
-                var quest = await _questService.GetByIdAsync(id);
-                return Ok(quest);
+                var type = await _questTypeService.GetByIdAsync(id);
+                return Ok(type);
             }
             catch (KeyNotFoundException ex)
             {
@@ -42,31 +42,25 @@ namespace VemboAPI.API.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] CreateQuestDto dto)
+        public async Task<IActionResult> Post([FromBody] CreateQuestTypeDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            try
-            {
-                var created = await _questService.CreateAsync(dto);
-                return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            var created = await _questTypeService.CreateAsync(dto);
+            return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] UpdateQuestDto dto)
+        public async Task<IActionResult> Put(int id, [FromBody] UpdateQuestTypeDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
             try
             {
-                await _questService.UpdateAsync(id, dto);
+                await _questTypeService.UpdateAsync(id, dto);
                 return NoContent();
             }
             catch (KeyNotFoundException ex)
@@ -81,7 +75,7 @@ namespace VemboAPI.API.Controllers
         {
             try
             {
-                await _questService.DeleteAsync(id);
+                await _questTypeService.DeleteAsync(id);
                 return NoContent();
             }
             catch (KeyNotFoundException ex)
