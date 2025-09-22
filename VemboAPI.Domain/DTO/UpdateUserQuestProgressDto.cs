@@ -1,6 +1,6 @@
 namespace VemboAPI.Domain.DTOs
 {
-    public class UpdateUserQuestDto
+    public class UpdateUserQuestProgressDto
     {
         public int Progress { get; set; }
         public bool IsCompleted { get; set; }

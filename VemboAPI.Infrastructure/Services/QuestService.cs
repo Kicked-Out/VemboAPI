@@ -11,51 +11,116 @@ namespace VemboAPI.Infrastructure.Services
     {
         private readonly VemboDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly ICacheService _cache;
+        private readonly IContentVersionService _versionService;
 
-        public QuestService(VemboDbContext dbContext, IMapper mapper)
+        public QuestService(
+            VemboDbContext dbContext,
+            IMapper mapper,
+            ICacheService cache,
+            IContentVersionService versionService)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _cache = cache;
+            _versionService = versionService;
         }
 
-        public List<QuestDto> GetAll()
+        public async Task<List<QuestDto>> GetAllAsync()
         {
-            var quests = _dbContext.Quests.ToList();
-            return _mapper.Map<List<QuestDto>>(quests);
+            var version = await _versionService.GetVersionAsync();
+            var cacheKey = $"content:quests:all:v{version}";
+
+            return await _cache.GetOrSetAsync(cacheKey, async () =>
+            {
+                var quests = await _dbContext.Quests
+                    .AsNoTracking()
+                    .Include(q => q.QuestDefinition)
+                    .Include(q => q.QuestType)
+                    .ToListAsync();
+
+                return _mapper.Map<List<QuestDto>>(quests);
+            });
         }
 
-        public QuestDto GetById(int id)
+        public async Task<QuestDto> GetByIdAsync(int id)
         {
-            var quest = _dbContext.Quests.Find(id);
-            if (quest == null)
-                throw new KeyNotFoundException($"Quest with ID {id} not found.");
-            return _mapper.Map<QuestDto>(quest);
+            var version = await _versionService.GetVersionAsync();
+            var cacheKey = $"content:quest:{id}:v{version}";
+
+            var dto = await _cache.GetOrSetAsync(cacheKey, async () =>
+            {
+                var quest = await _dbContext.Quests
+                    .AsNoTracking()
+                    .Include(q => q.QuestDefinition)
+                    .Include(q => q.QuestType)
+                    .FirstOrDefaultAsync(q => q.Id == id);
+
+                if (quest == null)
+                {
+                    throw new KeyNotFoundException($"Quest with ID {id} not found.");
+                }
+
+                return _mapper.Map<QuestDto>(quest);
+            });
+
+            return dto!;
         }
 
-        public QuestDto Create(CreateQuestDto dto)
+        public async Task<QuestDto> CreateAsync(CreateQuestDto dto)
         {
+            if (!await _dbContext.QuestDefinitions.AnyAsync(q => q.Id == dto.QuestDefinitionId))
+            {
+                throw new KeyNotFoundException($"Quest definition with ID {dto.QuestDefinitionId} not found.");
+            }
+
+            if (!await _dbContext.QuestTypes.AnyAsync(qt => qt.Id == dto.QuestTypeId))
+            {
+                throw new KeyNotFoundException($"Quest type with ID {dto.QuestTypeId} not found.");
+            }
+
             var quest = _mapper.Map<Quest>(dto);
-            _dbContext.Quests.Add(quest);
-            _dbContext.SaveChanges();
+            await _dbContext.Quests.AddAsync(quest);
+            await _dbContext.SaveChangesAsync();
+            await _versionService.BumpAsync();
+
             return _mapper.Map<QuestDto>(quest);
         }
 
-        public void Update(int id, UpdateQuestDto dto)
+        public async Task UpdateAsync(int id, UpdateQuestDto dto)
         {
-            var quest = _dbContext.Quests.Find(id);
+            var quest = await _dbContext.Quests.FindAsync(id);
             if (quest == null)
+            {
                 throw new KeyNotFoundException($"Quest with ID {id} not found.");
+            }
+
+            if (!await _dbContext.QuestDefinitions.AnyAsync(q => q.Id == dto.QuestDefinitionId))
+            {
+                throw new KeyNotFoundException($"Quest definition with ID {dto.QuestDefinitionId} not found.");
+            }
+
+            if (!await _dbContext.QuestTypes.AnyAsync(qt => qt.Id == dto.QuestTypeId))
+            {
+                throw new KeyNotFoundException($"Quest type with ID {dto.QuestTypeId} not found.");
+            }
+
             _mapper.Map(dto, quest);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
+            await _versionService.BumpAsync();
         }
 
-        public void Delete(int id)
+        public async Task DeleteAsync(int id)
         {
-            var quest = _dbContext.Quests.Find(id);
+            var quest = await _dbContext.Quests.FindAsync(id);
             if (quest == null)
+            {
                 throw new KeyNotFoundException($"Quest with ID {id} not found.");
+            }
+
             _dbContext.Quests.Remove(quest);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
+            await _versionService.BumpAsync();
         }
     }
 }

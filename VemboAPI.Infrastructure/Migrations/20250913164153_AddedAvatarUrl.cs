@@ -75,21 +75,33 @@ namespace VemboAPI.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Quests",
+                name: "QuestDefinitions",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    QuestType = table.Column<int>(type: "int", nullable: false),
                     Requirement = table.Column<int>(type: "int", nullable: false),
                     RewardType = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     RewardAmount = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Quests", x => x.Id);
+                    table.PrimaryKey("PK_QuestDefinitions", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "QuestTypes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_QuestTypes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -191,49 +203,56 @@ namespace VemboAPI.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "DailyQuests",
+                name: "Quests",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    QuestId = table.Column<int>(type: "int", nullable: false),
+                    QuestDefinitionId = table.Column<int>(type: "int", nullable: false),
+                    QuestTypeId = table.Column<int>(type: "int", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     MedalId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DailyQuests", x => x.Id);
+                    table.PrimaryKey("PK_Quests", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_DailyQuests_Quests_QuestId",
-                        column: x => x.QuestId,
-                        principalTable: "Quests",
+                        name: "FK_Quests_QuestDefinitions_QuestDefinitionId",
+                        column: x => x.QuestDefinitionId,
+                        principalTable: "QuestDefinitions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Quests_QuestTypes_QuestTypeId",
+                        column: x => x.QuestTypeId,
+                        principalTable: "QuestTypes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserQuests",
+                name: "UserQuestProgresses",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    UserId1 = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     QuestId = table.Column<int>(type: "int", nullable: false),
                     Progress = table.Column<int>(type: "int", nullable: false),
                     IsCompleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserQuests", x => x.Id);
+                    table.PrimaryKey("PK_UserQuestProgresses", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_UserQuests_AspNetUsers_UserId1",
-                        column: x => x.UserId1,
+                        name: "FK_UserQuestProgresses_AspNetUsers_UserId",
+                        column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_UserQuests_Quests_QuestId",
+                        name: "FK_UserQuestProgresses_Quests_QuestId",
                         column: x => x.QuestId,
                         principalTable: "Quests",
                         principalColumn: "Id",
@@ -241,9 +260,14 @@ namespace VemboAPI.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_DailyQuests_QuestId",
-                table: "DailyQuests",
-                column: "QuestId");
+                name: "IX_Quests_QuestDefinitionId",
+                table: "Quests",
+                column: "QuestDefinitionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Quests_QuestTypeId",
+                table: "Quests",
+                column: "QuestTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserBadges_BadgeId",
@@ -266,14 +290,14 @@ namespace VemboAPI.Infrastructure.Migrations
                 column: "UserId1");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserQuests_QuestId",
-                table: "UserQuests",
+                name: "IX_UserQuestProgresses_QuestId",
+                table: "UserQuestProgresses",
                 column: "QuestId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserQuests_UserId1",
-                table: "UserQuests",
-                column: "UserId1");
+                name: "IX_UserQuestProgresses_UserId",
+                table: "UserQuestProgresses",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserStreakDays_UserId1",
@@ -290,16 +314,13 @@ namespace VemboAPI.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "DailyQuests");
+                name: "UserQuestProgresses");
 
             migrationBuilder.DropTable(
                 name: "UserBadges");
 
             migrationBuilder.DropTable(
                 name: "UserMedals");
-
-            migrationBuilder.DropTable(
-                name: "UserQuests");
 
             migrationBuilder.DropTable(
                 name: "UserStreakDays");
@@ -315,6 +336,12 @@ namespace VemboAPI.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Quests");
+
+            migrationBuilder.DropTable(
+                name: "QuestDefinitions");
+
+            migrationBuilder.DropTable(
+                name: "QuestTypes");
 
             migrationBuilder.DropColumn(
                 name: "AvatarUrl",
