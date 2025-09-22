@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using FluentValidation;
 using VemboAPI.Domain.DTOs;
 
@@ -10,9 +10,8 @@ namespace VemboAPI.Domain.Validators
         {
             RuleFor(x => x.Title).NotEmpty().MaximumLength(30);
             RuleFor(x => x.Description).NotEmpty().MaximumLength(250);
-            //RuleFor(x => x.IconUrl).NotEmpty().MaximumLength(300);
+            RuleFor(x => x.IconUrl).MaximumLength(300);
+            RuleFor(x => x.CompletedIconUrl).MaximumLength(300);
         }
     }
-
 }
-

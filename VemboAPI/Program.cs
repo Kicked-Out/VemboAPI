@@ -167,9 +167,10 @@ public class Program
         builder.Services.AddScoped<IMedalService, MedalService>();
         builder.Services.AddScoped<IUserMedalService, UserMedalService>();
         builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+        builder.Services.AddScoped<IQuestDefinitionService, QuestDefinitionService>();
         builder.Services.AddScoped<IQuestService, QuestService>();
-        builder.Services.AddScoped<IDailyQuestService, DailyQuestService>();
-        builder.Services.AddScoped<IUserQuestService, UserQuestService>();
+        builder.Services.AddScoped<IQuestTypeService, QuestTypeService>();
+        builder.Services.AddScoped<IUserQuestProgressService, UserQuestProgressService>();
         builder.Services.AddScoped<IUserManager, UserManager>();
         builder.Services.AddSingleton<ICacheService, RedisCacheService>();
         builder.Services.AddSingleton<IContentVersionService, ContentVersionService>();

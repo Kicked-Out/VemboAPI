@@ -273,7 +273,7 @@ namespace VemboAPI.Infrastructure.Migrations
                     b.ToTable("Badges");
                 });
 
-            modelBuilder.Entity("VemboAPI.Domain.Entities.DailyQuest", b =>
+            modelBuilder.Entity("VemboAPI.Domain.Entities.Quest", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -287,7 +287,10 @@ namespace VemboAPI.Infrastructure.Migrations
                     b.Property<int?>("MedalId")
                         .HasColumnType("int");
 
-                    b.Property<int>("QuestId")
+                    b.Property<int>("QuestDefinitionId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("QuestTypeId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("StartDate")
@@ -295,9 +298,11 @@ namespace VemboAPI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("QuestId");
+                    b.HasIndex("QuestDefinitionId");
 
-                    b.ToTable("DailyQuests");
+                    b.HasIndex("QuestTypeId");
+
+                    b.ToTable("Quests");
                 });
 
             modelBuilder.Entity("VemboAPI.Domain.Entities.Exercise", b =>
@@ -495,7 +500,7 @@ namespace VemboAPI.Infrastructure.Migrations
                     b.ToTable("Periods");
                 });
 
-            modelBuilder.Entity("VemboAPI.Domain.Entities.Quest", b =>
+            modelBuilder.Entity("VemboAPI.Domain.Entities.QuestDefinition", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -506,9 +511,6 @@ namespace VemboAPI.Infrastructure.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("QuestType")
-                        .HasColumnType("int");
 
                     b.Property<int>("Requirement")
                         .HasColumnType("int");
@@ -526,7 +528,24 @@ namespace VemboAPI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Quests");
+                    b.ToTable("QuestDefinitions");
+                });
+
+            modelBuilder.Entity("VemboAPI.Domain.Entities.QuestType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("QuestTypes");
                 });
 
             modelBuilder.Entity("VemboAPI.Domain.Entities.Question", b =>
@@ -943,7 +962,7 @@ namespace VemboAPI.Infrastructure.Migrations
                     b.ToTable("UserPeriodProgresses");
                 });
 
-            modelBuilder.Entity("VemboAPI.Domain.Entities.UserQuest", b =>
+            modelBuilder.Entity("VemboAPI.Domain.Entities.UserQuestProgress", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -960,19 +979,17 @@ namespace VemboAPI.Infrastructure.Migrations
                     b.Property<int>("QuestId")
                         .HasColumnType("int");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId1")
+                    b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("QuestId");
 
-                    b.HasIndex("UserId1");
+                    b.HasIndex("UserId");
 
-                    b.ToTable("UserQuests");
+                    b.ToTable("UserQuestProgresses");
                 });
 
             modelBuilder.Entity("VemboAPI.Domain.Entities.UserStatistic", b =>
@@ -1196,15 +1213,22 @@ namespace VemboAPI.Infrastructure.Migrations
                     b.Navigation("Question");
                 });
 
-            modelBuilder.Entity("VemboAPI.Domain.Entities.DailyQuest", b =>
+            modelBuilder.Entity("VemboAPI.Domain.Entities.Quest", b =>
                 {
-                    b.HasOne("VemboAPI.Domain.Entities.Quest", "Quest")
-                        .WithMany("DailyQuests")
-                        .HasForeignKey("QuestId")
+                    b.HasOne("VemboAPI.Domain.Entities.QuestDefinition", "QuestDefinition")
+                        .WithMany("Quests")
+                        .HasForeignKey("QuestDefinitionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Quest");
+                    b.HasOne("VemboAPI.Domain.Entities.QuestType", "QuestType")
+                        .WithMany("Quests")
+                        .HasForeignKey("QuestTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("QuestDefinition");
+                    b.Navigation("QuestType");
                 });
 
             modelBuilder.Entity("VemboAPI.Domain.Entities.Exercise", b =>
@@ -1437,17 +1461,19 @@ namespace VemboAPI.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("VemboAPI.Domain.Entities.UserQuest", b =>
+            modelBuilder.Entity("VemboAPI.Domain.Entities.UserQuestProgress", b =>
                 {
                     b.HasOne("VemboAPI.Domain.Entities.Quest", "Quest")
-                        .WithMany("UserQuests")
+                        .WithMany("UserQuestProgresses")
                         .HasForeignKey("QuestId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("VemboAPI.Domain.Entities.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId1");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Quest");
 
@@ -1587,9 +1613,17 @@ namespace VemboAPI.Infrastructure.Migrations
 
             modelBuilder.Entity("VemboAPI.Domain.Entities.Quest", b =>
                 {
-                    b.Navigation("DailyQuests");
+                    b.Navigation("UserQuestProgresses");
+                });
 
-                    b.Navigation("UserQuests");
+            modelBuilder.Entity("VemboAPI.Domain.Entities.QuestDefinition", b =>
+                {
+                    b.Navigation("Quests");
+                });
+
+            modelBuilder.Entity("VemboAPI.Domain.Entities.QuestType", b =>
+                {
+                    b.Navigation("Quests");
                 });
 
             modelBuilder.Entity("VemboAPI.Domain.Entities.Question", b =>
