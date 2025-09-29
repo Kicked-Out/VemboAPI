@@ -14,5 +14,7 @@
         public long XP { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public bool IsBlocked { get; set; }
+        public DateTimeOffset? LockedUntil { get; set; }
     }
 }

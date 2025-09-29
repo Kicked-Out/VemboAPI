@@ -1,4 +1,5 @@
 using AutoMapper;
+using System;
 
 using VemboAPI.Domain.DTOs;
 using VemboAPI.Domain.Entities;
@@ -10,7 +11,15 @@ namespace VemboAPI.Infrastructure
         public MappingProfile()
         {
             // Користувач
-            CreateMap<User, UserDto>().ReverseMap();
+            CreateMap<User, UserDto>()
+                .ForMember(dest => dest.IsBlocked,
+                    opt => opt.MapFrom(src => src.LockoutEnd.HasValue && src.LockoutEnd.Value.UtcDateTime > DateTime.UtcNow))
+                .ForMember(dest => dest.LockedUntil, opt => opt.MapFrom(src => src.LockoutEnd))
+                .ReverseMap()
+                .ForMember(dest => dest.LockoutEnd, opt => opt.MapFrom(src => src.LockedUntil))
+                .ForMember(dest => dest.LockoutEnabled,
+                    opt => opt.MapFrom(src => src.LockedUntil.HasValue || src.IsBlocked))
+                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
             CreateMap<CreateUserDto, User>().ReverseMap();
             CreateMap<UpdateUserDto, User>().ReverseMap();
 

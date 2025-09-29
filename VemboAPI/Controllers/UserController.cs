@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Data;
 using System.Security.Claims;
 using VemboAPI.Domain.DTOs;
@@ -136,6 +137,50 @@ public class UserController : Controller
 
         await _userService.UpdateRoleAsync(userId, newRole);
         return Ok($"Role updated to {newRole}.");
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost("{id}/block")]
+    public async Task<IActionResult> BlockUser(string id, [FromBody] BlockUserDto dto)
+    {
+        if (dto == null)
+            return BadRequest("Block data is required.");
+
+        try
+        {
+            var lockedUntil = dto.LockedUntil ?? DateTimeOffset.MaxValue;
+            await _userService.BlockUserAsync(id, lockedUntil, dto.Reason);
+
+            return Ok(new
+            {
+                Message = $"User {id} has been blocked.",
+                LockedUntil = lockedUntil,
+                Reason = dto.Reason
+            });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost("{id}/unblock")]
+    public async Task<IActionResult> UnblockUser(string id)
+    {
+        try
+        {
+            await _userService.UnblockUserAsync(id);
+
+            return Ok(new
+            {
+                Message = $"User {id} has been unblocked."
+            });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
     }
 
 }

@@ -158,6 +158,7 @@ public class Program
         builder.Services.AddScoped<IAchievementService, AchievementService>();
         builder.Services.AddScoped<IBadgeService, BadgeService>();
         builder.Services.AddScoped<IUserStatisticService, UserStatisticService>();
+        builder.Services.AddScoped<IAdminPanelService, AdminPanelService>();
         builder.Services.AddScoped<IUserLeaderBoardService, UserLeaderBoardService>();
         builder.Services.AddScoped<IUserAchievementService, UserAchievementService>();
         builder.Services.AddScoped<IBadgeService, BadgeService>();

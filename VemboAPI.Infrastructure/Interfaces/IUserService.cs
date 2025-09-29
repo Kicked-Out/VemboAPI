@@ -1,3 +1,4 @@
+using System;
 using VemboAPI.Domain.DTOs;
 
 namespace VemboAPI.Infrastructure.Interfaces
@@ -7,6 +8,8 @@ namespace VemboAPI.Infrastructure.Interfaces
         Task CreateUser(CreateUserDto dto);
         Task UpdateUser(string id, UpdateUserDto dto);
         Task UpdateRoleAsync(string userId, string newRole);
+        Task BlockUserAsync(string userId, DateTimeOffset? lockedUntil, string? reason = null);
+        Task UnblockUserAsync(string userId);
 
         Task DeleteUser(int id);
 

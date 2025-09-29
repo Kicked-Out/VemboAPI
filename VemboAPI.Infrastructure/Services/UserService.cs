@@ -1,4 +1,5 @@
-﻿using VemboAPI.Infrastructure.Data;
+using System;
+using VemboAPI.Infrastructure.Data;
 using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.Entities;
 using VemboAPI.Domain.DTOs;
@@ -108,6 +109,34 @@ namespace VemboAPI.Infrastructure.Services
                 throw new KeyNotFoundException($"User with ID {userId} not found.");
 
             user.Role = newRole;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task BlockUserAsync(string userId, DateTimeOffset? lockedUntil, string? reason = null)
+        {
+            var user = await _dbContext.Users.FindAsync(userId);
+
+            if (user == null)
+                throw new KeyNotFoundException($"User with ID {userId} not found.");
+
+            user.LockoutEnabled = true;
+            user.LockoutEnd = lockedUntil ?? DateTimeOffset.MaxValue;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task UnblockUserAsync(string userId)
+        {
+            var user = await _dbContext.Users.FindAsync(userId);
+
+            if (user == null)
+                throw new KeyNotFoundException($"User with ID {userId} not found.");
+
+            user.LockoutEnd = null;
+            user.LockoutEnabled = false;
             user.UpdatedAt = DateTime.UtcNow;
 
             await _dbContext.SaveChangesAsync();
