@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="uk">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Вембо • Довідник античності</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Rubik:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="page-header">
+      <div class="page-header__inner">
+        <a class="brand" href="#hero">Vembo</a>
+        <nav class="primary-nav" aria-label="Основна навігація">
+          <button
+            class="primary-nav__toggle"
+            type="button"
+            aria-expanded="false"
+            aria-controls="primary-nav-list"
+          >
+            <span class="sr-only">Показати меню</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M4 6h16M4 12h16M4 18h16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+          </button>
+          <ul class="primary-nav__list" id="primary-nav-list">
+            <li><a href="#timeline">Хронологія</a></li>
+            <li><a href="#mentors">Мислителі</a></li>
+            <li><a href="#skills">Навички</a></li>
+            <li><a href="#resources">Ресурси</a></li>
+          </ul>
+        </nav>
+        <a class="primary-action" href="#resources">Відкрити курс</a>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero" id="hero">
+        <div class="hero__media" aria-hidden="true">
+          <div class="hero__orb hero__orb--sun"></div>
+          <div class="hero__orb hero__orb--moon"></div>
+        </div>
+        <div class="hero__content">
+          <p class="hero__eyebrow">Подорож у світ античних ідей</p>
+          <h1 class="hero__title">
+            Довідник <span>давньогрецьких філософів</span> для будь-якого екрана
+          </h1>
+          <p class="hero__lead">
+            Переконайтесь, що ваші студенти можуть зануритися в знання з телефону
+            чи великого екрана. Ми розклали матеріал на зручні модулі, адаптивні
+            блоки та картки, які автоматично підлаштовуються під простір.
+          </p>
+          <div class="hero__actions">
+            <a class="primary-action" href="#mentors">Переглянути мислителів</a>
+            <a class="secondary-action" href="#timeline">Дослідити маршрут</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="info-panels" aria-label="Основні блоки курсу">
+        <article class="info-panel">
+          <h2>Стислий огляд</h2>
+          <p>
+            Програма складається з трьох тематичних модулів із чіткою
+            послідовністю: становлення, розквіт та спадщина філософської думки.
+          </p>
+          <dl class="info-panel__meta">
+            <div>
+              <dt>Тривалість</dt>
+              <dd>4 тижні • 18 занять</dd>
+            </div>
+            <div>
+              <dt>Формат</dt>
+              <dd>Відео + мікропрактики + обговорення</dd>
+            </div>
+            <div>
+              <dt>Рівень</dt>
+              <dd>Початковий — просунутий (адаптивно)</dd>
+            </div>
+          </dl>
+        </article>
+
+        <article class="info-panel">
+          <h2>Що нового</h2>
+          <ul class="info-panel__list">
+            <li>Розумне перекомпонування колонок під планшети та мобільні пристрої.</li>
+            <li>Гнучкі картки з адаптивними заголовками та зображеннями.</li>
+            <li>Сітка з auto-fit для плавного переходу між розмірами.</li>
+            <li>Доступний off-canvas навбар з анімацією без JavaScript-фреймворків.</li>
+          </ul>
+        </article>
+
+        <article class="info-panel">
+          <h2>Навчальний результат</h2>
+          <p>
+            Студенти опанують етапи розвитку античної філософії, навчаться
+            виокремлювати ключові тези мислителів та зіставляти їх із сучасними
+            концепціями критичного мислення.
+          </p>
+          <a class="inline-link" href="#resources">Переглянути навчальні матеріали →</a>
+        </article>
+      </section>
+
+      <section class="timeline" id="timeline" aria-label="Хронологія курсу">
+        <div class="section-heading">
+          <h2>Маршрут навчання</h2>
+          <p>
+            Кожен модуль містить короткі лекції, інтерактивні сценарії та
+            практики, що зручно читаються навіть на екрані смартфона.
+          </p>
+        </div>
+        <div class="timeline__grid">
+          <article class="timeline-card">
+            <h3>1. Витоки</h3>
+            <p>Сократ та софісти, народження діалектики, формування етики.</p>
+            <ul>
+              <li>Мобільні карточки з вертикальним скролом</li>
+              <li>Компонування контенту в один стовпець</li>
+              <li>Підказки до домашніх завдань</li>
+            </ul>
+          </article>
+          <article class="timeline-card">
+            <h3>2. Академія</h3>
+            <p>Платон, ідеї та форми, роль діалогів у розвитку логіки.</p>
+            <ul>
+              <li>Гнучкі таблиці джерел</li>
+              <li>Карти понять із grid-layout</li>
+              <li>Пояснення через інтерактивні цитати</li>
+            </ul>
+          </article>
+          <article class="timeline-card">
+            <h3>3. Ліце́й</h3>
+            <p>Арістотель, логіка, фізика та метафізика: інструменти аналізу.</p>
+            <ul>
+              <li>Адаптивні тести з розгалуженням</li>
+              <li>Шпаргалки та резюме з clamp-типографікою</li>
+              <li>Підсумковий воркшоп у форматі майндмепів</li>
+            </ul>
+          </article>
+          <article class="timeline-card">
+            <h3>4. Спадщина</h3>
+            <p>Стоїки, епікурейці та римське продовження грецької думки.</p>
+            <ul>
+              <li>Адаптивні таймлайни з CSS Scroll Snap</li>
+              <li>Карти впливу з багатоколонною компоновкою</li>
+              <li>Практичні кейси для роздумів</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="mentors" id="mentors" aria-label="Картки мислителів">
+        <div class="section-heading">
+          <h2>Мислителі курсу</h2>
+          <p>
+            Картки автоматично підлаштовуються: від трьох колонок на десктопі до
+            повноекранної каруселі на мобільних.
+          </p>
+        </div>
+        <div class="mentors__grid">
+          <article class="mentor-card">
+            <img src="../Profiles/a6536438-0aea-4ea1-a93a-1e0b6d4fb8b2.jpg" alt="Портрет Сократа" />
+            <div class="mentor-card__body">
+              <h3>Сократ</h3>
+              <p>Навчаємося ставити запитання та шукати істину в діалозі.</p>
+              <ul>
+                <li>Короткі уроки по 15 хвилин</li>
+                <li>Тести з миттєвим фідбеком</li>
+                <li>Рекомендації книг у форматі swipe</li>
+              </ul>
+            </div>
+          </article>
+          <article class="mentor-card">
+            <img src="../Achievements/champion.png" alt="Іконка з лавровим вінком" />
+            <div class="mentor-card__body">
+              <h3>Платон</h3>
+              <p>Візуалізовані діалоги та інфографіка ідей та форм.</p>
+              <ul>
+                <li>Графічні таймлайни</li>
+                <li>Гнучкі блоки з цитатами</li>
+                <li>Схеми в режимі карток</li>
+              </ul>
+            </div>
+          </article>
+          <article class="mentor-card">
+            <img src="../Achievements/historian_of_ages.png" alt="Іконка сувою" />
+            <div class="mentor-card__body">
+              <h3>Арістотель</h3>
+              <p>Алгоритми, діаграми та дерева рішень для складних тем.</p>
+              <ul>
+                <li>Інтерактивні квізи</li>
+                <li>Паралельні порівняльні таблиці</li>
+                <li>Підсумки у вигляді чеклістів</li>
+              </ul>
+            </div>
+          </article>
+          <article class="mentor-card">
+            <img src="../Achievements/Completed/history_spark.png" alt="Іконка факела" />
+            <div class="mentor-card__body">
+              <h3>Стоїки</h3>
+              <p>Практики стійкості з адаптивними трекерами прогресу.</p>
+              <ul>
+                <li>Денний трекер з auto-fit сіткою</li>
+                <li>Мобільні блоки швидких нотаток</li>
+                <li>Аудіо-роздуми з компактним плеєром</li>
+              </ul>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="skills" id="skills" aria-label="Розвиток навичок">
+        <div class="section-heading">
+          <h2>Навички, що формуються</h2>
+          <p>
+            Для кожної навички ми налаштували компоненти так, щоби основний текст
+            залишався читабельним навіть при масштабуванні інтерфейсу.
+          </p>
+        </div>
+        <div class="skills__matrix" role="table" aria-label="Матриця навичок та форматів">
+          <div class="skills__row skills__row--header" role="row">
+            <span role="columnheader">Навичка</span>
+            <span role="columnheader">Формат</span>
+            <span role="columnheader">Інструмент</span>
+          </div>
+          <div class="skills__row" role="row">
+            <span role="cell">Критичне мислення</span>
+            <span role="cell">Дебати з адаптивною розміткою</span>
+            <span role="cell">Мобільний сценарій Socratic Walk</span>
+          </div>
+          <div class="skills__row" role="row">
+            <span role="cell">Аналіз тексту</span>
+            <span role="cell">Розумні колонки цитат</span>
+            <span role="cell">Grid-панелі з примітками</span>
+          </div>
+          <div class="skills__row" role="row">
+            <span role="cell">Порівняльна логіка</span>
+            <span role="cell">Flex-таблиці зі stack-режимом</span>
+            <span role="cell">Інтерактивні схеми</span>
+          </div>
+          <div class="skills__row" role="row">
+            <span role="cell">Саморефлексія</span>
+            <span role="cell">Мобільні щоденники</span>
+            <span role="cell">Картки усвідомленості</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="resources" id="resources" aria-label="Ресурси та документи">
+        <div class="section-heading">
+          <h2>Комплект матеріалів</h2>
+          <p>
+            Файли та інструкції згруповані в компактні картки. На широких екранах
+            вони розширюються у дві колонки, на мобільних — в один стовпець.
+          </p>
+        </div>
+        <div class="resources__grid">
+          <article class="resource-card">
+            <h3>Методичні вказівки</h3>
+            <p>Пояснення адаптивної структури уроків, сценарії інтерактивів.</p>
+            <a class="inline-link" href="#">Завантажити PDF</a>
+          </article>
+          <article class="resource-card">
+            <h3>Мультимедіа</h3>
+            <p>Галерея ілюстрацій та аудіозаписи, оптимізовані під мобайл.</p>
+            <a class="inline-link" href="#">Переглянути колекцію</a>
+          </article>
+          <article class="resource-card">
+            <h3>Практичні завдання</h3>
+            <p>Файли для друку та цифрові воркбуки з автоперемиканням режиму.</p>
+            <a class="inline-link" href="#">Відкрити шаблони</a>
+          </article>
+          <article class="resource-card">
+            <h3>Аналітика прогресу</h3>
+            <p>Дашборди з responsive графіками та адаптивними фільтрами.</p>
+            <a class="inline-link" href="#">Перейти до панелі</a>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="page-footer">
+      <div class="page-footer__inner">
+        <p>© 2025 Vembo. Всі права захищені.</p>
+        <a class="inline-link" href="#hero">Назад нагору</a>
+      </div>
+    </footer>
+
+    <script src="main.js" defer></script>
+  </body>
+</html>
