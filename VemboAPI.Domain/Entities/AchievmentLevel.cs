@@ -1,5 +1,4 @@
-﻿using System;
-namespace VemboAPI.Domain.Entities
+﻿namespace VemboAPI.Domain.Entities
 {
     public class AchievementLevel
     {
@@ -10,6 +9,7 @@ namespace VemboAPI.Domain.Entities
         public int Level { get; set; }
         public int TargetValue { get; set; }
         public int RewardXP { get; set; }
+        public bool IsCompleted = false;
     }
 
 }

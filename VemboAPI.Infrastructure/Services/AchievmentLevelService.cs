@@ -52,6 +52,22 @@ namespace VemboAPI.Infrastructure.Services
             }, ttl: null);
         }
 
+        public async Task<bool> CheckIsNextLevel(int achievementId, int currentLevel)
+        {
+            var v = await _ver.GetVersionAsync();
+            var key = $"content:achievement-levell:is-next-level:v{v}";
+
+            return await _cache.GetOrSetAsync(key, async () =>
+            {
+                var level = await _dbContext.AchievementLevels
+                    .Where(achievementLevel => achievementLevel.AchievementId == achievementId)
+                    .Where(achievementLevel => achievementLevel.Level == currentLevel + 1)
+                    .FirstOrDefaultAsync();
+
+                return level == null;
+            });
+        }
+
         public async Task<AchievementLevelDto> CreateAsync(CreateAchievementLevelDto dto)
         {
             if (!await _dbContext.Achievements.AnyAsync(a => a.Id == dto.AchievementId))

@@ -67,6 +67,70 @@ namespace VemboAPI.Infrastructure.Services
             return dto!;
         }
 
+        public async Task<List<QuestDto>> GetAllMonthly()
+        {
+            var version = await _versionService.GetVersionAsync();
+            var cacheKey = $"content:quest:all:monthly:v{version}";
+
+            return await _cache.GetOrSetAsync(cacheKey, async () =>
+            {
+                var quests = await _dbContext.Quests
+                    .AsNoTracking()
+                    .Include(quest => quest.QuestDefinition)
+                    .Include(quest => quest.QuestType)
+                    .Where(quest => quest.QuestType.Type == "monthly")
+                    .ToListAsync();
+
+                return _mapper.Map<List<QuestDto>>(quests);
+            });
+        }
+
+        public async Task<QuestDto> GetCurrentMonthly()
+        {
+            var version = await _versionService.GetVersionAsync();
+            var cacheKey = $"content:quest:current:monthly:v{version}";
+
+            var dto = await _cache.GetOrSetAsync(cacheKey, async () =>
+            {
+                var quest = await _dbContext.Quests
+                    .AsNoTracking()
+                    .Include(quest => quest.QuestDefinition)
+                    .Include(quest => quest.QuestType)
+                    .Where(quest => quest.QuestType.Type == "monthly")
+                    .OrderBy(quest => quest.Id)
+                    .LastOrDefaultAsync();
+
+                if (quest == null)
+                {
+                    throw new KeyNotFoundException($"Monthly Quest not found.");
+                }
+
+                return _mapper.Map<QuestDto>(quest);
+            });
+
+            return dto;
+        }
+
+        public async Task<List<QuestDto>> GetCurrentDaily()
+        {
+            var version = await _versionService.GetVersionAsync();
+            var cacheKey = $"content:quest:current:daily:v{version}";
+
+            await _cache.RemoveAsync(cacheKey);
+
+            return await _cache.GetOrSetAsync(cacheKey, async () =>
+            {
+                var quests = await _dbContext.Quests
+                    .AsNoTracking()
+                    .Include(quest => quest.QuestDefinition)
+                    .Include(quest => quest.QuestType)
+                    .Where(quest => quest.QuestType.Type == "daily")
+                    .ToListAsync();
+
+                return _mapper.Map<List<QuestDto>>(quests);
+            });
+        }
+
         public async Task<QuestDto> CreateAsync(CreateQuestDto dto)
         {
             if (!await _dbContext.QuestDefinitions.AnyAsync(q => q.Id == dto.QuestDefinitionId))

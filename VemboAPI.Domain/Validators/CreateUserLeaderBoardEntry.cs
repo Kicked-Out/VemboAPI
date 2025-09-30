@@ -9,7 +9,7 @@ namespace VemboAPI.Domain.Validators
         public CreateUserLeaderBoardEntryDtoValidator()
         {
             RuleFor(x => x.UserId).NotNull();
-            RuleFor(x => x.XP).GreaterThanOrEqualTo(0);
+            RuleFor(x => x.TotalXP).GreaterThanOrEqualTo(0);
             RuleFor(x => x.Rank).GreaterThanOrEqualTo(0);
         }
     }

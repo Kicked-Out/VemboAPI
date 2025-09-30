@@ -3,7 +3,6 @@ using VemboAPI.Infrastructure.Interfaces;
 using VemboAPI.Domain.Entities;
 using VemboAPI.Domain.DTOs;
 using AutoMapper;
-using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -30,7 +29,6 @@ namespace VemboAPI.Infrastructure.Services
             user.Level = 1;
             user.Rating = 0;
             user.IsPremium = false;
-            user.XP = 0;
             user.CreatedAt = DateTime.UtcNow;
             user.UpdatedAt = DateTime.UtcNow;
 

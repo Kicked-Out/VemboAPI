@@ -56,22 +56,22 @@ namespace VemboAPI.Jobs
             // але послідовно теж ок для стабільності.
 
             // Базовий контент
-            _periods.GetAllPeriods();
-            _topics.GetAllTopics();
-            _units.GetAllUnits();
-            _lessons.GetAllLessons();
+            await _periods.GetAllPeriods();
+            await _topics.GetAllTopics();
+            await _units.GetAllUnits();
+            await _lessons.GetAllLessons();
 
             // Довідники / типи
-            _exerciseTypes.GetAllExerciseTypes();
-            _levelTypes.GetAll();
+            await _exerciseTypes.GetAllExerciseTypes();
+            await _levelTypes.GetAll();
 
             // Рівні
-            _levels.GetAllLevels();
+            await _levels.GetAllLevels();
 
             // Вправи, питання, відповіді
-            _exercises.GetAllExercise();
-            _questions.GetAllQuestions();
-            _answers.GetAllAnswers();
+            await _exercises.GetAllExercise();
+            await _questions.GetAllQuestions();
+            await _answers.GetAllAnswers();
 
             // Гайдбуки
             _guidebooks.GetAll();
