@@ -7,6 +7,7 @@ namespace VemboAPI.Domain.DTOs
         public int Level { get; set; }
         public int TargetValue { get; set; }
         public int RewardXP { get; set; }
+        public bool IsCompleted { get; set; }
     }
 }
 

@@ -1,7 +1,5 @@
-﻿using System;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Data;
 using VemboAPI.Domain.DTOs;
 using VemboAPI.Infrastructure.Interfaces;
 
@@ -46,6 +44,21 @@ namespace VemboAPI.API.Controllers
                 return Ok(await _service.GetByAchievementIdAndLevelId(achievementId, levelId));
             }
             catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
+        [Authorize]
+        [HttpGet("Achievement/{achievementId}/Level/{currentLevel}/IsNextLevel")]
+        public async Task<IActionResult> CheckIsNextLevel(int achievementId, int currentLevel)
+        {
+            try
+            {
+                bool isNextLevel = await _service.CheckIsNextLevel(achievementId, currentLevel);
+
+                return Ok(isNextLevel);
+            } catch (KeyNotFoundException ex)
             {
                 return NotFound(ex.Message);
             }

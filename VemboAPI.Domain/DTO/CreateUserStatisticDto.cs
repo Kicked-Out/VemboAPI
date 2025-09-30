@@ -7,6 +7,7 @@ namespace VemboAPI.Domain.DTOs
         public int Streak { get; set; } = 0;
         public int VBucks { get; set; } = 0;
         public int Hearts { get; set; } = 5;
+        public int TotalXP { get; set; }
         public int CurrentPeriodId { get; set; }
         public int CurrentLevelId { get; set; }
     }
