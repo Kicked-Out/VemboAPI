@@ -14,6 +14,7 @@ namespace VemboAPI.Domain.Entities
         public int CurrentLevel { get; set; } = 1;
         public int Progress { get; set; } = 0;
         public DateTime EarnedAt { get; set; }
+        public bool IsCompleted { get; set; } = false;
     }
 
 }
