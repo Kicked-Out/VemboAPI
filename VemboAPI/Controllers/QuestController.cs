@@ -39,6 +39,39 @@ namespace VemboAPI.API.Controllers
             }
         }
 
+        [Authorize]
+        [HttpGet("monthly")]
+
+        [Authorize]
+        [HttpGet("Current/Monthly")]
+        public async Task<IActionResult> GetCurrentMonthly()
+        {
+            try
+            {
+                var quest = await _questService.GetCurrentMonthly();
+
+                return Ok(quest);
+            } catch (KeyNotFoundException ex)
+            {
+                return NotFound();
+            }
+        }
+
+        [Authorize]
+        [HttpGet("Current/Daily")]
+        public async Task<IActionResult> GetCurrentDaily()
+        {
+            try
+            {
+                var quests = await _questService.GetCurrentDaily();
+
+                return Ok(quests);
+            } catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+        }
+
         [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CreateQuestDto dto)

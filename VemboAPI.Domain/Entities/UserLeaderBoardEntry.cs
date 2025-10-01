@@ -7,8 +7,7 @@ namespace VemboAPI.Domain.Entities
 
         public string UserId { get; set; }
         public User User { get; set; }
-
-        public int XP { get; set; } = 0;
+        public int TotalXP { get; set; } = 0;
         public int Rank { get; set; } = 0;
     }
 

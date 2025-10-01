@@ -39,6 +39,38 @@ namespace VemboAPI.API.Controllers
             }
         }
 
+        [Authorize]
+        [HttpGet("quest/{questId}")]
+        public async Task<IActionResult> GetByQuestId(int questId)
+        {
+            try
+            {
+                string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
+
+                var quest = await _userQuestProgressService.GetByQuestId(userId, questId);
+
+                return Ok(quest);
+            } catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
+        [Authorize]
+        [HttpGet("monthly")]
+        public async Task<IActionResult> GetAllMonthly()
+        {
+            try
+            {
+                var quests = await _userQuestProgressService.GetAllMonthly();
+
+                return Ok(quests);
+            } catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
         [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CreateUserQuestProgressDto dto)

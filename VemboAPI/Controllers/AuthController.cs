@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
+using System.Threading.Tasks;
 using VemboAPI.Domain.DTOs;
 using VemboAPI.Domain.Entities;
 using VemboAPI.Infrastructure.Data;
 using VemboAPI.Infrastructure.Interfaces;
+using VemboAPI.Infrastructure.Services;
 
 namespace VemboAPI.Controllers
 {
@@ -20,8 +20,10 @@ namespace VemboAPI.Controllers
         private readonly IConfiguration _configuration;
         private readonly IUserManager _userManager;
         private readonly IEmailService _emailService;
+        private readonly IAchievementService _achievementService;
+        private readonly IQuestService _questService;
 
-        public AuthController(VemboDbContext context, IJwtTokenGenerator jwtTokenGenerator, IPasswordHasher<User> passwordHasher, IConfiguration configuration, IUserManager userManager, IEmailService emailService)
+        public AuthController(VemboDbContext context, IJwtTokenGenerator jwtTokenGenerator, IPasswordHasher<User> passwordHasher, IConfiguration configuration, IUserManager userManager, IEmailService emailService, IAchievementService achievementService, IUserAchievementService userAchievementService, IQuestService questService, IUserQuestProgressService userQuestProgressService)
         {
             _context = context;
             _jwtTokenGenerator = jwtTokenGenerator;
@@ -29,6 +31,8 @@ namespace VemboAPI.Controllers
             _configuration = configuration;
             _userManager = userManager;
             _emailService = emailService;
+            _achievementService = achievementService;
+            _questService = questService;
         }
 
         [HttpPost("login")]
@@ -36,8 +40,16 @@ namespace VemboAPI.Controllers
         {
             var user = _context.Users.FirstOrDefault(u => u.Email == dto.Email);
 
+
             if (user == null)
                 return Unauthorized("Invalid credentials");
+
+            var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, dto.Password);
+
+            if (result == PasswordVerificationResult.Failed)
+            {
+                return Unauthorized("Invalid password");
+            }
 
             var token = _jwtTokenGenerator.GenerateToken(user);
             var jwtSettings = _configuration.GetSection("Jwt");
@@ -54,7 +66,7 @@ namespace VemboAPI.Controllers
         }
 
         [HttpPost("register")]
-        public IActionResult Register([FromBody] RegisterDto dto)
+        public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {
             if (_context.Users.Any(u => u.Email == dto.Email))
                 return Conflict("Email already exists.");
@@ -68,7 +80,6 @@ namespace VemboAPI.Controllers
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 IsPremium = false,
-                XP = 0,
                 Rating = 0,
                 Level = 1,
                 Role = "User",
@@ -166,7 +177,54 @@ namespace VemboAPI.Controllers
             _context.UserLessonProgresses.Add(userLessonProgress2);
             _context.UserLessonProgresses.Add(userLessonProgress3);
             _context.UserLessonProgresses.Add(userLessonProgress4);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
+
+            var achievements = await _achievementService.GetAllAsync();
+
+            foreach (var achievement in achievements)
+            {
+                UserAchievement userAchievement = new UserAchievement
+                {
+                    UserId = newUser.Id,
+                    AchievementId = achievement.Id,
+                    CurrentLevel = 1,
+                    Progress = 0,
+                    EarnedAt = DateTime.Now
+                };
+
+                await _context.UserAchievements.AddAsync(userAchievement);
+            }
+
+            await _context.SaveChangesAsync();
+
+            var dailyQuests = await _questService.GetCurrentDaily();
+
+            foreach (var dailyQuest in dailyQuests)
+            {
+                UserQuestProgress userDailyQuestProgress = new UserQuestProgress
+                {
+                    UserId = newUser.Id,
+                    QuestId = dailyQuest.Id,
+                    Progress = 0,
+                    IsCompleted = false,
+                };
+
+                await _context.UserQuestProgresses.AddAsync(userDailyQuestProgress);
+            }
+
+            var monthlyQuest = await _questService.GetCurrentMonthly();
+
+            UserQuestProgress userMonthlyQuestProgress = new UserQuestProgress
+            {
+                UserId = newUser.Id,
+                QuestId = monthlyQuest.Id,
+                Progress = 0,
+                IsCompleted = false,
+            };
+
+            await _context.UserQuestProgresses.AddAsync(userMonthlyQuestProgress);
+
+            await _context.SaveChangesAsync();
 
             var token = _jwtTokenGenerator.GenerateToken(newUser);
             var jwtSettings = _configuration.GetSection("Jwt");
@@ -192,12 +250,18 @@ namespace VemboAPI.Controllers
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
         {
+            if (dto.Email == null)
+            {
+                return NotFound();
+            }
+
             var user = _context.Users.FirstOrDefault(u => u.Email == dto.Email);
             if (user == null)
                 return NotFound("User not found");
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-            var callback = $"https://example.com/reset-password?token={token}&email={user.Email}";
+
+            var callback = $"http://localhost:5173/reset-password?token={token}&email={user.Email}";
             await _emailService.SendEmailAsync(user.Email, "Vembo Password reset token", callback);
 
             return Ok();
@@ -210,9 +274,10 @@ namespace VemboAPI.Controllers
             if (user == null)
                 return NotFound("User not found");
 
-            var result = await _userManager.ResetPasswordAsync(user, dto.Token!, dto.Password!);
-            if (!result)
-                return BadRequest("Invalid token or email");
+            user.PasswordHash = _passwordHasher.HashPassword(user, dto.Password);
+
+            _context.Update(user);
+            await _context.SaveChangesAsync();
 
             return Ok();
         }

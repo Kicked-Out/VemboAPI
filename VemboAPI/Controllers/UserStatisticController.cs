@@ -5,6 +5,7 @@ using System.Data;
 using VemboAPI.Domain.DTOs;
 using VemboAPI.Infrastructure.Interfaces;
 using System.Security.Claims;
+using VemboAPI.Domain.DTO;
 
 namespace VemboAPI.API.Controllers
 {
@@ -87,6 +88,40 @@ namespace VemboAPI.API.Controllers
                 return Ok();
             }
             catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
+        }
+
+        [Authorize]
+        [HttpPut("Current/TotalXP")]
+        public async Task<IActionResult> UpdateTotalXP([FromBody] UpdateUserTotalXPDto dto)
+        {
+            try
+            {
+                string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
+
+                await _service.UpdateTotalXP(userId, dto);
+
+                return Ok();
+            } catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
+        [Authorize]
+        [HttpPut("Current/Coins")]
+        public async Task<IActionResult> UpdateCoins([FromBody] UpdateUserCoinsDto dto)
+        {
+            try
+            {
+                string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
+
+                await _service.UpdateCoins(userId, dto);
+
+                return Ok();
+            } catch(KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [Authorize(Roles = "Admin")]

@@ -6,6 +6,7 @@ namespace VemboAPI.Domain.DTOs
         public int CurrentLevel { get; set; }
         public int Progress { get; set; }
         public DateTime EarnedAt { get; set; }
+        public bool IsCompleted { get; set; }
     }
 }
 

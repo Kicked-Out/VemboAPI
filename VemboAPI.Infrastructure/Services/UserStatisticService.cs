@@ -4,6 +4,7 @@ using VemboAPI.Domain.Entities;
 using VemboAPI.Infrastructure.Data;
 using VemboAPI.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using VemboAPI.Domain.DTO;
 
 namespace VemboAPI.Infrastructure.Services
 {
@@ -61,6 +62,34 @@ namespace VemboAPI.Infrastructure.Services
                 ?? throw new KeyNotFoundException($"UserStatistic with ID {id} not found.");
 
             _mapper.Map(dto, stat);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task UpdateTotalXP(string userId, UpdateUserTotalXPDto dto)
+        {
+            var stat = await _dbContext.UserStatistics
+                .Where(userStatistic => userStatistic.UserId == userId)
+                .FirstOrDefaultAsync()
+                    ?? throw new KeyNotFoundException($"UserStatistic with UserId {userId} not found.");
+
+            stat.TotalXP += dto.TotalXP;
+
+            _dbContext.Update(stat);
+
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task UpdateCoins(string userId, UpdateUserCoinsDto dto)
+        {
+            var stat = await _dbContext.UserStatistics
+                .Where(userStatistic => userStatistic.UserId == userId)
+                .FirstOrDefaultAsync()
+                    ?? throw new KeyNotFoundException($"UserStatistic with UserId {userId} not found.");
+
+            stat.VBucks += dto.VBucks;
+
+            _dbContext.Update(stat);
+
             await _dbContext.SaveChangesAsync();
         }
 

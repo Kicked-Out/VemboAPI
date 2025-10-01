@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using VemboAPI.Domain.DTOs;
 
 namespace VemboAPI.Infrastructure.Interfaces
@@ -8,6 +6,9 @@ namespace VemboAPI.Infrastructure.Interfaces
     {
         Task<List<QuestDto>> GetAllAsync();
         Task<QuestDto> GetByIdAsync(int id);
+        Task<List<QuestDto>> GetAllMonthly();
+        Task<QuestDto> GetCurrentMonthly();
+        Task<List<QuestDto>> GetCurrentDaily();
         Task<QuestDto> CreateAsync(CreateQuestDto dto);
         Task UpdateAsync(int id, UpdateQuestDto dto);
         Task DeleteAsync(int id);

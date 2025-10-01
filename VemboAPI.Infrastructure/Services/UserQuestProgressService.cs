@@ -65,6 +65,40 @@ namespace VemboAPI.Infrastructure.Services
             return dto!;
         }
 
+        public async Task<UserQuestProgressDto> GetByQuestId(string userId, int questId)
+        {
+            var version = await _versionService.GetVersionAsync();
+            var cacheKey = $"user-quest-progress:quest-id{questId}:user:{userId}:v{version}";
+
+            var dto = await _cache.GetOrSetAsync(cacheKey, async () =>
+            {
+                var progress = await _dbContext.UserQuestProgresses
+                    .AsNoTracking()
+                    .Include(userQuestProgress => userQuestProgress.Quest)
+                    .FirstOrDefaultAsync(userQuestProgress => userQuestProgress.QuestId == questId && userQuestProgress.UserId == userId);
+
+                return _mapper.Map<UserQuestProgressDto>(progress);
+            });
+
+            return dto;
+        }
+
+        public async Task<List<UserQuestProgressDto>> GetAllMonthly()
+        {
+            var version = await _versionService.GetVersionAsync();
+            var cacheKey = $"user-quest-progress:all:monthly:v{version}";
+
+            return await _cache.GetOrSetAsync(cacheKey, async () =>
+            {
+                var progress = await _dbContext.UserQuestProgresses
+                    .AsNoTracking()
+                    .Include(userQuestProgress => userQuestProgress.Quest)
+                    .ToListAsync();
+
+                return _mapper.Map<List<UserQuestProgressDto>>(progress);
+            });
+        }
+
         public async Task<UserQuestProgressDto> CreateAsync(CreateUserQuestProgressDto dto)
         {
             if (!await _dbContext.Users.AnyAsync(u => u.Id == dto.UserId))

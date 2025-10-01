@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using VemboAPI.Domain.DTOs;
 using VemboAPI.Infrastructure.Interfaces;
+using VemboAPI.Domain.DTO;
 
 namespace VemboAPI.API.Controllers
 {
@@ -52,6 +53,23 @@ namespace VemboAPI.API.Controllers
                 return Ok();
             }
             catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
+        }
+
+        [Authorize]
+        [HttpPut("Current/TotalXP")]
+        public async Task<IActionResult> UpdateTotalXP([FromBody] UpdateUserTotalXPDto dto)
+        {
+            try
+            {
+                string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
+
+                await _service.UpdateTotalXPAsync(userId, dto);
+
+                return Ok();
+            } catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [Authorize(Roles = "Admin")]

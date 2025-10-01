@@ -4,6 +4,7 @@ using VemboAPI.Domain.Entities;
 using VemboAPI.Infrastructure.Data;
 using VemboAPI.Infrastructure.Interfaces; // ICacheService
 using Microsoft.EntityFrameworkCore;
+using VemboAPI.Domain.DTO;
 
 namespace VemboAPI.Infrastructure.Services
 {
@@ -81,6 +82,23 @@ namespace VemboAPI.Infrastructure.Services
             // інвалідація кешу
             await _cache.RemoveAsync(AllKey);
             await _cache.RemoveAsync(UserKey(id));
+        }
+
+        public async Task UpdateTotalXPAsync(string userId, UpdateUserTotalXPDto dto)
+        {
+            var entry = await _dbContext.UserLeaderBoardEntries
+                .Where(userLeaderBoardEntry => userLeaderBoardEntry.UserId == userId)
+                .FirstOrDefaultAsync()
+                    ?? throw new KeyNotFoundException($"Leaderboard entry with UserId {userId} not found.");
+
+            entry.TotalXP = dto.TotalXP;
+
+            _dbContext.Update(entry);
+
+            await _dbContext.SaveChangesAsync();
+
+            await _cache.RemoveAsync(AllKey);
+            await _cache.RemoveAsync(UserKey(entry.Id));
         }
 
         public async Task DeleteAsync(int id)
