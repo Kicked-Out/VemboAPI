@@ -45,7 +45,9 @@ namespace VemboAPI.API.Controllers
         {
             try
             {
-                var quest = await _userQuestProgressService.GetByQuestId(questId);
+                string userId = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value!;
+
+                var quest = await _userQuestProgressService.GetByQuestId(userId, questId);
 
                 return Ok(quest);
             } catch (KeyNotFoundException ex)

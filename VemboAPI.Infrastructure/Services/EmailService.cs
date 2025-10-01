@@ -18,6 +18,10 @@ namespace VemboAPI.Infrastructure.Services
 
         public async Task SendEmailAsync(string email, string subject, string message)
         {
+            if (email == null)
+            {
+                return;
+            }
             var mailMessage = new MimeMessage();
             mailMessage.From.Add(MailboxAddress.Parse(_settings.From));
             mailMessage.To.Add(MailboxAddress.Parse(email));
